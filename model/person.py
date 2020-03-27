@@ -1,3 +1,7 @@
+import enum
+
+import random
+
 class Person:
     def __init__(self, name, age, home, workplace):
         self.name = name
@@ -5,8 +9,9 @@ class Person:
         self.home = home
         self.workplace = workplace
         self.currentPosition = home
-        self.currentDestination = workplace
-        self.progress = 0.0
+        self.currentDestination = home
+        self.progress = 1.0
+        self.timeLeft = random.randrange(0, 2000)
 
     def setDestination(self, dest):
         self.currentDestination = dest
@@ -18,7 +23,16 @@ class Person:
 
     def update(self, delta):
         if self.currentPosition != self.currentDestination:
-            self.progress += delta
+            self.progress += delta / 5000
             if self.progress >= 1.0:
                 self.progress = 1.0
                 self.currentPosition = self.currentDestination
+        else:
+            self.timeLeft -= delta
+            if self.timeLeft < 0:
+                if self.currentPosition == self.workplace:
+                    self.setDestination(self.home)
+                    self.timeLeft = random.randrange(14000, 16000)
+                elif self.currentPosition == self.home:
+                    self.setDestination(self.workplace)
+                    self.timeLeft = random.randrange(7000, 9000)
