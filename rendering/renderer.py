@@ -100,25 +100,6 @@ class Renderer:
 
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-        """        
-        startX = int(max(0, self.camera.x // CELL_SIZE - 1))
-        startY = int(max(0, self.camera.y // CELL_SIZE - 1))
-        endX = int(min(grid.size, (self.camera.x + self.camera.screenWidth) // CELL_SIZE + 1))
-        endY = int(min(grid.size, (self.camera.y + self.camera.screenHeight) // CELL_SIZE + 1))
-
-        for x in range(startX, endX):
-            for y in range(startY, endY):
-                thePlace = grid.get(x,y)
-                color = self.colors[thePlace.char.placeType.value]
-                self.drawRect(
-                        CELL_SIZE*thePlace.x, 
-                        CELL_SIZE*thePlace.y,
-                        PLACE_SIZE, 
-                        PLACE_SIZE,
-                        color,
-                        0)
-        """
-
 
         for thePerson in persons:
             x,y = thePerson.getXY(now)

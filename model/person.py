@@ -2,6 +2,8 @@ import enum
 import math
 import random
 
+from simulation import time
+
 MINUTES_PER_CELL = 0.5
 
 class Person:
@@ -12,30 +14,29 @@ class Person:
         self.workplace = workplace
         self.currentPosition = home
         self.currentDestination = home
-        self.lastAction = -60
-        self.nextAction = random.randrange(0, 120)
+        self.lastAction = time.Timestamp(0)
+        self.nextAction = time.Timestamp(random.randrange(time.HOUR * 8, time.HOUR * 10))
 
     def setDestination(self, dest, now):
-        self.lastAction = now
-        today = (now // (24 * 60)) * 24 * 60
+        self.lastAction.set(now.now())
         if dest == self.currentPosition:
             if dest == self.home:
-                self.nextAction = today + 24 * 60 + random.randrange(0, 120)
+                self.nextAction.set(now.today() + time.DAY + random.randrange(time.HOUR * 8, time.HOUR * 10))
             else:
-                self.nextAction = now + 7 * 60 + random.randrange(0, 60)
+                self.nextAction.set(now.now() + time.HOUR * 7 + time.MINUTE * 30 + random.randrange(0, time.HOUR))
         else:
             distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
-            self.nextAction = now + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1)
+            self.nextAction.set(now.now() + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1) * time.MINUTE)
 
         self.currentDestination = dest
     
-    def getXY(self, now):
-        progress = (now - self.lastAction) / (self.nextAction - self.lastAction)
+    def getXY(self, now: time.Timestamp):
+        progress = (now.now() - self.lastAction.now()) / (self.nextAction.now() - self.lastAction.now())
         return (self.currentPosition.x + (self.currentDestination.x - self.currentPosition.x) * progress,
             self.currentPosition.y + (self.currentDestination.y - self.currentPosition.y) * progress)
 
     def update(self, now):
-        if now < self.nextAction:
+        if now.now() < self.nextAction.now():
             return
 
         if self.currentPosition == self.currentDestination:
