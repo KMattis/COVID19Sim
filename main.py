@@ -29,7 +29,10 @@ while running:
     theSimulation.simulate(deltaTime)
 
     if deltaTime > 0 and loops % 10 == 0:
-        print("FPS:", 1000 / deltaTime)
+        # print("FPS:", 1000 / deltaTime)
+        m = int(theSimulation.minute) % 3600
+        print(m // 60, ":", m % 60, sep="")
+    
 
     loops += 1
 

@@ -11,7 +11,7 @@ class Person:
         self.currentPosition = home
         self.currentDestination = home
         self.progress = 1.0
-        self.timeLeft = random.randrange(0, 2000)
+        self.timeLeft = random.randrange(0, 120)
 
     def setDestination(self, dest):
         self.currentDestination = dest
@@ -23,7 +23,7 @@ class Person:
 
     def update(self, delta):
         if self.currentPosition != self.currentDestination:
-            self.progress += delta / 5000
+            self.progress += delta / 60
             if self.progress >= 1.0:
                 self.progress = 1.0
                 self.currentPosition = self.currentDestination
@@ -32,7 +32,7 @@ class Person:
             if self.timeLeft < 0:
                 if self.currentPosition == self.workplace:
                     self.setDestination(self.home)
-                    self.timeLeft = random.randrange(14000, 16000)
+                    self.timeLeft = random.randrange(60 * 13, 60 * 15)
                 elif self.currentPosition == self.home:
                     self.setDestination(self.workplace)
-                    self.timeLeft = random.randrange(7000, 9000)
+                    self.timeLeft = random.randrange(60 * 7, 60 * 9)

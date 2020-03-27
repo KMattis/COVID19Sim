@@ -73,9 +73,9 @@ class Renderer:
             self.drawRectChecked(
                     x * CELL_SIZE,
                     y * CELL_SIZE,
-                    PLACE_SIZE,
-                    PLACE_SIZE,
-                    (255, 128, 0),
+                    PLACE_SIZE // 2,
+                    PLACE_SIZE // 2,
+                    (0, 0, 0),
                     3)
     
         glFlush()
