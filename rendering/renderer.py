@@ -11,8 +11,8 @@ import numpy
 import pygame
 from pygame.locals import *
 
-DISPLAY_WIDTH = 1000
-DISPLAY_HEIGHT = 1000
+DISPLAY_WIDTH = 1100
+DISPLAY_HEIGHT = 1100
 
 CELL_SIZE = 21
 PLACE_SIZE = 11
@@ -59,7 +59,7 @@ class Renderer:
         glBufferData(GL_ARRAY_BUFFER, ADT.arrayByteCount(vertexBufferData), ADT.voidDataPointer(vertexBufferData), GL_STATIC_DRAW)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-    def render(self, grid, persons, deltaTime):
+    def render(self, grid, persons, deltaTime, now):
         running = True
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -121,7 +121,7 @@ class Renderer:
 
 
         for thePerson in persons:
-            x,y = thePerson.getXY()
+            x,y = thePerson.getXY(now)
             self.drawRectChecked(
                     x * CELL_SIZE,
                     y * CELL_SIZE,

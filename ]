@@ -8,7 +8,7 @@ from simulation.simulation import Simulation
 def getCurrentTimeMillis():
     return round(time.time() * 1000)
 
-theGrid = generation.grid_generator.generate(50)
+theGrid = generation.grid_generator.generate(200)
 persons = generation.person_generator.generate(theGrid, 10000)
 
 theRenderer = Renderer()
@@ -31,8 +31,8 @@ while running:
 
     if deltaTime > 0 and loops % 10 == 0:
         # print("FPS:", 1000 / deltaTime)
-        m = int(theSimulation.minute)
-        print(m // (24 * 60),  (m // 60) % 24, m % 60, sep=":")
+        m = int(theSimulation.minute) % 3600
+        print(m // 60, ":", m % 60, sep="")
     
 
     loops += 1
