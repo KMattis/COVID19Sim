@@ -50,10 +50,11 @@ class Renderer:
                         PLACE_SIZE))
 
         for thePerson in persons:
+            x,y = thePerson.getXY()
             pygame.draw.rect(self.display,
                     (255, 128, 0),
-                    (self.camera.getRelXPos(thePerson.home.x * CELL_SIZE),
-                        self.camera.getRelYPos(thePerson.home.y * CELL_SIZE),
+                    (self.camera.getRelXPos(x * CELL_SIZE),
+                        self.camera.getRelYPos(y * CELL_SIZE),
                         PLACE_SIZE,
                         PLACE_SIZE),
                     3)

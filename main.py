@@ -21,5 +21,7 @@ while running:
 
     running = theRenderer.render(theGrid, persons, deltaTime)
 
+    for thePerson in persons:
+        thePerson.update(deltaTime / 5000)
 
 theRenderer.quit()
