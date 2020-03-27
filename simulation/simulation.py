@@ -6,6 +6,6 @@ class Simulation:
         self.persons = persons
 
     def simulate(self, delta):
-        self.minute += delta / 1000 * 100
+        self.minute += delta / 1000 * 10
         for thePerson in self.persons:
             thePerson.update(self.minute)

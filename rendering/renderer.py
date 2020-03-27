@@ -27,7 +27,7 @@ class Renderer:
         glClearColor(255,255,255,255)
         pygame.display.set_caption("COVID-19 Simulation")
         self.camera = camera.Camera(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)
-        self.colors = { 0: (0, 0, 255), 1: (255, 0, 0), 2: (128, 0, 128), 4: (0, 128, 0) }
+        self.colors = { -1: (255,255,255), 0: (0, 0, 255), 1: (255, 0, 0), 2: (128, 0, 128), 4: (0, 0.5, 0) }
 
         self.placesVertexBuffer = None
  

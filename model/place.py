@@ -1,6 +1,7 @@
 import enum
 
 class PlaceType(enum.Enum):
+    NONE = -1
     HOME = 0
     SERVICE = 1
     NONSERVICE = 2

@@ -8,7 +8,7 @@ from simulation.simulation import Simulation
 def getCurrentTimeMillis():
     return round(time.time() * 1000)
 
-theGrid = generation.grid_generator.generate(50)
+theGrid = generation.grid_generator.generate(100)
 persons = generation.person_generator.generate(theGrid, 10000)
 
 theRenderer = Renderer()

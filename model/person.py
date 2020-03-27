@@ -1,6 +1,8 @@
 import enum
-
+import math
 import random
+
+MINUTES_PER_CELL = 0.5
 
 class Person:
     def __init__(self, name, age, home, workplace):
@@ -22,7 +24,8 @@ class Person:
             else:
                 self.nextAction = now + 7 * 60 + random.randrange(0, 60)
         else:
-            self.nextAction = now + random.randrange(20, 40)
+            distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
+            self.nextAction = now + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1)
 
         self.currentDestination = dest
     
