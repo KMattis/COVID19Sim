@@ -7,8 +7,8 @@ from rendering.renderer import Renderer
 def getCurrentTimeMillis():
     return round(time.time() * 1000)
 
-theGrid = generation.grid_generator.generate(100)
-persons = generation.person_generator.generate(theGrid, 100)
+theGrid = generation.grid_generator.generate(200)
+persons = generation.person_generator.generate(theGrid, 100000)
 
 theRenderer = Renderer()
 
@@ -23,5 +23,8 @@ while running:
 
     for thePerson in persons:
         thePerson.update(deltaTime / 5000)
+
+    if deltaTime > 0:
+        print("FPS:", 1000 / deltaTime)
 
 theRenderer.quit()

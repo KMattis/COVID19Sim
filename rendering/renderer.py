@@ -16,7 +16,7 @@ class Renderer:
         pygame.display.init()
         self.display = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
         pygame.display.set_caption("COVID-19 Simulation")
-        self.camera = camera.Camera(0, 0)
+        self.camera = camera.Camera(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)
         self.colors = { 0: (0, 0, 255), 1: (255, 0, 0), 2: (128, 0, 128), 4: (0, 128, 0) }
     
     def render(self, grid, persons, deltaTime):
@@ -40,28 +40,48 @@ class Renderer:
     
         self.display.fill((255, 255, 255))
     
-        for thePlace in grid.internal_grid:
-            color = self.colors[thePlace.char.placeType.value]
-            pygame.draw.rect(self.display,
-                    color, 
-                    (self.camera.getRelXPos(CELL_SIZE*thePlace.x), 
-                        self.camera.getRelYPos(CELL_SIZE*thePlace.y),
+        
+        startX = max(0, self.camera.x // CELL_SIZE - 1)
+        startY = max(0, self.camera.y // CELL_SIZE - 1)
+        endX = min(grid.size, (self.camera.x + self.camera.screenWidth) // CELL_SIZE + 1)
+        endY = min(grid.size, (self.camera.y + self.camera.screenHeight) // CELL_SIZE + 1)
+
+        for x in range(startX, endX):
+            for y in range(startY, endY):
+                thePlace = grid.get(x,y)
+                color = self.colors[thePlace.char.placeType.value]
+                self.drawRect(
+                        CELL_SIZE*thePlace.x, 
+                        CELL_SIZE*thePlace.y,
                         PLACE_SIZE, 
-                        PLACE_SIZE))
+                        PLACE_SIZE,
+                        color,
+                        0)
 
         for thePerson in persons:
             x,y = thePerson.getXY()
-            pygame.draw.rect(self.display,
-                    (255, 128, 0),
-                    (self.camera.getRelXPos(x * CELL_SIZE),
-                        self.camera.getRelYPos(y * CELL_SIZE),
-                        PLACE_SIZE,
-                        PLACE_SIZE),
-                    3)
+            # self.drawRectChecked(
+            #         x * CELL_SIZE,
+            #         y * CELL_SIZE,
+            #         PLACE_SIZE,
+            #         PLACE_SIZE,
+            #         (255, 128, 0),
+            #         3)
     
         pygame.display.update()
         return running
     
     def quit(self):
         pygame.display.quit()
+
+    def drawRect(self, x, y, width, height, color, thickness):
+        pygame.draw.rect(self.display, color,
+            (self.camera.getRelXPos(x), self.camera.getRelYPos(y), width, height),
+            thickness)
+
+    def drawRectChecked(self, x, y, width, height, color, thickness):
+        if self.camera.onScreen(x, y, width, height):
+            pygame.draw.rect(self.display, color,
+                (self.camera.getRelXPos(x), self.camera.getRelYPos(y), width, height),
+                thickness)
     
