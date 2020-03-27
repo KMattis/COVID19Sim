@@ -114,8 +114,8 @@ class Renderer:
         #persons cannot be drawn via vbo because there positions change
         #we draw them directly as arrays
 
-        vertices = [thePerson.getXY(now) for thePerson in persons]
-        vertices = [[p[0] * CELL_SIZE + PLACE_SIZE // 2, p[1] * CELL_SIZE + PLACE_SIZE // 2] for p in vertices]
+        f = lambda p: [p[0] * CELL_SIZE + PLACE_SIZE // 2, p[1] * CELL_SIZE + PLACE_SIZE // 2] 
+        vertices = [f(thePerson.getXY(now)) for thePerson in persons]
 
         buffer = numpy.array(vertices, dtype=numpy.float32)
 
