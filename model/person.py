@@ -17,7 +17,8 @@ class Person:
             self.currentPosition.y + (self.currentDestination.y - self.currentPosition.y) * self.progress)
 
     def update(self, delta):
-        self.progress += delta
-        if self.progress >= 1.0:
-            self.progress = 1.0
-            self.currentPosition = self.currentDestination
+        if self.currentPosition != self.currentDestination:
+            self.progress += delta
+            if self.progress >= 1.0:
+                self.progress = 1.0
+                self.currentPosition = self.currentDestination
