@@ -1,4 +1,5 @@
 from rendering import camera
+from rendering.vbo import VertexBufferObject
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -29,7 +30,7 @@ class Renderer:
         self.camera = camera.Camera(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)
         self.colors = { -1: (255,255,255), 0: (0, 0, 255), 1: (255, 0, 0), 2: (128, 0, 128), 4: (0, 0.5, 0) }
 
-        self.placesVertexBuffer = None
+        self.vbo = None
  
     def initPlaceBuffer(self, grid):
         vertexBufferData = []
@@ -52,20 +53,23 @@ class Renderer:
                     vertexBufferData.append(float(color[1]))
                     vertexBufferData.append(float(color[2]))
 
-        vertexBufferData = numpy.array(vertexBufferData, dtype=numpy.float32)
+        self.vbo = VertexBufferObject(vertexBufferData)
 
-        self.placesVertexBuffer = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.placesVertexBuffer)
-        glBufferData(GL_ARRAY_BUFFER, ADT.arrayByteCount(vertexBufferData), ADT.voidDataPointer(vertexBufferData), GL_STATIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+    def setupProjectionMatrix(self):
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(self.camera.x, self.camera.x + self.camera.screenWidth,
+                self.camera.y, self.camera.y + self.camera.screenHeight,
+                -1, 1)
+        glMatrixMode(GL_MODELVIEW)
 
-    def render(self, grid, persons, deltaTime, now):
+    def fetchEvents(self, deltaTime):
         running = True
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
+            if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     running = False
-            if event.type == pygame.QUIT:
+            if event.type == QUIT:
                 running = False
 
         keys=pygame.key.get_pressed()
@@ -78,52 +82,47 @@ class Renderer:
         if keys[K_DOWN] or keys[K_s]:
             self.camera.move(0, -(deltaTime / 1000) * MOVEMENT_PER_SECOND)
 
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        glOrtho(self.camera.x, self.camera.x + self.camera.screenWidth,
-                self.camera.y, self.camera.y + self.camera.screenHeight,
-                -1, 1)
-        glMatrixMode(GL_MODELVIEW)
+        return running
+
+    def render(self, persons, now):
+        self.setupProjectionMatrix()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         #Draw the places
-        glBindBuffer(GL_ARRAY_BUFFER, self.placesVertexBuffer)
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glEnableClientState(GL_COLOR_ARRAY)
-
+        self.vbo.bind()
         glVertexPointer(2, GL_FLOAT, 5*4, None)
         glColorPointer(3, GL_FLOAT, 5*4, ctypes.c_void_p(8))
-        glDrawArrays(GL_TRIANGLES, 0, grid.size * grid.size * 6)
+        self.vbo.draw()
+        VertexBufferObject.unbind()
 
-        glDisableClientState(GL_COLOR_ARRAY)
-        glDisableClientState(GL_VERTEX_ARRAY)
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-
-        for thePerson in persons:
-            x,y = thePerson.getXY(now)
-            self.drawRectChecked(
-                    x * CELL_SIZE,
-                    y * CELL_SIZE,
-                    PLACE_SIZE // 2,
-                    PLACE_SIZE // 2,
-                    (0, 0, 0),
-                    3)
-    
+        #Draw the persons
+        self.drawPersons(persons, now)
+      
         glFlush()
         pygame.display.flip()
-        return running
     
     def quit(self):
         pygame.display.quit()
 
-    def drawRect(self, x, y, width, height, color, thickness):
-        r,g,b = color
-        glColor3f(r / 255, g / 255, b / 255)
-        glRectf(x, y, x + width, y + height)
-
-    def drawRectChecked(self, x, y, width, height, color, thickness):
+    def drawRect(self, x, y, width, height, color):
         if self.camera.onScreen(x, y, width, height):
-            self.drawRect(x, y, width, height, color, thickness)
-    
+            r,g,b = color
+            glColor3f(r / 255, g / 255, b / 255)
+            glRectf(x, y, x + width, y + height)
+
+    def drawPersons(self, persons, now):
+        #persons cannot be drawn via vbo because there positions change
+        #we draw them directly as arrays
+
+        vertices = [thePerson.getXY(now) for thePerson in persons]
+        vertices = [[p[0] * CELL_SIZE + PLACE_SIZE // 2, p[1] * CELL_SIZE + PLACE_SIZE // 2] for p in vertices]
+
+        buffer = numpy.array(vertices, dtype=numpy.float32)
+
+        glColor3f(0,0,0)
+        glPointSize(PLACE_SIZE * 0.65)
+
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glVertexPointerf(buffer)
+        glDrawArrays(GL_POINTS, 0, len(persons))
+        glDisableClientState(GL_VERTEX_ARRAY)

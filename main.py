@@ -9,7 +9,7 @@ def getCurrentTimeMillis():
     return round(time.time() * 1000)
 
 theGrid = generation.grid_generator.generate(50)
-persons = generation.person_generator.generate(theGrid, 100000)
+persons = generation.person_generator.generate(theGrid, 10000)
 
 theRenderer = Renderer()
 theRenderer.initPlaceBuffer(theGrid)
@@ -26,7 +26,9 @@ while running:
     deltaTime = now - lastUpdate
     lastUpdate = now
 
-    running = theRenderer.render(theGrid, persons, deltaTime, theSimulation.now)
+    running = theRenderer.fetchEvents(deltaTime)
+
+    theRenderer.render(persons, theSimulation.now)
     theSimulation.simulate(deltaTime)
 
     if deltaTime > 0 and loops % 10 == 0:

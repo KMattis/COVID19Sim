@@ -5,7 +5,6 @@ from model import grid, place
 
 def generate(size):
     theGrid = grid.Grid(size)
-    numGridPoints = size * size
     
     centerx = size / 2
     centery = size / 2
@@ -19,7 +18,6 @@ def generate(size):
                 pService = ((maxRadius - math.sqrt(radius2)) / maxRadius) * 0.5
                 pPark = 0.1
                 pNonService = 0.15
-                pHome = 1 - pService - pPark - pNonService
                 
                 p = random.random()
 
