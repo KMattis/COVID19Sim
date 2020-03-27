@@ -1,5 +1,3 @@
-import place
-
 class Person:
     def __init__(self, name, age, home, workplace):
         self.name = name

@@ -20,7 +20,7 @@ def generate(size):
 
     for i in range(size):
         for j in range(size):
-            thePlace = place.Place(i, j, "Place", population[i * size + j])
+            thePlace = place.Place(i, j, "Place", population[i + j * size])
             theGrid.addPlace(thePlace)  
 
     return theGrid
