@@ -1,14 +1,19 @@
+import time
+
+
 import generation.grid_generator, generation.person_generator
-import render.Renderer
+from rendering.renderer import Renderer
 
 theGrid = generation.grid_generator.generate(100)
-# theGrid.render()
+persons = generation.person_generator.generate(theGrid, 100)
 
-persons = generation.person_generator.generate(theGrid, 10000)
+theRenderer = Renderer()
 
-# for thePerson in persons:
-#     print(thePerson.home.x, thePerson.home.y)
+lastUpdate = time.Time()
+running = True
+while running:
+    running = theRenderer.render(theGrid, persons)
 
 
-render.Renderer.run(theGrid)
 
+theRenderer.quit()
