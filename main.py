@@ -9,7 +9,7 @@ def getCurrentTimeMillis():
     return round(time.time() * 1000)
 
 theGrid = generation.grid_generator.generate(50)
-persons = generation.person_generator.generate(theGrid, 10000)
+persons = generation.person_generator.generate(theGrid, 100000)
 
 theRenderer = Renderer()
 theRenderer.initPlaceBuffer(theGrid)

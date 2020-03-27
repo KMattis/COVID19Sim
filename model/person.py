@@ -31,7 +31,7 @@ class Person:
         self.currentDestination = dest
     
     def getXY(self, now: time.Timestamp):
-        progress = (now.now() - self.lastAction.now()) / (self.nextAction.now() - self.lastAction.now())
+        progress = min(1, (now.now() - self.lastAction.now()) / (self.nextAction.now() - self.lastAction.now()))
         return (self.currentPosition.x + (self.currentDestination.x - self.currentPosition.x) * progress,
             self.currentPosition.y + (self.currentDestination.y - self.currentPosition.y) * progress)
 
