@@ -11,6 +11,7 @@ theGrid = generation.grid_generator.generate(200)
 persons = generation.person_generator.generate(theGrid, 10000)
 
 theRenderer = Renderer()
+theRenderer.initPlaceBuffer(theGrid)
 
 lastUpdate = getCurrentTimeMillis()
 running = True

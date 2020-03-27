@@ -2,6 +2,11 @@ from rendering import camera
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
+from OpenGL.arrays import ArrayDatatype as ADT
+
+import ctypes
+
+import numpy
 
 import pygame
 from pygame.locals import *
@@ -23,7 +28,37 @@ class Renderer:
         pygame.display.set_caption("COVID-19 Simulation")
         self.camera = camera.Camera(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)
         self.colors = { 0: (0, 0, 255), 1: (255, 0, 0), 2: (128, 0, 128), 4: (0, 128, 0) }
+
+        self.placesVertexBuffer = None
  
+    def initPlaceBuffer(self, grid):
+        vertexBufferData = []
+
+        for x in range(0, grid.size):
+            for y in range(0, grid.size):
+                thePlace = grid.get(x,y)
+                color = self.colors[thePlace.char.placeType.value]
+                dl = [CELL_SIZE*x, CELL_SIZE*y]
+                dr = [CELL_SIZE*x + PLACE_SIZE, CELL_SIZE*y]
+                tl = [CELL_SIZE*x, CELL_SIZE*y + PLACE_SIZE]
+                tr = [CELL_SIZE*x + PLACE_SIZE, CELL_SIZE*y + PLACE_SIZE]
+
+                vertices = [dl, tl, tr, dl, tr, dr]
+
+                for vertex in vertices:
+                    vertexBufferData.append(float(vertex[0]))
+                    vertexBufferData.append(float(vertex[1]))
+                    vertexBufferData.append(float(color[0]))
+                    vertexBufferData.append(float(color[1]))
+                    vertexBufferData.append(float(color[2]))
+
+        vertexBufferData = numpy.array(vertexBufferData, dtype=numpy.float32)
+
+        self.placesVertexBuffer = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.placesVertexBuffer)
+        glBufferData(GL_ARRAY_BUFFER, ADT.arrayByteCount(vertexBufferData), ADT.voidDataPointer(vertexBufferData), GL_STATIC_DRAW)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
     def render(self, grid, persons, deltaTime):
         running = True
         for event in pygame.event.get():
@@ -50,7 +85,22 @@ class Renderer:
                 -1, 1)
         glMatrixMode(GL_MODELVIEW)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        
+
+        #Draw the places
+        glBindBuffer(GL_ARRAY_BUFFER, self.placesVertexBuffer)
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glEnableClientState(GL_COLOR_ARRAY)
+
+        glVertexPointer(2, GL_FLOAT, 5*4, None)
+        glColorPointer(3, GL_FLOAT, 5*4, ctypes.c_void_p(8))
+        glDrawArrays(GL_TRIANGLES, 0, grid.size * grid.size * 6)
+
+        glDisableClientState(GL_COLOR_ARRAY)
+        glDisableClientState(GL_VERTEX_ARRAY)
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+        """        
         startX = int(max(0, self.camera.x // CELL_SIZE - 1))
         startY = int(max(0, self.camera.y // CELL_SIZE - 1))
         endX = int(min(grid.size, (self.camera.x + self.camera.screenWidth) // CELL_SIZE + 1))
@@ -67,6 +117,8 @@ class Renderer:
                         PLACE_SIZE,
                         color,
                         0)
+        """
+
 
         for thePerson in persons:
             x,y = thePerson.getXY()
