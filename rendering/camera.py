@@ -1,23 +1,27 @@
+from OpenGL.GL import *
+
 class Camera:
     def __init__(self, x, y, screenWidth, screenHeight):
         self.x = x
         self.y = y
         self.screenWidth = screenWidth
         self.screenHeight = screenHeight
+        self.zoomFactor = 1
     
     def move(self, dx, dy):
         self.x += dx
         self.y += dy
 
-    def setPos(self, x, y):
-        self.x = x
-        self.y = y
+    def zoom(self, factor):
+        self.zoomFactor *= factor
 
-    def getRelXPos(self, absX):
-        return absX - self.x
+    def setupProjectionMatrix(self):
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(self.x - self.zoomFactor * self.screenWidth / 2,  self.x + self.zoomFactor * self.screenWidth / 2,
+                self.y - self.zoomFactor * self.screenHeight / 2, self.y + self.zoomFactor * self.screenHeight / 2,
+                -1, 1)
+        glMatrixMode(GL_MODELVIEW)
 
-    def getRelYPos(self, absY):
-        return absY - self.y
-
-    def onScreen(self, x, y, width, height):
-        return x + width >= self.x and y + height >= self.y and x <= self.x + self.screenWidth and y <= self.y + self.screenHeight
+#    def onScreen(self, x, y, width, height):
+#        return x + width >= self.x and y + height >= self.y and x <= self.x + self.screenWidth and y <= self.y + self.screenHeight

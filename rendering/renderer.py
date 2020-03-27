@@ -27,7 +27,7 @@ class Renderer:
                 pygame.OPENGL | pygame.DOUBLEBUF)
         glClearColor(255,255,255,255)
         pygame.display.set_caption("COVID-19 Simulation")
-        self.camera = camera.Camera(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)
+        self.camera = camera.Camera(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, DISPLAY_WIDTH, DISPLAY_HEIGHT)
         self.colors = { -1: (255,255,255), 0: (0, 0, 255), 1: (255, 0, 0), 2: (128, 0, 128), 4: (0, 0.5, 0) }
 
         self.vbo = None
@@ -55,21 +55,18 @@ class Renderer:
 
         self.vbo = VertexBufferObject(vertexBufferData)
 
-    def setupProjectionMatrix(self):
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        glOrtho(self.camera.x, self.camera.x + self.camera.screenWidth,
-                self.camera.y, self.camera.y + self.camera.screenHeight,
-                -1, 1)
-        glMatrixMode(GL_MODELVIEW)
-
     def fetchEvents(self, deltaTime):
         running = True
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     running = False
-            if event.type == QUIT:
+            elif event.type == MOUSEBUTTONDOWN:
+                if event.button == 4:
+                    self.camera.zoom(0.85)
+                elif event.button == 5:
+                    self.camera.zoom(1.15)
+            elif event.type == QUIT:
                 running = False
 
         keys=pygame.key.get_pressed()
@@ -85,7 +82,7 @@ class Renderer:
         return running
 
     def render(self, persons, now):
-        self.setupProjectionMatrix()
+        self.camera.setupProjectionMatrix()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         #Draw the places
