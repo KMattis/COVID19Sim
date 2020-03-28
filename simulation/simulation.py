@@ -3,6 +3,8 @@ import random
 from model import grid, place, person
 from simulation import time
 
+from profiler.profiler import profilerObj
+
 SIMULATION_SPEED = 0.01
 SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
@@ -25,8 +27,10 @@ class Simulation:
                 continue
 
             nextGoal = thePerson.schedule.getNext()
+            
             if thePerson.schedule.needsPlanning():
                 self.plan(thePerson)
+
             thePerson.setDestination(nextGoal.place, self.now)
 
     #Plan the schedule of a person
@@ -37,11 +41,12 @@ class Simulation:
         else:
             nextDayToPlan = time.Timestamp(t + time.DAY).today()
 
-        start = nextDayToPlan + random.choice(person.workplace.char.avgArrival) + Simulation.gauss(0,
-                time.HOUR, -2 *time.HOUR)
+        start = min(t, nextDayToPlan + random.choice(person.workplace.char.avgArrival) + Simulation.gauss(0,
+                time.HOUR, -2 *time.HOUR))
         person.schedule.plan(person.workplace,
             start,
             Simulation.gauss(start + person.workplace.char.avgDuration, time.HOUR, start + time.HOUR))
 
+    @staticmethod
     def gauss(mu, sigma, _min):
         return max(_min, random.gauss(mu, sigma))
