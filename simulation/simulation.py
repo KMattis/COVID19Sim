@@ -37,8 +37,8 @@ class Simulation:
         else:
             nextDayToPlan = time.Timestamp(t + time.DAY).today()
 
-        start = Simulation.gauss(nextDayToPlan + random.choice(person.workplace.char.avgArrival),
-                time.HOUR, self.now.now() + 1)
+        start = nextDayToPlan + random.choice(person.workplace.char.avgArrival) + Simulation.gauss(0,
+                time.HOUR, -2 *time.HOUR)
         person.schedule.plan(person.workplace,
             start,
             Simulation.gauss(start + person.workplace.char.avgDuration, time.HOUR, start + time.HOUR))
