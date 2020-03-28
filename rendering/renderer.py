@@ -18,10 +18,9 @@ from pygame.locals import *
 DISPLAY_WIDTH = 1100
 DISPLAY_HEIGHT = 1100
 
-CELL_SIZE = 21
-PLACE_SIZE = 11
+PLACE_SIZE = 0.6
 
-MOVEMENT_PER_SECOND = 200
+MOVEMENT_PER_SECOND = 50
 
 class Renderer:
     def __init__(self, numPersons):
@@ -31,7 +30,7 @@ class Renderer:
                 pygame.OPENGL | pygame.DOUBLEBUF)
         glClearColor(255,255,255,255)
         pygame.display.set_caption("COVID-19 Simulation")
-        self.camera = camera.Camera(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, DISPLAY_WIDTH, DISPLAY_HEIGHT)
+        self.camera = camera.Camera(20, 20, DISPLAY_WIDTH, DISPLAY_HEIGHT)
         self.colors = { -1: (255,255,255), 0: (0, 0, 255), 1: (255, 0, 0), 2: (128, 0, 128), 4: (0, 0.5, 0) }
 
         self.vbo = None
@@ -48,10 +47,10 @@ class Renderer:
             for y in range(0, grid.size):
                 thePlace = grid.get(x,y)
                 color = self.colors[thePlace.char.placeType.value]
-                dl = [CELL_SIZE*x, CELL_SIZE*y]
-                dr = [CELL_SIZE*x + PLACE_SIZE, CELL_SIZE*y]
-                tl = [CELL_SIZE*x, CELL_SIZE*y + PLACE_SIZE]
-                tr = [CELL_SIZE*x + PLACE_SIZE, CELL_SIZE*y + PLACE_SIZE]
+                dl = [x, y]
+                dr = [x + PLACE_SIZE, y]
+                tl = [x, y + PLACE_SIZE]
+                tr = [x + PLACE_SIZE, y + PLACE_SIZE]
 
                 vertices = [dl, tl, tr, dl, tr, dr]
 
@@ -121,15 +120,16 @@ class Renderer:
         #persons cannot be drawn via vbo because there positions change
         #we draw them directly as arrays
 
+        placeSizeHalfed = PLACE_SIZE / 2
         profilerObj.startProfiling("arrayCreation")
         for i in range(len(persons)):
             x, y = persons[i].getXY(now)
-            self.personVertices[2 * i] = x * CELL_SIZE + PLACE_SIZE // 2
-            self.personVertices[2 * i + 1] = y * CELL_SIZE + PLACE_SIZE // 2
+            self.personVertices[2 * i] = x + placeSizeHalfed
+            self.personVertices[2 * i + 1] = y + placeSizeHalfed
 
         profilerObj.stopStartProfiling("drawing")
         glColor3f(0,0,0)
-        glPointSize(PLACE_SIZE * 0.65)
+        glPointSize(PLACE_SIZE * 10)
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glVertexPointer(2, GL_FLOAT, 0, self.personVertices)

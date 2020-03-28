@@ -28,11 +28,11 @@ class Person:
         distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
         self.travelEnd.set(now.now() + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1) * time.MINUTE)
         self.currentDestination = dest
-        self.direction = [self.currentDestination.x - self.currentPosition.x, self.currentDestination.y - self.currentPosition.y]
+        self.direction = [(self.currentDestination.x - self.currentPosition.x) / (self.travelEnd.now() - self.travelStart.now()), (self.currentDestination.y - self.currentPosition.y) / (self.travelEnd.now() - self.travelStart.now())]
     
     def getXY(self, now: time.Timestamp):
         if self.isTraveling():        
-            progress = min(1, (now.now() - self.travelStart.now()) / (self.travelEnd.now() - self.travelStart.now()))
+            progress = now.now() - self.travelStart.now()
             return self.currentPosition.x + self.direction[0] * progress, self.currentPosition.y + self.direction[1] * progress
         else:
             return self.currentPosition.x, self.currentPosition.y

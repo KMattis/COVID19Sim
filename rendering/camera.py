@@ -6,7 +6,7 @@ class Camera:
         self.y = y
         self.screenWidth = screenWidth
         self.screenHeight = screenHeight
-        self.zoomFactor = 1
+        self.zoomFactor = 0.05
     
     def move(self, dx, dy):
         self.x += dx
