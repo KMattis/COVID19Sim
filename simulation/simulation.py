@@ -5,7 +5,7 @@ from simulation import time
 
 from profiler.profiler import profilerObj
 
-SIMULATION_SPEED = 0.01
+SIMULATION_SPEED = 0.1
 SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
 class Simulation:
@@ -35,12 +35,14 @@ class Simulation:
 
     #Plan the schedule of a person
     def plan(self, person):
-        t = person.schedule.getLastScheduledTime()
-        if t == -1:
+        lastItem = person.schedule.getLastScheduledItem()
+        if lastItem == None:
             nextDayToPlan = self.now.today()
+            t = -1
         else:
-            nextDayToPlan = time.Timestamp(t + time.DAY).today()
-
+            nextDayToPlan = time.Timestamp(lastItem.start + time.DAY).today()
+            t = lastItem.stop
+        
         start = max(t, nextDayToPlan + random.choice(person.workplace.char.avgArrival) + Simulation.gauss(0,
                 time.HOUR, -2 *time.HOUR))
         person.schedule.plan(person.workplace,

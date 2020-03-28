@@ -36,8 +36,8 @@ class Schedule:
     def needsPlanning(self):
         return len(self.items) < 4
 
-    def getLastScheduledTime(self):
+    def getLastScheduledItem(self):
         if len(self.items) > 0:
-            return self.items[-1].start
+            return self.items[-1]
         else:
-            return -1
+            return None
