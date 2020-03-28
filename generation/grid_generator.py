@@ -24,13 +24,13 @@ def generate(size):
                 p = random.random()
 
                 if p < pService:
-                    c = place_parser.readPlace('generation/places.ini', 'service')
+                    c = place_parser.readPlace('places.ini', 'service')
                 elif p < pService + pPark:
-                    c = place_parser.readPlace('generation/places.ini', 'outdoor')
+                    c = place_parser.readPlace('places.ini', 'outdoor')
                 elif p < pService + pPark + pNonService:
-                    c = place_parser.readPlace('generation/places.ini', 'nonservice')
+                    c = place_parser.readPlace('places.ini', 'nonservice')
                 else:
-                    c = place_parser.readPlace('generation/places.ini', 'home')
+                    c = place_parser.readPlace('places.ini', 'home')
             theGrid.addPlace(place.Place(i, j, "", c))
 
     return theGrid
