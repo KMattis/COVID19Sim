@@ -1,7 +1,8 @@
 import math
 import random
 
-from model import grid, place
+from model import grid, place, place_characteristics
+from simulation import time
 
 def generate(size):
     theGrid = grid.Grid(size)
@@ -12,7 +13,7 @@ def generate(size):
         for j in range(size):
             radius2 = (i - centerx)**2 + (j - centery)**2
             if radius2 > size**2 / 4:
-                t = place.PlaceType.NONE
+                c = place_characteristics.PlaceCharacteristics(place.PlaceType.NONE, 0, 0)
             else: 
                 maxRadius = size / 2
                 pService = ((maxRadius - math.sqrt(radius2)) / maxRadius) * 0.5
@@ -22,15 +23,14 @@ def generate(size):
                 p = random.random()
 
                 if p < pService:
-                    t = place.PlaceType.SERVICE
+                    c = place_characteristics.PlaceCharacteristics(place.PlaceType.SERVICE, 9*time.HOUR, 16 * time.HOUR)
                 elif p < pService + pPark:
-                    t = place.PlaceType.OUTDOOR
+                    c = place_characteristics.PlaceCharacteristics(place.PlaceType.OUTDOOR, 0, 0)
                 elif p < pService + pPark + pNonService:
-                    t = place.PlaceType.NONSERVICE
+                    c = place_characteristics.PlaceCharacteristics(place.PlaceType.NONSERVICE, 7 * time.HOUR, 17 * time.HOUR)
                 else:
-                    t = place.PlaceType.HOME
-
-            theGrid.addPlace(place.Place(i, j, "", place.PlaceCharacteristics(t)))
+                    c = place_characteristics.PlaceCharacteristics(place.PlaceType.HOME, 0, 0)
+            theGrid.addPlace(place.Place(i, j, "", c))
 
     return theGrid
 

@@ -16,6 +16,3 @@ class Place:
         self.name = name
         self.char = characteristics
 
-class PlaceCharacteristics:
-    def __init__(self, placeType):
-        self.placeType = placeType
