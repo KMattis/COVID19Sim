@@ -4,6 +4,7 @@ import configparser
 import generation.grid_generator, generation.person_generator
 from rendering.renderer import Renderer
 from simulation.simulation import Simulation
+from profiler.profiler import Profiler
 
 def getCurrentTimeMillis():
     return round(time.time() * 1000)
@@ -22,14 +23,30 @@ theSimulation = Simulation(persons)
 lastUpdate = getCurrentTimeMillis()
 running = True
 
+profiler = Profiler()
+loops = 0
+
+
 while running:
+    profiler.startProfiling("covid")
     now = getCurrentTimeMillis()
     deltaTime = now - lastUpdate
     lastUpdate = now
 
-    running = theRenderer.fetchEvents(deltaTime)
 
-    theRenderer.render(persons, deltaTime, theSimulation.now)
+
+    profiler.startProfiling("fetchEvents")
+    running = theRenderer.fetchEvents(deltaTime)
+    profiler.stopStartProfiling("render")
+    theRenderer.render(persons, deltaTime, theSimulation.now, profiler)
+    profiler.stopStartProfiling("simulation")
     theSimulation.simulate(deltaTime)
+    profiler.stopProfiling()
+
+    profiler.stopProfiling() #covid
+    loops += 1
+    if loops % 100 == 0:
+        profiler.printPercentages("covid")
+        profiler.reset()
 
 theRenderer.quit()

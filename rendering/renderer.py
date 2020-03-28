@@ -88,23 +88,25 @@ class Renderer:
 
         return running
 
-    def render(self, persons, deltaTime, now):
+    def render(self, persons, deltaTime, now, profiler):
         self.camera.setupProjectionMatrix()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+        profiler.startProfiling("places")
         #Draw the places
         self.vbo.bind()
         glVertexPointer(2, GL_FLOAT, 5*4, None)
         glColorPointer(3, GL_FLOAT, 5*4, ctypes.c_void_p(8))
         self.vbo.draw()
         VertexBufferObject.unbind()
-
+        profiler.stopStartProfiling("persons")
         #Draw the persons
         self.drawPersons(persons, now)
-
+        profiler.stopStartProfiling("text")
         #Draw text
         self.camera.setupAbsoluteMatrix()
         self.drawTime(now)
+        profiler.stopProfiling()
 
         glFlush()
         pygame.display.flip()
