@@ -1,8 +1,9 @@
 from rendering import camera
+from rendering import text
 from rendering.vbo import VertexBufferObject
 
+
 from OpenGL.GL import *
-from OpenGL.GLU import *
 from OpenGL.arrays import ArrayDatatype as ADT
 
 import ctypes
@@ -10,6 +11,7 @@ import ctypes
 import numpy
 
 import pygame
+import pygame.time
 from pygame.locals import *
 
 DISPLAY_WIDTH = 1100
@@ -23,6 +25,7 @@ MOVEMENT_PER_SECOND = 200
 class Renderer:
     def __init__(self):
         pygame.display.init()
+        pygame.init()
         self.display = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT),
                 pygame.OPENGL | pygame.DOUBLEBUF)
         glClearColor(255,255,255,255)
@@ -31,6 +34,10 @@ class Renderer:
         self.colors = { -1: (255,255,255), 0: (0, 0, 255), 1: (255, 0, 0), 2: (128, 0, 128), 4: (0, 0.5, 0) }
 
         self.vbo = None
+        self.time_text = text.Text('', position=(-0.88, 0.95), font_size=80, font_color=(0,0,0,1))
+        self.fps_text = text.Text('', position=(-0.88, 0.9), font_size=80, font_color=(0,0,0,1))
+        self.clock = pygame.time.Clock()
+
  
     def initPlaceBuffer(self, grid):
         vertexBufferData = []
@@ -81,7 +88,7 @@ class Renderer:
 
         return running
 
-    def render(self, persons, now):
+    def render(self, persons, deltaTime, now):
         self.camera.setupProjectionMatrix()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -94,9 +101,14 @@ class Renderer:
 
         #Draw the persons
         self.drawPersons(persons, now)
-      
+
+        #Draw text
+        self.camera.setupAbsoluteMatrix()
+        self.drawTime(now)
+
         glFlush()
         pygame.display.flip()
+        self.clock.tick()
     
     def quit(self):
         pygame.display.quit()
@@ -123,3 +135,17 @@ class Renderer:
         glVertexPointerf(buffer)
         glDrawArrays(GL_POINTS, 0, len(persons))
         glDisableClientState(GL_VERTEX_ARRAY)
+
+    def drawTime(self, now):
+        shader = text.get_default_shader()
+
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        self.fps_text.set_text('FPS: {0}'.format(round(self.clock.get_fps())))
+        self.time_text.set_text('{0}:{1}:{2}'.format(round(now.day()), round(now.hourOfDay()), round(now.minuteOfHour())))
+
+        self.fps_text.draw(shader)
+        self.time_text.draw(shader)
+
+        glDisable(GL_BLEND)
