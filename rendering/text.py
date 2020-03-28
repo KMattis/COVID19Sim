@@ -3,7 +3,8 @@ from OpenGL.GL import *
 from ctypes import sizeof, c_void_p
  
 DEFAULT_VERTEX_SHADER = '''
-    #version 330 core
+    #version 140
+    #extension GL_ARB_explicit_attrib_location : enable
     layout (location = 0) in vec2 aPos;
     layout (location = 1) in vec2 aTexCoords;
  
@@ -17,7 +18,8 @@ DEFAULT_VERTEX_SHADER = '''
 '''
  
 DEFAULT_FRAGMENT_SHADER = '''
-    #version 330 core
+    #version 140
+    #extension GL_ARB_explicit_attrib_location : enable
     out vec4 FragColor;
  
     in vec2 TexCoords;
