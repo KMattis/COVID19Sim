@@ -3,6 +3,7 @@ import random
 
 from model import grid, place, place_characteristics
 from simulation import time
+from generation import place_parser
 
 def generate(size):
     theGrid = grid.Grid(size)
@@ -23,13 +24,13 @@ def generate(size):
                 p = random.random()
 
                 if p < pService:
-                    c = place_characteristics.PlaceCharacteristics(place.PlaceType.SERVICE, 9*time.HOUR, 16 * time.HOUR)
+                    c = place_parser.readPlace('generation/places.ini', 'service')
                 elif p < pService + pPark:
-                    c = place_characteristics.PlaceCharacteristics(place.PlaceType.OUTDOOR, 0, 0)
+                    c = place_parser.readPlace('generation/places.ini', 'outdoor')
                 elif p < pService + pPark + pNonService:
-                    c = place_characteristics.PlaceCharacteristics(place.PlaceType.NONSERVICE, 7 * time.HOUR, 17 * time.HOUR)
+                    c = place_parser.readPlace('generation/places.ini', 'nonservice')
                 else:
-                    c = place_characteristics.PlaceCharacteristics(place.PlaceType.HOME, 0, 0)
+                    c = place_parser.readPlace('generation/places.ini', 'home')
             theGrid.addPlace(place.Place(i, j, "", c))
 
     return theGrid
