@@ -23,5 +23,13 @@ class Camera:
                 -1, 1)
         glMatrixMode(GL_MODELVIEW)
 
+    def setupAbsoluteMatrix(self):
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(0, self.screenWidth,
+                0, self.screenHeight,
+                -1, 1)
+        glMatrixMode(GL_MODELVIEW)
+
 #    def onScreen(self, x, y, width, height):
 #        return x + width >= self.x and y + height >= self.y and x <= self.x + self.screenWidth and y <= self.y + self.screenHeight

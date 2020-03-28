@@ -28,12 +28,11 @@ while running:
 
     running = theRenderer.fetchEvents(deltaTime)
 
-    theRenderer.render(persons, theSimulation.now)
+    theRenderer.render(persons, deltaTime, theSimulation.now)
     theSimulation.simulate(deltaTime)
 
     if deltaTime > 0 and loops % 10 == 0:
         # print("FPS:", 1000 / deltaTime)
-        m = int(theSimulation.now.now())
         print(theSimulation.now.day(), theSimulation.now.hourOfDay(), theSimulation.now.minuteOfHour(), sep=":")
     
 
