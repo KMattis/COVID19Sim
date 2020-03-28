@@ -43,7 +43,7 @@ class Simulation:
             nextDayToPlan = time.Timestamp(lastItem.start + time.DAY).today()
             t = lastItem.stop
         
-        start = max(t, nextDayToPlan + random.choice(person.workplace.char.avgArrival) + Simulation.gauss(0,
+        start = max(t+1, nextDayToPlan + random.choice(person.workplace.char.avgArrival) + Simulation.gauss(0,
                 time.HOUR, -2 *time.HOUR))
         person.schedule.plan(person.workplace,
             start,
