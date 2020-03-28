@@ -49,5 +49,5 @@ class Simulation:
 
             person.schedule.plan(person.workplace, 
                 nextDay + person.workplace.char.avgArrival + random.randrange(-time.HOUR, +time.HOUR),
-                nextDay + person.workplace.char.avgDeparture + random.randrange(-time.HOUR, +time.HOUR))
+                nextDay + person.workplace.char.avgDuration + random.randrange(-time.HOUR, +time.HOUR))
 

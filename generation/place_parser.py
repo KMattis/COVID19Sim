@@ -8,5 +8,5 @@ def readPlace(configFile, placeName):
     config.read(configFile)
     placeType = place.PlaceType[config[placeName]['type']]
     avgArrival = int(config[placeName]['avgArrival'])
-    avgDeparture = int(config[placeName]['avgDeparture'])
-    return place_characteristics.PlaceCharacteristics(placeType, avgArrival*time.HOUR, avgDeparture*time.HOUR)
+    avgDuration = int(config[placeName]['avgDuration'])
+    return place_characteristics.PlaceCharacteristics(placeType, avgArrival*time.HOUR, avgDuration*time.HOUR)

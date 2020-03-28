@@ -1,5 +1,5 @@
 class PlaceCharacteristics:
-    def __init__(self, placeType, avgArrival, avgDeparture):
+    def __init__(self, placeType, avgArrival, avgDuration):
         self.avgArrival = avgArrival
-        self.avgDeparture = avgDeparture
+        self.avgDuration = avgDuration
         self.placeType = placeType
