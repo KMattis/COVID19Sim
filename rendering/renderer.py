@@ -113,12 +113,6 @@ class Renderer:
     def quit(self):
         pygame.display.quit()
 
-    def drawRect(self, x, y, width, height, color):
-        if self.camera.onScreen(x, y, width, height):
-            r,g,b = color
-            glColor3f(r / 255, g / 255, b / 255)
-            glRectf(x, y, x + width, y + height)
-
     def drawPersons(self, persons, now):
         #persons cannot be drawn via vbo because there positions change
         #we draw them directly as arrays
