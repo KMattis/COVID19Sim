@@ -2,11 +2,16 @@ import configparser
 from simulation import time
 from model import place, place_characteristics
 
+def parseTimeList(listasstring):
+    tmplist = listasstring.split(',')
+    return [int(x)*time.HOUR for x in tmplist]
+
 def readPlace(configFile, placeName):
     config = configparser.ConfigParser()
     config.read(configFile)
     placeType = place.PlaceType[config[placeName]['type']]
-    avgArrival_tmp = config[placeName]['avgArrival'].split(',')
-    avgArrival = [int(x) * time.HOUR for x in avgArrival_tmp]
+    avgArrival = parseTimeList(config[placeName]['avgArrival'])
     avgDuration = int(config[placeName]['avgDuration']) * time.HOUR
-    return place_characteristics.PlaceCharacteristics(placeType, avgArrival, avgDuration)
+    openDays = parseTimeList(config[placeName]['openDays'])
+    openHours = parseTimeList(config[placeName]['openHours'])
+    return place_characteristics.PlaceCharacteristics(placeType, avgArrival, avgDuration, openDays, openHours)
