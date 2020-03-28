@@ -45,8 +45,7 @@ class Simulation:
 
         #Plan work for 2 more days
         for i in range(2):
-            nextDay = beginDay + i * time.DAY
-
-            start = nextDay + person.workplace.char.avgArrival + random.randrange(-time.HOUR, +time.HOUR)
+            nextDay = beginDay + i * time.DAY 
+            start = nextDay + random.choice(person.workplace.char.avgArrival) + random.randrange(-time.HOUR, +time.HOUR)
             person.schedule.plan(person.workplace, start, start + person.workplace.char.avgDuration + random.randrange(-time.HOUR, +time.HOUR))
 
