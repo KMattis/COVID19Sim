@@ -9,6 +9,7 @@ def keyToList(key: str):
 def listToKey(list):
     return ".".join(list)
 
+
 class Profiler:
     def __init__(self):
         self.startTimes = {}
@@ -61,3 +62,5 @@ class Profiler:
             print(indent + listToKey(k) + ": " + str(percentage) + "%")
             self.printPercentages0(k)
         print(indent + listToKey(key) + ".other: " + str(100 - sumPercentage) + "%")
+
+profilerObj = Profiler()

@@ -2,6 +2,7 @@ from rendering import camera
 from rendering import text
 from rendering.vbo import VertexBufferObject
 
+from profiler.profiler import profilerObj
 
 from OpenGL.GL import *
 from OpenGL.arrays import ArrayDatatype as ADT
@@ -23,7 +24,7 @@ PLACE_SIZE = 11
 MOVEMENT_PER_SECOND = 200
 
 class Renderer:
-    def __init__(self):
+    def __init__(self, numPersons):
         pygame.display.init()
         pygame.init()
         self.display = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT),
@@ -37,6 +38,7 @@ class Renderer:
         self.time_text = text.Text('', position=(-0.88, 0.95), font_size=80, font_color=(0,0,0,1))
         self.fps_text = text.Text('', position=(-0.88, 0.9), font_size=80, font_color=(0,0,0,1))
         self.clock = pygame.time.Clock()
+        self.personVertices = numpy.empty(numPersons * 2, dtype=numpy.float32)
 
  
     def initPlaceBuffer(self, grid):
@@ -88,25 +90,25 @@ class Renderer:
 
         return running
 
-    def render(self, persons, deltaTime, now, profiler):
+    def render(self, persons, deltaTime, now):
         self.camera.setupProjectionMatrix()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        profiler.startProfiling("places")
+        profilerObj.startProfiling("places")
         #Draw the places
         self.vbo.bind()
         glVertexPointer(2, GL_FLOAT, 5*4, None)
         glColorPointer(3, GL_FLOAT, 5*4, ctypes.c_void_p(8))
         self.vbo.draw()
         VertexBufferObject.unbind()
-        profiler.stopStartProfiling("persons")
+        profilerObj.stopStartProfiling("persons")
         #Draw the persons
         self.drawPersons(persons, now)
-        profiler.stopStartProfiling("text")
+        profilerObj.stopStartProfiling("text")
         #Draw text
         self.camera.setupAbsoluteMatrix()
         self.drawTime(now)
-        profiler.stopProfiling()
+        profilerObj.stopProfiling()
 
         glFlush()
         pygame.display.flip()
@@ -119,18 +121,21 @@ class Renderer:
         #persons cannot be drawn via vbo because there positions change
         #we draw them directly as arrays
 
-        f = lambda p: [p[0] * CELL_SIZE + PLACE_SIZE // 2, p[1] * CELL_SIZE + PLACE_SIZE // 2] 
-        vertices = [f(thePerson.getXY(now)) for thePerson in persons]
+        profilerObj.startProfiling("arrayCreation")
+        for i in range(len(persons)):
+            x, y = persons[i].getXY(now)
+            self.personVertices[2 * i] = x * CELL_SIZE + PLACE_SIZE // 2
+            self.personVertices[2 * i + 1] = y * CELL_SIZE + PLACE_SIZE // 2
 
-        buffer = numpy.array(vertices, dtype=numpy.float32)
-
+        profilerObj.stopStartProfiling("drawing")
         glColor3f(0,0,0)
         glPointSize(PLACE_SIZE * 0.65)
 
         glEnableClientState(GL_VERTEX_ARRAY)
-        glVertexPointerf(buffer)
+        glVertexPointer(2, GL_FLOAT, 0, self.personVertices)
         glDrawArrays(GL_POINTS, 0, len(persons))
         glDisableClientState(GL_VERTEX_ARRAY)
+        profilerObj.stopProfiling()
 
     def drawTime(self, now):
         shader = text.get_default_shader()

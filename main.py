@@ -4,7 +4,7 @@ import configparser
 import generation.grid_generator, generation.person_generator
 from rendering.renderer import Renderer
 from simulation.simulation import Simulation
-from profiler.profiler import Profiler
+from profiler.profiler import profilerObj
 
 def getCurrentTimeMillis():
     return round(time.time() * 1000)
@@ -15,7 +15,7 @@ config.read("config.ini")
 theGrid = generation.grid_generator.generate(int(config["default"]["gridSize"]))
 persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]))
 
-theRenderer = Renderer()
+theRenderer = Renderer(len(persons))
 theRenderer.initPlaceBuffer(theGrid)
 
 theSimulation = Simulation(persons)
@@ -23,30 +23,29 @@ theSimulation = Simulation(persons)
 lastUpdate = getCurrentTimeMillis()
 running = True
 
-profiler = Profiler()
 loops = 0
 
 
 while running:
-    profiler.startProfiling("covid")
+    profilerObj.startProfiling("covid")
     now = getCurrentTimeMillis()
     deltaTime = now - lastUpdate
     lastUpdate = now
 
 
 
-    profiler.startProfiling("fetchEvents")
+    profilerObj.startProfiling("fetchEvents")
     running = theRenderer.fetchEvents(deltaTime)
-    profiler.stopStartProfiling("render")
-    theRenderer.render(persons, deltaTime, theSimulation.now, profiler)
-    profiler.stopStartProfiling("simulation")
+    profilerObj.stopStartProfiling("render")
+    theRenderer.render(persons, deltaTime, theSimulation.now)
+    profilerObj.stopStartProfiling("simulation")
     theSimulation.simulate(deltaTime)
-    profiler.stopProfiling()
+    profilerObj.stopProfiling()
 
-    profiler.stopProfiling() #covid
+    profilerObj.stopProfiling() #covid
     loops += 1
     if loops % 100 == 0:
-        profiler.printPercentages("covid")
-        profiler.reset()
+        profilerObj.printPercentages("covid")
+        profilerObj.reset()
 
 theRenderer.quit()
