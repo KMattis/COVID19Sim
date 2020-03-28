@@ -7,6 +7,9 @@ class ScheduleItem:
     def intersectsWith(self, item):
         return self.start <= item.start < self.stop or item.start <= self.start < item.stop
 
+    def __str__(self):
+        return str(self.place.char.placeType) + ": " + str(self.start) + "-" + str(self.stop)
+
 class Schedule:
     def __init__(self, home):
         self.items = []
@@ -35,6 +38,6 @@ class Schedule:
 
     def getLastScheduledTime(self):
         if len(self.items) > 0:
-            return self.items[-1].stop
+            return self.items[-1].start
         else:
-            return 0
+            return -1

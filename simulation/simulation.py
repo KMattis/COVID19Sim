@@ -8,44 +8,40 @@ SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
 class Simulation:
     def __init__(self, persons):
-        self.now = time.Timestamp(time.HOUR * 8)
-        self.lastUpdate = time.Timestamp(time.HOUR * 8)
+        self.now = time.Timestamp(time.HOUR * 6)
         self.persons = persons
 
         for thePerson in self.persons:
             self.plan(thePerson)
 
-
     def simulate(self, delta):
         self.now.minute += delta * SIMULATION_SPEED
 
-        if self.now.now() - self.lastUpdate.now() > SIMULATION_TICK_LENGTH: # We only simulate in SIMULATION_TICK_LENGTH Minute timestamps
-            self.lastUpdate.set(self.now.now())
-            for thePerson in self.persons:
-                if thePerson.isTraveling():
-                    if self.now.now() > thePerson.travelEnd.now():
-                        thePerson.currentPosition = thePerson.currentDestination
+        for thePerson in self.persons:
+            if thePerson.isTraveling() and self.now.now() > thePerson.travelEnd.now():
+                thePerson.currentPosition = thePerson.currentDestination
 
-                if self.now.now() < thePerson.schedule.items[0].stop:
-                    continue
+            if self.now.now() < thePerson.schedule.items[0].stop:
+                continue
 
-                nextGoal = thePerson.schedule.getNext()
-                if thePerson.schedule.needsPlanning():
-                    self.plan(thePerson)
-                thePerson.setDestination(nextGoal.place, self.now)
+            nextGoal = thePerson.schedule.getNext()
+            if thePerson.schedule.needsPlanning():
+                self.plan(thePerson)
+            thePerson.setDestination(nextGoal.place, self.now)
 
     #Plan the schedule of a person
     def plan(self, person):
-        lastScheduledTime = time.Timestamp(person.schedule.getLastScheduledTime())
-
-        if lastScheduledTime.now() == 0:
-            beginDay = lastScheduledTime.today()
+        t = person.schedule.getLastScheduledTime()
+        if t == -1:
+            nextDayToPlan = self.now.today()
         else:
-            beginDay = lastScheduledTime.today() + 1 * time.DAY
+            nextDayToPlan = time.Timestamp(t + time.DAY).today()
 
-        #Plan work for 2 more days
-        for i in range(2):
-            nextDay = beginDay + i * time.DAY 
-            start = nextDay + random.choice(person.workplace.char.avgArrival) + random.randrange(-time.HOUR, +time.HOUR)
-            person.schedule.plan(person.workplace, start, start + person.workplace.char.avgDuration + random.randrange(-time.HOUR, +time.HOUR))
+        start = Simulation.gauss(nextDayToPlan + random.choice(person.workplace.char.avgArrival),
+                time.HOUR, self.now.now() + 1)
+        person.schedule.plan(person.workplace,
+            start,
+            Simulation.gauss(start + person.workplace.char.avgDuration, time.HOUR, start + time.HOUR))
 
+    def gauss(mu, sigma, _min):
+        return max(_min, random.gauss(mu, sigma))

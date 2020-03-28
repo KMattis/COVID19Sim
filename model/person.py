@@ -13,11 +13,14 @@ class Person:
         self.age = age
         self.home = home
         self.workplace = workplace
+
         self.currentPosition = home
         self.currentDestination = home
+
         self.direction = [0, 0]
-        self.travelStart = time.Timestamp(0)
-        self.travelEnd = time.Timestamp(random.randrange(time.HOUR * 8, time.HOUR * 10))
+
+        self.travelStart = time.Timestamp(-1)
+        self.travelEnd = time.Timestamp(0)
         self.schedule = schedule.Schedule(home)
 
     def setDestination(self, dest, now):
