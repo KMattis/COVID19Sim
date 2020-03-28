@@ -15,37 +15,23 @@ class Person:
         self.workplace = workplace
         self.currentPosition = home
         self.currentDestination = home
-        self.lastAction = time.Timestamp(0)
-        self.nextAction = time.Timestamp(random.randrange(time.HOUR * 8, time.HOUR * 10))
+        self.travelStart = time.Timestamp(0)
+        self.travelEnd = time.Timestamp(random.randrange(time.HOUR * 8, time.HOUR * 10))
         self.schedule = schedule.Schedule(home)
 
     def setDestination(self, dest, now):
-        self.lastAction.set(now.now())
-        if dest == self.currentPosition:
-            if dest == self.home:
-                self.nextAction.set(now.today() + time.DAY + self.workplace.char.avgArrival + random.randrange(-time.HOUR, +time.HOUR))
-            else:
-                self.nextAction.set(now.today() + self.workplace.char.avgDeparture + random.randrange(-time.HOUR, +time.HOUR))
-        else:
-            distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
-            self.nextAction.set(now.now() + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1) * time.MINUTE)
-
+        self.travelStart.set(now.now())
+        distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
+        self.travelEnd.set(now.now() + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1) * time.MINUTE)
         self.currentDestination = dest
     
     def getXY(self, now: time.Timestamp):
-        progress = min(1, (now.now() - self.lastAction.now()) / (self.nextAction.now() - self.lastAction.now()))
-        return (self.currentPosition.x + (self.currentDestination.x - self.currentPosition.x) * progress,
-            self.currentPosition.y + (self.currentDestination.y - self.currentPosition.y) * progress)
-
-    def update(self, now):
-        if now.now() < self.nextAction.now():
-            return
-
-        if self.currentPosition == self.currentDestination:
-            if self.currentPosition == self.home:
-                self.setDestination(self.workplace, now)
-            else:
-                self.setDestination(self.home, now)
+        if self.isTraveling():        
+            progress = min(1, (now.now() - self.travelStart.now()) / (self.travelEnd.now() - self.travelStart.now()))
+            return (self.currentPosition.x + (self.currentDestination.x - self.currentPosition.x) * progress,
+                self.currentPosition.y + (self.currentDestination.y - self.currentPosition.y) * progress)
         else:
-            self.currentPosition = self.currentDestination
-            self.setDestination(self.currentDestination, now)
+            return (self.currentPosition.x, self.currentPosition.y)
+
+    def isTraveling(self):
+        return self.currentDestination != self.currentPosition
