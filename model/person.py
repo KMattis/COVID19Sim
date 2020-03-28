@@ -3,6 +3,7 @@ import math
 import random
 
 from simulation import time
+from model import schedule
 
 MINUTES_PER_CELL = 0.5
 
@@ -16,6 +17,7 @@ class Person:
         self.currentDestination = home
         self.lastAction = time.Timestamp(0)
         self.nextAction = time.Timestamp(random.randrange(time.HOUR * 8, time.HOUR * 10))
+        self.schedule = schedule.Schedule(home)
 
     def setDestination(self, dest, now):
         self.lastAction.set(now.now())
