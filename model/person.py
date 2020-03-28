@@ -21,9 +21,9 @@ class Person:
         self.lastAction.set(now.now())
         if dest == self.currentPosition:
             if dest == self.home:
-                self.nextAction.set(now.today() + time.DAY + random.randrange(time.HOUR * 8, time.HOUR * 10))
+                self.nextAction.set(now.today() + time.DAY + self.workplace.char.avgArrival + random.randrange(-time.HOUR, +time.HOUR))
             else:
-                self.nextAction.set(now.now() + time.HOUR * 7 + time.MINUTE * 30 + random.randrange(0, time.HOUR))
+                self.nextAction.set(now.today() + self.workplace.char.avgDeparture + random.randrange(-time.HOUR, +time.HOUR))
         else:
             distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
             self.nextAction.set(now.now() + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1) * time.MINUTE)
@@ -47,5 +47,3 @@ class Person:
         else:
             self.currentPosition = self.currentDestination
             self.setDestination(self.currentDestination, now)
-
-
