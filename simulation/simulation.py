@@ -43,8 +43,9 @@ class Simulation:
 
             if self.now.now() < thePerson.schedule.items[0].stop:
                 continue
-
-            thePerson.needs.needs[thePerson.schedule.items[0].place.char.needType] = 0
+            for need in thePerson.schedule.items[0].place.char.needTypes:
+                if need != needs.NeedType.WORK or thePerson.schedule.items[0].place == thePerson.workplace:
+                    thePerson.needs.needs[need] = 0
             self.plan(thePerson,grid)
             nextGoal = thePerson.schedule.getNext()
             
@@ -57,21 +58,14 @@ class Simulation:
     def plan(self, person, grid):
         #get neares eating place
         park = random.choice(grid.parks)
+        distmap = grid.getDistanceMap()
+       
+        for need in person.needs.getPrioNeeds():
+            exists, openPlace, dur = needs.canBeSatisfied(person, grid, need, self.now, person.needs.needs[need])
+            if exists:
+                person.schedule.plan(openPlace, self.now.now(), self.now.now()+dur)
+                break                
 
-        #Check if work need is > 0.5 && work has open
-        if person.needs.needsWork() and person.workplace.hasOpen(self.now): #TODO hasOpen is NOT optimal
-            person.schedule.plan(person.workplace,
-                    self.now.now(),
-                    Simulation.gauss(self.now.now() + person.workplace.char.avgDuration, time.HOUR, self.now.now() + time.HOUR))
-        elif person.needs.needsEat() and park.hasOpen(self.now):
-            person.schedule.plan(park,
-                    self.now.now(),
-                    Simulation.gauss(self.now.now() + time.HOUR, time.HOUR, self.now.now() + time.HOUR))
-        else:
-            sleepNeed = person.needs.needs[needs.NeedType.SLEEP] * 14 * random.uniform(0.8, 1.2)
-            person.schedule.plan(person.home,
-                    self.now.now(),
-                    self.now.now() + sleepNeed * time.HOUR)
 
     @staticmethod
     def gauss(mu, sigma, _min):

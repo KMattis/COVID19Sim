@@ -62,7 +62,7 @@ class DistanceMap:
                 if x + y * self.size >= self.size**2 or x + y * self.size < 0:
                     continue
                 currentPoint = self.internal_grid[x + y * self.size]
-                blockDict.setdefault(currentPoint.char.placeType, []).append([[x,y], dx**2+dy**2, 1 if (dx**2+dy**2) == 0 else 1/(dx**2+dy**2) ])
+                blockDict.setdefault(currentPoint.char.subType, []).append([[x,y], dx**2+dy**2, 1 if (dx**2+dy**2) == 0 else 1/(dx**2+dy**2) ])
         for types in blockDict:
             blockDict[types].sort(key=lambda ls: ls[1])
         self.blocks[blockX + self.noBlocks*blockY] = blockDict

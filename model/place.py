@@ -10,6 +10,14 @@ class PlaceType(enum.Enum):
     OUTDOOR = 3
     HEALTHCARE = 4
 
+class SubType(enum.Enum):
+    NONE = -1
+    RESTAURANT = 0
+    PARK = 1
+    OFFICE = 2
+    HOME = 3
+     
+
 class Place:
     def __init__(self, x, y, name, characteristics):
         self.x = x

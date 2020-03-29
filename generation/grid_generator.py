@@ -14,7 +14,7 @@ def generate(size):
         for j in range(size):
             radius2 = (i - centerx)**2 + (j - centery)**2
             if radius2 > size**2 / 4:
-                c = place_characteristics.PlaceCharacteristics(place.PlaceType.NONE,0,0,0,0,needs.NeedType.NONE)
+                c = place_characteristics.PlaceCharacteristics(place.PlaceType.NONE,0,0,0,0, [needs.NeedType.NONE], place.SubType.NONE)
             else: 
                 maxRadius = size / 2
                 pWork = ((maxRadius - math.sqrt(radius2)) / maxRadius) * 0.6
