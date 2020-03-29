@@ -14,7 +14,7 @@ def generate(grid, numPersons):
     persons = []
     for i in range(numPersons):
         home = random.choice(homes)
-        workplace = random.choices(workplaces, weights = [1/ ((home.x - w.x)**2 + (home.y - w.y)**2) for w in workplaces])[0]
+        workplace = random.choice(workplaces)
         thePerson = person.Person(str(i), random.randrange(0, 100), home,workplace)
         persons.append(thePerson)
 
