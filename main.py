@@ -6,6 +6,8 @@ from rendering.renderer import Renderer
 from simulation.simulation import Simulation
 from profiler.profiler import profilerObj
 
+MINUTES_PER_REAL_SECOND = 1000
+
 def getCurrentTimeMillis():
     return round(time.time() * 1000)
 
@@ -28,19 +30,20 @@ running = True
 
 loops = 0
 
-
 while running:
     profilerObj.startProfiling("covid")
     now = getCurrentTimeMillis()
     deltaTime = now - lastUpdate
-    lastUpdate = now
 
     profilerObj.startProfiling("fetchEvents")
     running = theRenderer.fetchEvents(deltaTime)
     profilerObj.stopStartProfiling("render")
     theRenderer.render(persons, deltaTime, theSimulation.now)
     profilerObj.stopStartProfiling("simulation")
-    theSimulation.simulate(deltaTime, theGrid)
+
+    for i in range(int(deltaTime / 1000 * MINUTES_PER_REAL_SECOND)):
+        theSimulation.simulate(theGrid)
+        lastUpdate = getCurrentTimeMillis()
     profilerObj.stopProfiling()
 
     profilerObj.stopProfiling() #covid

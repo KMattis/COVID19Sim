@@ -7,8 +7,7 @@ from simulation import time
 
 from profiler.profiler import profilerObj
 
-SIMULATION_SPEED = 0.1
-SIMULATION_TICK_LENGTH = 1 * time.MINUTE
+SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
 class Simulation:
     def __init__(self, persons, grid):
@@ -19,21 +18,21 @@ class Simulation:
         for thePerson in self.persons:
             self.plan(thePerson, grid)
 
-    def simulate(self, delta, grid):
-        self.now.minute += delta * SIMULATION_SPEED
+    def simulate(self, grid):
+        self.now.minute += 1
 
         if self.now.minute < self.lastUpdate + SIMULATION_TICK_LENGTH:
             return
 
-        deltaInMinutes = self.now.minute - self.lastUpdate
+        deltaInMinutes = SIMULATION_TICK_LENGTH
 
         self.lastUpdate = self.now.minute
 
         persons_travelling = 0
         persons_at_place = { place.PlaceType.HOME : 0, place.PlaceType.WORK : 0, place.PlaceType.OUTDOOR : 0, "EAT": 0 }
-        for thePerson in self.persons:
-            thePerson.needs.update(deltaInMinutes)
 
+        profilerObj.startProfiling("stats+travelling")
+        for thePerson in self.persons:
             if thePerson.isTraveling():
                 persons_travelling += 1
                 if self.now.now() > thePerson.travelEnd.now():
@@ -44,21 +43,26 @@ class Simulation:
                 else:
                     persons_at_place[thePerson.currentPosition.char.placeType] += 1
 
+        profilerObj.stopStartProfiling("plan")
+        for thePerson in self.persons:
             if self.now.now() < thePerson.schedule.items[0].stop:
                 continue
+
+            thePerson.needs.update(self.now)
+            dur = thePerson.schedule.items[0].stop - thePerson.schedule.items[0].start
             for need in thePerson.schedule.items[0].place.char.needTypes:
-                if need != needs.NeedType.WORK:
-                    thePerson.needs.needs[need] = 0
-                elif thePerson.schedule.items[0].place == thePerson.workplace:
-                    thePerson.needs.needs[need] -= 0.4
+                if need != needs.NeedType.WORK or thePerson.schedule.items[0].place == thePerson.workplace:
+                    if thePerson.needs.needs[need] >= 0.75:
+                        thePerson.needs.needs[need] -= dur / time.HOUR * 0.5
             
             self.plan(thePerson,grid)
             nextGoal = thePerson.schedule.getNext()
             
             thePerson.setDestination(nextGoal.place, self.now)
+
+        profilerObj.stopProfiling()
         
         logging.Logger.write("activity", self.now.minute, persons_travelling, *(persons_at_place.values()))
-
 
     #Plan the schedule of a person
     def plan(self, person, grid):

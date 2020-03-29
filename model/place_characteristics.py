@@ -1,5 +1,5 @@
 class PlaceCharacteristics:
-    def __init__(self, placeType, avgArrival, avgDuration, openDays, openHours, needTypes, subType):
+    def __init__(self, placeType, avgArrival, avgDuration, openDays, openHours, needTypes, subType, frequency):
         self.openHours = openHours
         self.openDays = openDays
         self.avgArrival = avgArrival
@@ -7,3 +7,4 @@ class PlaceCharacteristics:
         self.placeType = placeType
         self.needTypes = needTypes
         self.subType = subType
+        self.frequency = frequency

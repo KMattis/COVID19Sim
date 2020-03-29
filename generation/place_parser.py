@@ -20,4 +20,12 @@ def readPlace(configFile, placeName):
     openHours = parseTimeList(config[placeName]['openHours'])
     needTypes = parseNeedList(config[placeName]['needTypes'])
     subType = place.SubType[config[placeName]['subType']]
-    return place_characteristics.PlaceCharacteristics(placeType, avgArrival, avgDuration, openDays, openHours, needTypes, subType)
+    frequency = int(config[placeName]['frequency'])
+    return place_characteristics.PlaceCharacteristics(placeType,
+            avgArrival,
+            avgDuration,
+            openDays,
+            openHours,
+            needTypes,
+            subType,
+            frequency)
