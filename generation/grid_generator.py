@@ -33,5 +33,5 @@ def generate(size):
                 else:
                     c = place_parser.readPlace('places.ini', 'home')
             theGrid.addPlace(place.Place(i, j, "", c))
-
+    theGrid.getDistanceMap().calcDistances()
     return theGrid
