@@ -30,7 +30,7 @@ class Simulation:
         self.lastUpdate = self.now.minute
 
         persons_travelling = 0
-        persons_at_place = { place.PlaceType.HOME : 0, place.PlaceType.WORK : 0, place.PlaceType.OUTDOOR : 0 }
+        persons_at_place = { place.PlaceType.HOME : 0, place.PlaceType.WORK : 0, place.PlaceType.OUTDOOR : 0, "EAT": 0 }
         for thePerson in self.persons:
             thePerson.needs.update(deltaInMinutes)
 
@@ -39,13 +39,19 @@ class Simulation:
                 if self.now.now() > thePerson.travelEnd.now():
                     thePerson.currentPosition = thePerson.currentDestination
             else:
-                persons_at_place[thePerson.currentPosition.char.placeType] += 1
+                if thePerson.currentPosition.char.placeType == place.PlaceType.WORK and thePerson.currentPosition != thePerson.workplace:
+                    persons_at_place["EAT"] += 1
+                else:
+                    persons_at_place[thePerson.currentPosition.char.placeType] += 1
 
             if self.now.now() < thePerson.schedule.items[0].stop:
                 continue
             for need in thePerson.schedule.items[0].place.char.needTypes:
-                if need != needs.NeedType.WORK or thePerson.schedule.items[0].place == thePerson.workplace:
+                if need != needs.NeedType.WORK:
                     thePerson.needs.needs[need] = 0
+                elif thePerson.schedule.items[0].place == thePerson.workplace:
+                    thePerson.needs.needs[need] -= 0.4
+            
             self.plan(thePerson,grid)
             nextGoal = thePerson.schedule.getNext()
             
@@ -56,15 +62,11 @@ class Simulation:
 
     #Plan the schedule of a person
     def plan(self, person, grid):
-        #get neares eating place
-        park = random.choice(grid.parks)
-        distmap = grid.getDistanceMap()
-       
         for need in person.needs.getPrioNeeds():
             exists, openPlace, dur = needs.canBeSatisfied(person, grid, need, self.now, person.needs.needs[need])
             if exists:
                 person.schedule.plan(openPlace, self.now.now(), self.now.now()+dur)
-                break                
+                return                
 
 
     @staticmethod

@@ -43,22 +43,24 @@ class Needs:
         return self.needs[NeedType.OUTDOOR] > 0.5
 
     def getPrioNeeds(self):
-        return sorted(self.needs.keys(), key=lambda k: self.needs[k])
+        return sorted(self.needs.keys(), key=lambda k: self.needs[k], reverse=True)
 
 def canBeSatisfied(person, grid, need, now, needval):
     distmap = grid.getDistanceMap()
     if need == NeedType.WORK:
         return person.workplace.hasOpen(now), person.workplace, simulation.Simulation.gauss(person.workplace.char.avgDuration, time.HOUR, time.HOUR)
     elif need == NeedType.SLEEP:
-        return True, person.home, needval * time.HOUR
+        return True, person.home, needval * time.HOUR * 8 * random.uniform(0.9, 1.1)
     elif need == NeedType.OUTDOOR:
         nearparks = distmap.getNearPlaces(person.currentPosition.x, person.currentPosition.y, place.SubType.PARK)
         nearparks = list(filter(lambda p: grid.get(p[0][0], p[0][1]).hasOpen(now), nearparks))
-        return len(nearparks) > 0, None if len(nearparks) == 0 else grid.get(nearparks[0][0][0], nearparks[0][0][1]), simulation.Simulation.gauss(time.HOUR, time.HOUR, time.HOUR)#TODO
+        parkIndex = 0 if len(nearparks) == 0 else random.randrange(0, len(nearparks))
+        return len(nearparks) > 0, None if len(nearparks) == 0 else grid.get(nearparks[parkIndex][0][0], nearparks[parkIndex][0][1]), simulation.Simulation.gauss(time.HOUR, time.HOUR, time.HOUR)#TODO
     elif need == NeedType.EAT:
         nearres = distmap.getNearPlaces(person.currentPosition.x, person.currentPosition.y, place.SubType.RESTAURANT)
         nearres = list(filter(lambda p: grid.get(p[0][0], p[0][1]).hasOpen(now), nearres))
-        return len(nearres) > 0, None if len(nearres) == 0 else grid.get(nearres[0][0][0], nearres[0][0][1]), simulation.Simulation.gauss(time.HOUR, time.HOUR, time.HOUR) #TODO
+        resIndex = 0 if len(nearres) == 0 else random.randrange(0, len(nearres))
+        return len(nearres) > 0, None if len(nearres) == 0 else grid.get(nearres[resIndex][0][0], nearres[resIndex][0][1]), simulation.Simulation.gauss(time.HOUR, time.HOUR, time.HOUR) #TODO
     else:
         raise Exception("Unknown need type")
 

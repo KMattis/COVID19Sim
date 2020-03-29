@@ -5,7 +5,7 @@ class Grid:
         self.size = size
         self.internal_grid = [None for _ in range(size * size)]
         self.parks = []
-        self.distanceMap = DistanceMap(self.internal_grid, size, size//5, 10)
+        self.distanceMap = DistanceMap(self.internal_grid, size, size//5, 20)
 
     def get(self, x, y):
         return self.internal_grid[x + self.size * y]
