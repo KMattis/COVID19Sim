@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 
 
 def read_stat_file(path):
-    output = [], []
+    output = [], [], [], [], [], []
     with open(path, "r") as f:
         for line in f.readlines():
             record = [float(s) for s in line.split(",")[:-1]]
-            for i in range(2):
+            for i in range(6):
                 output[i].append(record[i])
     return output
 
@@ -38,9 +38,18 @@ def read_args():
 if __name__ == "__main__":
     args = read_args()
 
-    x,y = read_stat_file("logfiles/" + args.category + ".log")
+    x,y1,y2,y3,y4,y5 = read_stat_file("logfiles/" + args.category + ".log")
 
-    plt.plot(np.array(x), np.array(y))
+    x = (1/60) * np.array(x)
+
+    plt.plot(x, np.array(y1), label = "Travelling")
+    plt.plot(x, np.array(y2), label = "Home")
+    plt.plot(x, np.array(y3), label = "Service")
+    plt.plot(x, np.array(y4), label = "Nonservice")
+    plt.plot(x, np.array(y5), label = "Outdoor")
+
+    plt.legend(loc='upper center', shadow=True, fontsize='x-large')
+
     plt.grid(True)
     plt.show() 
 

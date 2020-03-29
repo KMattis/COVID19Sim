@@ -21,3 +21,12 @@ class Needs:
         self.needs[NeedType.EAT] = min(1, self.needs[NeedType.EAT] + self.deltas[NeedType.EAT] * delta)
         self.needs[NeedType.SLEEP] = min(1, self.needs[NeedType.SLEEP] + self.deltas[NeedType.SLEEP] * delta)
         self.needs[NeedType.WORK] = min(1, self.needs[NeedType.WORK] + self.deltas[NeedType.WORK] * delta)
+
+    def needsWork(self):
+        return self.needs[NeedType.WORK] > 0.5
+        
+    def needsSleep(self):
+        return self.needs[NeedType.SLEEP] > 0.5
+
+    def needsEat(self):
+        return self.needs[NeedType.EAT] > 0.5

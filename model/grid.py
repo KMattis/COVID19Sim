@@ -4,12 +4,15 @@ class Grid:
     def __init__(self, size):
         self.size = size
         self.internal_grid = [None for _ in range(size * size)]
+        self.parks = []
 
     def get(self, x, y):
         return self.internal_grid[x + self.size * y]
 
     def set(self, x, y, place):
         self.internal_grid[x + self.size * y] = place
+        if place.char.placeType == model.place.PlaceType.OUTDOOR:
+            self.parks.append(place)
 
     def addPlace(self, thePlace):
         if self.get(thePlace.x,thePlace.y) is not None:

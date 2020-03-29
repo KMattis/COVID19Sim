@@ -18,7 +18,7 @@ persons = generation.person_generator.generate(theGrid, int(config["default"]["n
 theRenderer = Renderer(len(persons))
 theRenderer.initPlaceBuffer(theGrid)
 
-theSimulation = Simulation(persons)
+theSimulation = Simulation(persons, theGrid)
 
 lastUpdate = getCurrentTimeMillis()
 running = True
@@ -32,14 +32,12 @@ while running:
     deltaTime = now - lastUpdate
     lastUpdate = now
 
-
-
     profilerObj.startProfiling("fetchEvents")
     running = theRenderer.fetchEvents(deltaTime)
     profilerObj.stopStartProfiling("render")
     theRenderer.render(persons, deltaTime, theSimulation.now)
     profilerObj.stopStartProfiling("simulation")
-    theSimulation.simulate(deltaTime)
+    theSimulation.simulate(deltaTime, theGrid)
     profilerObj.stopProfiling()
 
     profilerObj.stopProfiling() #covid
