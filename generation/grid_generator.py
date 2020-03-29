@@ -17,19 +17,17 @@ def generate(size):
                 c = place_characteristics.PlaceCharacteristics(place.PlaceType.NONE,0,0,0,0,needs.NeedType.NONE)
             else: 
                 maxRadius = size / 2
-                pService = ((maxRadius - math.sqrt(radius2)) / maxRadius) * 0.5
+                pWork = ((maxRadius - math.sqrt(radius2)) / maxRadius) * 0.6
                 pPark = 0.1
-                pNonService = 0.15
                 
                 p = random.random()
 
-                if p < pService:
-                    k = random.randrange(0, 2)
-                    c = place_parser.readPlace('places.ini', 'service.' + str(k))
-                elif p < pService + pPark:
+                if p < pWork:
+                    k = random.randrange(0, 3)
+                    c = place_parser.readPlace('places.ini', 'work.' + str(k))
+                    c.openHours[0] += random.triangular(-0.5 * time.HOUR, 0.5 * time.HOUR, 0)
+                elif p < pWork + pPark:
                     c = place_parser.readPlace('places.ini', 'outdoor')
-                elif p < pService + pPark + pNonService:
-                    c = place_parser.readPlace('places.ini', 'nonservice')
                 else:
                     c = place_parser.readPlace('places.ini', 'home')
             theGrid.addPlace(place.Place(i, j, "", c))

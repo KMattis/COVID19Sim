@@ -8,8 +8,7 @@ def generate(grid, numPersons):
             and thePlace.char.placeType is place.PlaceType.HOME]
     workplaces = [thePlace for thePlace in grid.internal_grid
             if thePlace is not None
-            and (thePlace.char.placeType is place.PlaceType.SERVICE
-                or thePlace.char.placeType is place.PlaceType.NONSERVICE)]
+            and (thePlace.char.placeType is place.PlaceType.WORK)]
     
     persons = []
     for i in range(numPersons):

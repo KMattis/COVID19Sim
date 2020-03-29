@@ -30,7 +30,7 @@ class Simulation:
         self.lastUpdate = self.now.minute
 
         persons_travelling = 0
-        persons_at_place = { place.PlaceType.HOME : 0, place.PlaceType.SERVICE : 0, place.PlaceType.NONSERVICE : 0, place.PlaceType.OUTDOOR : 0 }
+        persons_at_place = { place.PlaceType.HOME : 0, place.PlaceType.WORK : 0, place.PlaceType.OUTDOOR : 0 }
         for thePerson in self.persons:
             thePerson.needs.update(deltaInMinutes)
 
