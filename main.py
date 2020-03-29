@@ -9,6 +9,9 @@ from profiler.profiler import profilerObj
 def getCurrentTimeMillis():
     return round(time.time() * 1000)
 
+with open("logfiles/activity.log", "w") as f:
+    pass
+
 config = configparser.ConfigParser()
 config.read("config.ini")
 

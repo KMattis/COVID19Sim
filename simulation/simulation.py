@@ -12,7 +12,7 @@ SIMULATION_TICK_LENGTH = 1 * time.MINUTE
 
 class Simulation:
     def __init__(self, persons, grid):
-        self.now = time.Timestamp(time.HOUR * 6)
+        self.now = time.Timestamp(time.HOUR * 0)
         self.persons = persons
         self.lastUpdate = -1
 
@@ -55,37 +55,23 @@ class Simulation:
 
     #Plan the schedule of a person
     def plan(self, person, grid):
+        #get neares eating place
+        park = random.choice(grid.parks)
+
         #Check if work need is > 0.5 && work has open
         if person.needs.needsWork() and person.workplace.hasOpen(self.now): #TODO hasOpen is NOT optimal
             person.schedule.plan(person.workplace,
                     self.now.now(),
                     Simulation.gauss(self.now.now() + person.workplace.char.avgDuration, time.HOUR, self.now.now() + time.HOUR))
-        elif person.needs.needsEat():
-            #get neares eating place
-            park = random.choice(grid.parks)
+        elif person.needs.needsEat() and park.hasOpen(self.now):
             person.schedule.plan(park,
                     self.now.now(),
                     Simulation.gauss(self.now.now() + time.HOUR, time.HOUR, self.now.now() + time.HOUR))
         else:
+            sleepNeed = person.needs.needs[needs.NeedType.SLEEP] * 14 * random.uniform(0.8, 1.2)
             person.schedule.plan(person.home,
                     self.now.now(),
-                    Simulation.gauss(self.now.now() + time.HOUR, time.HOUR, self.now.now() + time.HOUR))
-
-        """
-        lastItem = person.schedule.getLastScheduledItem()
-        if lastItem == None:
-            nextDayToPlan = self.now.today()
-            t = -1
-        else:
-            nextDayToPlan = time.Timestamp(lastItem.start + time.DAY).today()
-            t = lastItem.stop
-        
-        start = max(t+1, nextDayToPlan + random.choice(person.workplace.char.avgArrival) + Simulation.gauss(0,
-                time.HOUR, -2 *time.HOUR))
-        person.schedule.plan(person.workplace,
-            start,
-            Simulation.gauss(start + person.workplace.char.avgDuration, time.HOUR, start + time.HOUR))
-        """
+                    self.now.now() + sleepNeed * time.HOUR)
 
     @staticmethod
     def gauss(mu, sigma, _min):
