@@ -3,7 +3,7 @@ import math
 import random
 
 from simulation import time
-from model import schedule
+from model import schedule, needs
 
 MINUTES_PER_CELL = 0.5
 
@@ -22,6 +22,8 @@ class Person:
         self.travelStart = time.Timestamp(-1)
         self.travelEnd = time.Timestamp(0)
         self.schedule = schedule.Schedule(home)
+
+        self.needs = needs.Needs()
 
     def setDestination(self, dest, now):
         self.travelStart.set(now.now())

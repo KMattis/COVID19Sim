@@ -1,7 +1,7 @@
 import math
 import random
 
-from model import grid, place, place_characteristics
+from model import grid, place, place_characteristics, needs
 from simulation import time
 from generation import place_parser
 
@@ -14,7 +14,7 @@ def generate(size):
         for j in range(size):
             radius2 = (i - centerx)**2 + (j - centery)**2
             if radius2 > size**2 / 4:
-                c = place_characteristics.PlaceCharacteristics(place.PlaceType.NONE, 0, 0,0,0)
+                c = place_characteristics.PlaceCharacteristics(place.PlaceType.NONE,0,0,0,0,needs.NeedType.NONE)
             else: 
                 maxRadius = size / 2
                 pService = ((maxRadius - math.sqrt(radius2)) / maxRadius) * 0.5
