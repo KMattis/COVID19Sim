@@ -1,7 +1,7 @@
 from simulation import time
 
 def defaultUpdate(sickness, now):
-    infTime = (now.now()-sickness.infectionStarted)*time.DAY
+    infTime = time.Timestamp(now.now()-sickness.infectionStarted).day()
     sickness.isInfected = True
     if 0 < infTime < 2:
         sickness.contLevel = 40
