@@ -8,7 +8,7 @@ from generation import place_parser
 def generate(size):
     theGrid = grid.Grid(size)
     
-    workplaceChars = [place_parser.readPlace("places.ini", "work." + str(k)) for k in range(2)]
+    workplaceChars = [place_parser.readPlace("simconfig/places.ini", "work." + str(k)) for k in range(2)]
     workplaceCharFreqs = [char.frequency for char in workplaceChars]
 
     centerx = size / 2
@@ -28,9 +28,9 @@ def generate(size):
                 if p < pWork:
                     c = random.choices(workplaceChars, workplaceCharFreqs)[0]
                 elif p < pWork + pPark:
-                    c = place_parser.readPlace('places.ini', 'outdoor')
+                    c = place_parser.readPlace('simconfig/places.ini', 'outdoor')
                 else:
-                    c = place_parser.readPlace('places.ini', 'home')
+                    c = place_parser.readPlace('simconfig/places.ini', 'home')
             theGrid.addPlace(place.Place(i, j, "", c))
     theGrid.getDistanceMap().calcDistances()
     return theGrid

@@ -10,7 +10,7 @@ def generate(grid, numPersons):
             if thePlace is not None
             and (thePlace.char.placeType is place.PlaceType.WORK)]
         
-    eat, sleep, work, outdoor = need_parser.readNeeds('needs.ini', 'default')
+    eat, sleep, work, outdoor = need_parser.readNeeds('simconfig/needs.ini', 'default')
         
     persons = []
     for i in range(numPersons):

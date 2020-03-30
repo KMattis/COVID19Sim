@@ -15,7 +15,7 @@ with open("logfiles/activity.log", "w") as f:
     pass
 
 config = configparser.ConfigParser()
-config.read("config.ini")
+config.read("simconfig/config.ini")
 
 theGrid = generation.grid_generator.generate(int(config["default"]["gridSize"]))
 persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]))
