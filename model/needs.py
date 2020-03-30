@@ -4,10 +4,6 @@ import random
 from simulation import time, simulation
 from model import place
 
-EAT_NEED_PER_MINUTE = 2 / time.DAY
-SLEEP_NEED_PER_MINUTE = 8 / time.DAY
-WORK_NEED_PER_MINUTE = 8 / time.DAY
-OUTDOOR_NEED_PER_MINUTE = 1  / time.DAY
 
 class NeedType(enum.Flag):
     NONE = enum.auto()
@@ -17,7 +13,7 @@ class NeedType(enum.Flag):
     OUTDOOR = enum.auto()
 
 class Needs:
-    def __init__(self, dEat = EAT_NEED_PER_MINUTE, dSleep = SLEEP_NEED_PER_MINUTE, dWork = WORK_NEED_PER_MINUTE, dOutdoor = OUTDOOR_NEED_PER_MINUTE):
+    def __init__(self, dEat, dSleep, dWork, dOutdoor):
         self.needs = { NeedType.EAT: 0, NeedType.SLEEP: random.uniform(0.6, 0.8), NeedType.WORK: 0, NeedType.OUTDOOR: 0 }
         self.deltas = { NeedType.EAT: dEat * random.uniform(0.9, 1.1),
                 NeedType.SLEEP: dSleep * random.uniform(0.9, 1.1),
