@@ -8,7 +8,7 @@ from model import schedule, needs
 MINUTES_PER_CELL = 0.5
 
 class Person:
-    def __init__(self, name, age, home, workplace, needs):
+    def __init__(self, name, age, home, workplace, needs, sickness):
         self.name = name
         self.age = age
         self.home = home
@@ -24,6 +24,8 @@ class Person:
         self.schedule = schedule.Schedule(home)
 
         self.needs = needs
+    
+        self.sickness = sickness
 
     def setDestination(self, dest, now):
         self.travelStart.set(now.now())

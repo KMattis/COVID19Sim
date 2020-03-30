@@ -49,6 +49,8 @@ class Simulation:
                 continue
 
             thePerson.needs.update(self.now)
+            thePerson.sickness.update(self.now)
+
             dur = thePerson.schedule.items[0].stop - thePerson.schedule.items[0].start
             for need in thePerson.schedule.items[0].place.char.needTypes:
                 if need != needs.NeedType.WORK or thePerson.schedule.items[0].place == thePerson.workplace:
@@ -59,6 +61,13 @@ class Simulation:
             nextGoal = thePerson.schedule.getNext()
             
             thePerson.setDestination(nextGoal.place, self.now)
+
+        #########TODO#########
+
+        #Loop over all places and use the workplace characteristics to determine
+        #who gets infected (To add)
+
+        #########TODO#########
 
         profilerObj.stopProfiling()
         
