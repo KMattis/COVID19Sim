@@ -19,10 +19,8 @@ class Simulation:
             self.plan(thePerson, grid)
 
     def simulate(self, grid):
-        self.now.minute += 1
+        self.now.minute += SIMULATION_TICK_LENGTH
 
-        if self.now.minute < self.lastUpdate + SIMULATION_TICK_LENGTH:
-            return
 
         deltaInMinutes = SIMULATION_TICK_LENGTH
 
@@ -35,27 +33,28 @@ class Simulation:
         profilerObj.startProfiling("plan")
         place_map = {}
         for thePerson in self.persons:
-            #################STATS###############################
+
             if thePerson.isTraveling():
                 persons_travelling += 1
                 if self.now.now() > thePerson.travelEnd.now():
                     thePerson.currentPosition = thePerson.currentDestination
             else:
+
+                appendPlaceMap(place_map, thePerson)
+
                 if thePerson.currentPosition.char.placeType == place.PlaceType.WORK and thePerson.currentPosition != thePerson.workplace:
                     persons_at_place["EAT"] += 1
                 else:
                     persons_at_place[thePerson.currentPosition.char.placeType] += 1
 
+
             if self.now.now() < thePerson.schedule.items[0].stop:
                 continue
-            #################/STATS###############################
 
-            #################PLACE MAP############################
 
-            #################/PLACE MAP############################
             thePerson.needs.update(self.now)
             thePerson.sickness.update(self.now)
-
+            
             dur = thePerson.schedule.items[0].stop - thePerson.schedule.items[0].start
             for need in thePerson.schedule.items[0].place.char.needTypes:
                 if need != needs.NeedType.WORK or thePerson.schedule.items[0].place == thePerson.workplace:
@@ -67,11 +66,12 @@ class Simulation:
             
             thePerson.setDestination(nextGoal.place, self.now)
 
-        #########TODO#########
-
-             
-
-        #########TODO#########
+        for pl in filter(lambda pl: place_map[pl][1] > 0, place_map):
+            #Determine infection risk at plname
+            #...
+            for thePerson in place_map[pl][0]:
+                pWorker, pVisitor = pl.getInfectionRisks( )
+                #Infect with prob. as calculated above
 
         profilerObj.stopProfiling()
         
@@ -89,3 +89,12 @@ class Simulation:
     @staticmethod
     def gauss(mu, sigma, _min):
         return max(_min, random.gauss(mu, sigma))
+
+def appendPlaceMap(place_map, thePerson): 
+    thePlace = thePerson.schedule.items[0].place
+    if not thePlace in place_map:
+        place_map[thePlace] = [[thePerson], 1 if thePerson.sickness.isContagious() else 0] 
+        return
+    if thePerson.sickness.isInfected:
+        place_map[thePlace][1] += 1
+    place_map[thePerson.schedule.items[0].place][0].append(thePerson)
