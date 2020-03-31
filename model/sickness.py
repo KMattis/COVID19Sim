@@ -22,3 +22,6 @@ class Sickness:
     def contPropName(self, dist, exposureTime):
         return self.contProbFunction(self, dist, exposureTime)
 
+    def isContagious(self):
+        return self.isInfected and self.contRadius > 0
+
