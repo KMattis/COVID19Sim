@@ -21,7 +21,7 @@ class Person:
 
         self.travelStart = time.Timestamp(-1)
         self.travelEnd = time.Timestamp(0)
-        self.schedule = schedule.Schedule(home)
+        self.schedule = schedule.Schedule()
 
         self.needs = needs
     

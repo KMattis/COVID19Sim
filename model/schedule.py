@@ -14,9 +14,8 @@ class ScheduleItem:
         return str(self.place.char.placeType) + ": " + str(self.start) + "-" + str(self.stop)
 
 class Schedule:
-    def __init__(self, home):
+    def __init__(self):
         self.task = None
-        self.home = home
 
     def plan(self, place, start, stop):
         if self.task is not None and start < self.task.stop:
