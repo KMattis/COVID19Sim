@@ -8,12 +8,12 @@ from model import schedule, needs, place, needs, sickness
 MINUTES_PER_CELL = 0.5
 
 class Person:
-    def __init__(self, name: str, age: int, home: place.Place, needs: needs.Needs, sickness: sickness.Sickness):
+    def __init__(self, name: str, age: int, startingPlace: place.Place, needs: needs.Needs, sickness: sickness.Sickness):
         self.name: str = name
         self.age: int = age
 
-        self.currentPosition: place.Place = home
-        self.currentDestination:place.Place = home
+        self.currentPosition: place.Place = startingPlace
+        self.currentDestination:place.Place = startingPlace
 
         self.direction: [int] = [0, 0]
 
@@ -34,7 +34,7 @@ class Person:
         self.direction = [(self.currentDestination.x - self.currentPosition.x) / divisor, (self.currentDestination.y - self.currentPosition.y) / divisor]
     
     def getXY(self, now: time.Timestamp) -> (int, int):
-        if self.isTravelling():        
+        if self.isTravelling():
             progress = min(now.now() - self.travelStart.now(), self.travelEnd.now() - self.travelStart.now())
             return self.currentPosition.x + self.direction[0] * progress, self.currentPosition.y + self.direction[1] * progress
         else:
