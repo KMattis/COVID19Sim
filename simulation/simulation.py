@@ -31,8 +31,11 @@ class Simulation:
         persons_travelling = 0
         persons_at_place = { place.PlaceType.HOME : 0, place.PlaceType.WORK : 0, place.PlaceType.OUTDOOR : 0, "EAT": 0 }
 
-        profilerObj.startProfiling("stats+travelling")
+
+        profilerObj.startProfiling("plan")
+        place_map = {}
         for thePerson in self.persons:
+            #################STATS###############################
             if thePerson.isTraveling():
                 persons_travelling += 1
                 if self.now.now() > thePerson.travelEnd.now():
@@ -43,11 +46,13 @@ class Simulation:
                 else:
                     persons_at_place[thePerson.currentPosition.char.placeType] += 1
 
-        profilerObj.stopStartProfiling("plan")
-        for thePerson in self.persons:
             if self.now.now() < thePerson.schedule.items[0].stop:
                 continue
+            #################/STATS###############################
 
+            #################PLACE MAP############################
+
+            #################/PLACE MAP############################
             thePerson.needs.update(self.now)
             thePerson.sickness.update(self.now)
 
@@ -56,7 +61,7 @@ class Simulation:
                 if need != needs.NeedType.WORK or thePerson.schedule.items[0].place == thePerson.workplace:
                     if thePerson.needs.needs[need] >= 0.75:
                         thePerson.needs.needs[need] -= dur / time.HOUR * 0.5
-            
+ 
             self.plan(thePerson,grid)
             nextGoal = thePerson.schedule.getNext()
             
@@ -64,8 +69,7 @@ class Simulation:
 
         #########TODO#########
 
-        #Loop over all places and use the workplace characteristics to determine
-        #who gets infected (To add)
+             
 
         #########TODO#########
 
