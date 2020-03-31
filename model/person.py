@@ -36,11 +36,11 @@ class Person:
         self.direction = [(self.currentDestination.x - self.currentPosition.x) / divisor, (self.currentDestination.y - self.currentPosition.y) / divisor]
     
     def getXY(self, now: time.Timestamp):
-        if self.isTraveling():        
+        if self.isTravelling():        
             progress = min(now.now() - self.travelStart.now(), self.travelEnd.now() - self.travelStart.now())
             return self.currentPosition.x + self.direction[0] * progress, self.currentPosition.y + self.direction[1] * progress
         else:
             return self.currentPosition.x, self.currentPosition.y
 
-    def isTraveling(self):
+    def isTravelling(self):
         return self.currentDestination != self.currentPosition

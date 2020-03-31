@@ -1,7 +1,7 @@
 import enum
 import random
 
-from simulation import time, simulation
+from simulation import time, simulation, math
 from model import place
 
 
@@ -30,33 +30,29 @@ class Needs:
         self.lastNeedUpdate = now.now()
 
     def getPrioNeeds(self):
-        l = sorted([k for k in self.needs.keys() if self.needs[k] >= 0.5], key=lambda k: self.needs[k], reverse=True)
-        l.append(NeedType.SLEEP)
-        return l
+        sortedNeeds = sorted([k for k in self.needs.keys() if self.needs[k] >= 0.5], key=lambda k: self.needs[k], reverse=True)
+        sortedNeeds.append(NeedType.SLEEP)
+        return sortedNeeds
 
 def canBeSatisfied(person, grid, need, now, needval):
     distmap = grid.getDistanceMap()
     if need == NeedType.WORK:
-        return person.workplace.hasOpen(now), person.workplace, simulation.Simulation.gauss(person.workplace.char.avgDuration / 4, time.HOUR, time.HOUR)
+        return person.workplace.isOpen(now), person.workplace, math.truncated_gauss(person.workplace.char.avgDuration / 4, time.HOUR, time.HOUR)
     elif need == NeedType.SLEEP:
         return True, person.home, max(1 * time.HOUR, needval * time.HOUR * 3 * random.uniform(0.9, 1.1))
     elif need == NeedType.OUTDOOR:
         nearparks = distmap.getNearPlaces(person.currentPosition.x, person.currentPosition.y, place.SubType.PARK)
-
-        for (pos, dist, invdist) in nearparks:
+        for (pos, _, __) in nearparks:
             x,y = pos
-            if grid.get(x,y).hasOpen(now):
-                return True, grid.get(x,y), simulation.Simulation.gauss(time.HOUR, time.HOUR, time.HOUR)
-
+            if grid.get(x,y).isOpen(now):
+                return True, grid.get(x,y), math.truncated_gauss(time.HOUR, time.HOUR, time.HOUR)
         return False, None, None
     elif need == NeedType.EAT:
         nearres = distmap.getNearPlaces(person.currentPosition.x, person.currentPosition.y, place.SubType.RESTAURANT)
-
-        for (pos, dist, invdist) in nearres:
+        for (pos, _, __) in nearres:
             x,y = pos
-            if grid.get(x,y).hasOpen(now):
-                return True, grid.get(x,y), simulation.Simulation.gauss(time.HOUR, time.HOUR, time.HOUR)
-
+            if grid.get(x,y).isOpen(now):
+                return True, grid.get(x,y), math.truncated_gauss(time.HOUR, time.HOUR, time.HOUR)
         return False, None, None
     else:
         raise Exception("Unknown need type")

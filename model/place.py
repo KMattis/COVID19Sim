@@ -25,5 +25,5 @@ class Place:
         self.name = name
         self.char = characteristics
 
-    def hasOpen(self, timestamp):
+    def isOpen(self, timestamp):
         return self.char.openHours[0] <= timestamp.hourOfDay()*time.HOUR < self.char.openHours[0] + self.char.openHours[1]
