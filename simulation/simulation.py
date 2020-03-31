@@ -48,23 +48,20 @@ class Simulation:
                     persons_at_place[thePerson.currentPosition.char.placeType] += 1
 
 
-            if self.now.now() < thePerson.schedule.items[0].stop:
+            if self.now.now() < thePerson.schedule.task.stop:
                 continue
-
 
             thePerson.needs.update(self.now)
             thePerson.sickness.update(self.now)
             
-            dur = thePerson.schedule.items[0].stop - thePerson.schedule.items[0].start
-            for need in thePerson.schedule.items[0].place.char.needTypes:
-                if need != needs.NeedType.WORK or thePerson.schedule.items[0].place == thePerson.workplace:
+            dur = thePerson.schedule.task.getDuration()
+            for need in thePerson.schedule.task.place.char.needTypes:
+                if need != needs.NeedType.WORK or thePerson.schedule.task.place == thePerson.workplace:
                     if thePerson.needs.needs[need] >= 0.75:
                         thePerson.needs.needs[need] -= dur / time.HOUR * 0.5
  
             self.plan(thePerson,grid)
-            nextGoal = thePerson.schedule.getNext()
-            
-            thePerson.setDestination(nextGoal.place, self.now)
+            thePerson.setDestination(thePerson.schedule.task.place, self.now)
 
         for pl in filter(lambda pl: place_map[pl][1] > 0, place_map):
             #Determine infection risk at plname
@@ -91,10 +88,10 @@ class Simulation:
         return max(_min, random.gauss(mu, sigma))
 
 def appendPlaceMap(place_map, thePerson): 
-    thePlace = thePerson.schedule.items[0].place
+    thePlace = thePerson.schedule.task.place
     if not thePlace in place_map:
         place_map[thePlace] = [[thePerson], 1 if thePerson.sickness.isContagious() else 0] 
         return
     if thePerson.sickness.isInfected:
         place_map[thePlace][1] += 1
-    place_map[thePerson.schedule.items[0].place][0].append(thePerson)
+    place_map[thePerson.schedule.task.place][0].append(thePerson)
