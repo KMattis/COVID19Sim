@@ -1,4 +1,4 @@
 import random
 
-def truncated_gauss(mu, sigma, _min):
-    return max(_min, random.gauss(mu, sigma))
+def truncated_gauss(mu: int, sigma: int, _min: int) -> int:
+    return round(max(_min, random.gauss(mu, sigma)))

@@ -2,28 +2,14 @@ import enum
 
 from simulation import time
 
-class PlaceType(enum.Enum):
-    NONE = -1
-    HOME = 0
-    WORK = 1
-    MASSEVENT = 2
-    OUTDOOR = 3
-    HEALTHCARE = 4
-
-class SubType(enum.Enum):
-    NONE = -1
-    RESTAURANT = 0
-    PARK = 1
-    OFFICE = 2
-    HOME = 3
-     
+from model import place_characteristics
 
 class Place:
-    def __init__(self, x, y, name, characteristics):
-        self.x = x
-        self.y = y
-        self.name = name
-        self.char = characteristics
+    def __init__(self, x: int, y: int, name: str, characteristics: place_characteristics.PlaceCharacteristics):
+        self.x: int = x
+        self.y: int = y
+        self.name: str = name
+        self.char: place_characteristics.PlaceCharacteristics = characteristics
 
-    def isOpen(self, timestamp):
+    def isOpen(self, timestamp: time.Timestamp) -> bool:
         return self.char.openHours[0] <= timestamp.hourOfDay()*time.HOUR < self.char.openHours[0] + self.char.openHours[1]

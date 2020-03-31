@@ -19,7 +19,7 @@ class Sickness:
         self.lastUpdate = now.now()
 
     #exposureTime in minutes
-    def contPropName(self, dist, exposureTime):
+    def contProbName(self, dist, exposureTime):
         return self.contProbFunction(self, dist, exposureTime)
 
     def isContagious(self):

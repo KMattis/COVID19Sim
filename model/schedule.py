@@ -1,23 +1,22 @@
+from model import place
+
 class ScheduleItem:
-    def __init__(self, place, start, stop):
+    def __init__(self, place: place.Place, start: int, stop: int):
         self.place = place
         self.start = start
         self.stop = stop
 
-    def intersectsWith(self, item):
-        return self.start <= item.start < self.stop or item.start <= self.start < item.stop
-
-    def getDuration(self):
+    def getDuration(self) -> int:
         return self.stop - self.start
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.place.char.placeType) + ": " + str(self.start) + "-" + str(self.stop)
 
 class Schedule:
     def __init__(self):
-        self.task = None
+        self.task: ScheduleItem = None
 
-    def plan(self, place, start, stop):
+    def plan(self, place: place.Place, start: int, stop: int) -> None:
         if self.task is not None and start < self.task.stop:
             raise Exception("Events must be added in ascending order {0},{1},{2}".format(place.char.placeType, start, stop)) 
         self.task = ScheduleItem(place, start, stop)
