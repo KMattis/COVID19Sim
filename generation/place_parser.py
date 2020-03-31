@@ -6,11 +6,11 @@ def parseTimeList(listasstring) -> [int]:
     tmplist = listasstring.split(',')
     return [int(x)*time.HOUR for x in tmplist]
 
-def parseNeedList(listasstring) -> [needs.NeedType]:
+def parseNeedList(listasstring, needTypesDict):
     tmplist = listasstring.split(',')
-    return [needs.NeedType[x] for x in tmplist]
+    return [needTypesDict[x] for x in tmplist]
 
-def readPlace(configFile, placeName) -> place_characteristics.PlaceCharacteristics:
+def readPlace(configFile, placeName, needTypesDict) -> place_characteristics.PlaceCharacteristics:
     config = configparser.ConfigParser()
     config.read(configFile)
     placeType = place_characteristics.PlaceType[config[placeName]['type']]
@@ -18,7 +18,7 @@ def readPlace(configFile, placeName) -> place_characteristics.PlaceCharacteristi
     avgDuration = int(config[placeName]['avgDuration']) * time.HOUR
     openDays = parseTimeList(config[placeName]['openDays'])
     openHours = parseTimeList(config[placeName]['openHours'])
-    needTypes = parseNeedList(config[placeName]['needTypes'])
+    needTypes = parseNeedList(config[placeName]['needTypes'], needTypesDict)
     subType = place_characteristics.SubType[config[placeName]['subType']]
     frequency = int(config[placeName]['frequency'])
     return place_characteristics.PlaceCharacteristics(placeType,

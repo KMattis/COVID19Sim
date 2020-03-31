@@ -8,11 +8,9 @@ from model import schedule, needs, place, needs, sickness
 MINUTES_PER_CELL = 0.5
 
 class Person:
-    def __init__(self, name: str, age: int, home: place.Place, workplace: place.Place, needs: needs.Needs, sickness: sickness.Sickness):
+    def __init__(self, name: str, age: int, home: place.Place, needs: needs.Needs, sickness: sickness.Sickness):
         self.name: str = name
         self.age: int = age
-        self.home: place.Place = home
-        self.workplace: place.Place = workplace
 
         self.currentPosition: place.Place = home
         self.currentDestination:place.Place = home
