@@ -27,14 +27,7 @@ class Schedule:
         if len(self.items) > 0:
             if start < self.items[-1].stop:
                 raise Exception("Events must be added in ascending order {0},{1},{2}".format(place.char.placeType, start, stop)) 
-            #if start > self.items[-1].stop:
-            #    self.items.append(ScheduleItem(self.home, self.items[-1].stop, start))  
-        #else:
-        #    self.items.append(ScheduleItem(self.home, 0, start))  
         self.items.append(ScheduleItem(place, start, stop))
-
-    def needsPlanning(self):
-        return len(self.items) <= 1
 
     def getLastScheduledItem(self):
         if len(self.items) > 0:

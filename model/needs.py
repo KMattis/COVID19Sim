@@ -29,18 +29,6 @@ class Needs:
         self.needs[NeedType.OUTDOOR] = min(1, self.needs[NeedType.OUTDOOR] + self.deltas[NeedType.OUTDOOR] * delta)
         self.lastNeedUpdate = now.now()
 
-    def needsWork(self):
-        return self.needs[NeedType.WORK] > 0.5
-        
-    def needsSleep(self):
-        return self.needs[NeedType.SLEEP] > 0.5
-
-    def needsEat(self):
-        return self.needs[NeedType.EAT] > 0.5
-
-    def needsOutdoor(self):
-        return self.needs[NeedType.OUTDOOR] > 0.5
-
     def getPrioNeeds(self):
         l = sorted([k for k in self.needs.keys() if self.needs[k] >= 0.5], key=lambda k: self.needs[k], reverse=True)
         l.append(NeedType.SLEEP)

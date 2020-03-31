@@ -71,7 +71,7 @@ class Simulation:
 
         profilerObj.stopProfiling()
         
-        logging.Logger.write("activity", self.now.minute, persons_travelling, *(persons_at_place.values()))
+        logging.write("activity", self.now.minute, persons_travelling, *(persons_at_place.values()))
 
     #Plan the schedule of a person
     def plan(self, person, grid):
