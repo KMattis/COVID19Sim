@@ -3,12 +3,12 @@ import math
 import random
 
 from simulation import time
-from model import schedule, needs, place, needs, sickness
+from model import schedule, need_type, place, sickness
 
 MINUTES_PER_CELL = 0.5
 
 class Person:
-    def __init__(self, name: str, age: int, startingPlace: place.Place, needs: needs.Needs, sickness: sickness.Sickness):
+    def __init__(self, name: str, age: int, startingPlace: place.Place, needTypes: [need_type.NeedType], sickness: sickness.Sickness):
         self.name: str = name
         self.age: int = age
 
@@ -21,7 +21,9 @@ class Person:
         self.travelEnd: time.Timestamp = time.Timestamp(0)
         self.schedule: schedule.Schedule = schedule.Schedule()
 
-        self.needs: needs.Needs = needs
+        self.needs = {}
+        for needType in needTypes:
+            self.needs[needType] = random.uniform(0, 1)
     
         self.sickness: sickness.Sickness = sickness
 

@@ -17,6 +17,7 @@ argparser: argparse.ArgumentParser = argparse.ArgumentParser()
 argparser.add_argument("--no-render", dest="noRender", action='store_const', const=True)
 argparser.add_argument("--config-file", dest="configFile", type=str, default="simconfig/config.ini")
 argparser.add_argument("--need-types-file", dest="needTypesFile", type=str, default="simconfig/need_types.py")
+argparser.add_argument("--num-days", dest="numDays", type=int, default=0)
 args = argparser.parse_args()
 
 MINUTES_PER_REAL_SECOND = 100
@@ -88,6 +89,9 @@ while running:
         print("Simulation time: {0}:{1}:{2}".format(now.day(), now.hourOfDay(), now.minuteOfHour()))
         profilerObj.printPercentages("covid")
         profilerObj.reset()
+
+    if args.numDays > 0 and theSimulation.now.day() >= args.numDays:
+        running = False
 
 logging.write("output", "shutting down")
 

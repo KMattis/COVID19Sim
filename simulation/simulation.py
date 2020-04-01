@@ -2,7 +2,7 @@ import random
 
 from plotting import logging
 
-from model import place, person, needs, place_characteristics
+from model import place, person, place_characteristics
 from simulation import time, math
 
 from profiler.profiler import profilerObj
@@ -30,7 +30,7 @@ class Simulation:
         logging.write("bobby", self.now.now(), self.persons[0].schedule.task.activity.getName())
 
         persons_at_place = { "TRAVEL": 0 }
-        for needType in self.persons[0].needs.needs:
+        for needType in self.persons[0].needs:
             persons_at_place[needType] = 0
 
         place_map = {}
@@ -64,7 +64,7 @@ class Simulation:
     #Plan the schedule of a person
     def plan(self, person):
         for need in self.getNeedPrio(person):
-            exists, openPlace, dur = need.trySatisfy(person, person.needs.needs[need], self.now)
+            exists, openPlace, dur = need.trySatisfy(person, person.needs[need], self.now)
             if exists:
                 person.schedule.plan(openPlace, self.now.now(), self.now.now()+dur, need)
                 person.setDestination(person.schedule.task.place, self.now)

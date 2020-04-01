@@ -1,7 +1,7 @@
 import math
 import random
 
-from model import grid, place, place_characteristics, needs
+from model import grid, place, place_characteristics
 from simulation import time
 from generation import place_parser
 

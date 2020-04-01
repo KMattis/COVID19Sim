@@ -1,6 +1,6 @@
 import configparser
 from simulation import time
-from model import place_characteristics, needs
+from model import place_characteristics
 
 def parseTimeList(listasstring) -> [int]:
     tmplist = listasstring.split(',')

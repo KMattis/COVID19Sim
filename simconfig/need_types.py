@@ -16,13 +16,13 @@ class Sleep(need_type.NeedType):
             self.homes[person] = random.choice(homes)
         
     def trySatisfy(self, person, needValue, now):
-        return True, self.homes[person], max(2 * time.HOUR, needValue / 2 * time.HOUR)
+        return True, self.homes[person], random.uniform(time.HOUR, 2 * time.HOUR)
 
     def getName(self):
         return "SLEEP"
 
     def getDelta(self):
-        return 12 / time.DAY 
+        return 10 / time.DAY 
 
 class Work(need_type.NeedType):
     def __init__(self):
@@ -38,7 +38,7 @@ class Work(need_type.NeedType):
         
     def trySatisfy(self, person, needValue, now):
         workplace = self.workplaces[person]
-        return workplace.isOpen(now), workplace, 2 * time.HOUR
+        return workplace.isOpen(now), workplace, random.uniform(time.HOUR, 2 * time.HOUR)
 
     def getName(self):
         return "WORK"
@@ -59,7 +59,7 @@ class Eat(need_type.NeedType):
         for (pos, _, __) in nearres:
             x,y = pos
             if self.grid.get(x,y).isOpen(now):
-                return True, self.grid.get(x,y), needValue / 2 * time.HOUR
+                return True, self.grid.get(x,y), random.uniform(time.MINUTE * 10, time.MINUTE * 30)
         return False, None, None
 
     def getName(self):
@@ -81,7 +81,7 @@ class Outdoor(need_type.NeedType):
         for (pos, _, __) in nearparks:
             x,y = pos
             if self.grid.get(x,y).isOpen(now):
-                return True, self.grid.get(x,y), needValue / 2 * time.HOUR
+                return True, self.grid.get(x,y), random.uniform(time.HOUR, 2 * time.HOUR)
         return False, None, None
     
     def getName(self):

@@ -65,19 +65,18 @@ def plotActivity():
 def plotBobby():
     time, activity = readBobbyFile("logfiles/bobby.log")
     
-    eat = sum(1 for a in activity if a == "EAT")
-    sleep = sum(1 for a in activity if a == "SLEEP")
-    work = sum(1 for a in activity if a == "WORK")
-    outdoor = sum(1 for a in activity if a == "OUTDOOR")
+    # eat = sum(1 for a in activity if a == "EAT")
+    # sleep = sum(1 for a in activity if a == "SLEEP")
+    # work = sum(1 for a in activity if a == "WORK")
+    # outdoor = sum(1 for a in activity if a == "OUTDOOR")
+    # plt.pie(np.array([eat, sleep, work, outdoor]), labels = [ "Eat", "Sleep", "Work", "Outdoor" ])
 
     time = (1/60) * np.array(time)
 
-    # plt.pie(np.array([eat, sleep, work, outdoor]), labels = [ "Eat", "Sleep", "Work", "Outdoor" ])
     
     color = { "EAT": "#8800FF", "SLEEP": "#FF8800", "WORK": "#FF0000", "OUTDOOR": "#008800" }
     colors = [color[a] for a in activity]
-    heights = np.ones(len(time))
-    plt.bar(time, height=1, width=5, color=colors)
+    plt.bar(time, height=1, width=5/60, color=colors)
 
     plt.grid(True)
     plt.xticks(np.arange(0, np.max(time), 6))
