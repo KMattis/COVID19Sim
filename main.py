@@ -38,6 +38,7 @@ persons = generation.person_generator.generate(theGrid, int(config["default"]["n
 
 for needType in needTypes:
     needType.initialize(persons, theGrid)
+    logging.write("output", needType.getName())
 
 personScriptName = config["default"]["personScript"]
 spec = importlib.util.spec_from_file_location("person_script", personScriptName)

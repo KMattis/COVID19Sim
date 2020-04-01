@@ -12,7 +12,8 @@ def initialize(needTypes):
     eat = [k for k in needTypes if k.getName() == "EAT"][0]
 
 def getNeedPrio(thePerson):
-    sortedNeeds = sorted([k for k in thePerson.needs.needs.keys()], key=lambda k: thePerson.needs.needs[k], reverse=True)
+    sortedNeeds = sorted([k for k in thePerson.needs.needs.keys() if thePerson.needs.needs[k] > 0.5],
+            key=lambda k: thePerson.needs.needs[k], reverse=True)
     sortedNeeds.append(sleep)
     return sortedNeeds
 
@@ -24,10 +25,12 @@ def updateNeeds(thePerson):
     for need in currentPlace.char.needTypes:
         if thePerson.schedule.task.activity == eat and need == work:
             continue
-        if thePerson.needs.needs[need] >= 0.75:
-            thePerson.needs.needs[need] -= duration / time.HOUR * 0.5
+        #thePerson.needs.needs[need] = 0
+        thePerson.needs.needs[need] -= (duration / time.HOUR)
 
     for needType in thePerson.needs.needs:
-        thePerson.needs.needs[needType] = min(1,
-            thePerson.needs.needs[needType] + thePerson.needs.deltas[needType] * duration)
+        if needType in currentPlace.char.needTypes:
+            continue
+
+        thePerson.needs.needs[needType] = thePerson.needs.needs[needType] + thePerson.needs.deltas[needType] * duration
 
