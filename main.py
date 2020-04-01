@@ -12,6 +12,8 @@ from plotting import logging
 #Setup argparse
 argparser: argparse.ArgumentParser = argparse.ArgumentParser()
 argparser.add_argument("--no-render", dest="noRender", action='store_const', const=True)
+argparser.add_argument("--config-file", dest="configFile", type=str, default="simconfig/config.ini")
+argparser.add_argument("--need-types-file", dest="needTypesFile", type=str, default="simconfig/need_types.py")
 args = argparser.parse_args()
 
 MINUTES_PER_REAL_SECOND = 100
@@ -23,10 +25,10 @@ logging.registerCategory("activity")
 logging.registerCategory("output")
 
 config = configparser.ConfigParser()
-config.read("simconfig/config.ini")
+config.read(args.configFile)
 
 logging.write("output", "generating")
-needTypes = generation.need_parser.readNeedTypes("simconfig/need_types.py")
+needTypes = generation.need_parser.readNeedTypes(args.needTypesFile)
 theGrid = generation.grid_generator.generate(int(config["default"]["gridSize"]), needTypes)
 persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes)
 
