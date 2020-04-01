@@ -2,6 +2,9 @@ import time
 import configparser
 import argparse
 
+import importlib.util
+import inspect
+
 import generation.grid_generator, generation.person_generator, generation.need_parser
 from rendering.renderer import Renderer
 from simulation.simulation import Simulation
@@ -22,6 +25,7 @@ def getCurrentTimeMillis():
     return round(time.time() * 1000)
 
 logging.registerCategory("activity")
+logging.registerCategory("bobby")
 logging.registerCategory("output")
 
 config = configparser.ConfigParser()
@@ -35,11 +39,21 @@ persons = generation.person_generator.generate(theGrid, int(config["default"]["n
 for needType in needTypes:
     needType.initialize(persons, theGrid)
 
+personScriptName = config["default"]["personScript"]
+spec = importlib.util.spec_from_file_location("person_script", personScriptName)
+personScriptModule = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(personScriptModule)
+members = dict((name, func) for name, func in inspect.getmembers(personScriptModule))
+initializePersonScript = members["initialize"]
+getNeedPrio = members["getNeedPrio"]
+updateNeeds = members["updateNeeds"]
+
 if not args.noRender:
     theRenderer = Renderer(len(persons))
     theRenderer.initPlaceBuffer(theGrid)
 
-theSimulation = Simulation(persons, theGrid)
+initializePersonScript(needTypes)
+theSimulation = Simulation(persons, getNeedPrio, updateNeeds)
 
 lastUpdate = getCurrentTimeMillis()
 running = True
@@ -62,7 +76,7 @@ while running:
     profilerObj.startProfiling("simulation")
 
     for i in range(max(1, int(deltaTime / 1000 * MINUTES_PER_REAL_SECOND))):
-        theSimulation.simulate(theGrid)
+        theSimulation.simulate()
         lastUpdate = getCurrentTimeMillis()
     profilerObj.stopProfiling()
 

@@ -15,14 +15,5 @@ class Needs:
             self.deltas[needType] = needType.getDelta() * random.uniform(0.9, 1.1)
         self.lastNeedUpdate: int = 0
 
-    def update(self, now: time.Timestamp) -> None:
-        delta = now.now() - self.lastNeedUpdate
-        self.lastNeedUpdate = now.now()
 
-        for needType in self.needs:
-            self.needs[needType] = min(1, self.needs[needType] + self.deltas[needType] * delta)
 
-    def getPrioNeeds(self) -> [need_type.NeedType]:
-        sortedNeeds = sorted([k for k in self.needs.keys()], key=lambda k: self.needs[k], reverse=True)
-        #sortedNeeds.append(NeedType.SLEEP)
-        return sortedNeeds
