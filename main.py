@@ -29,6 +29,7 @@ def registerLoggingCategories():
     logging.registerCategory("activity")
     logging.registerCategory("bobby")
     logging.registerCategory("output")
+    logging.registerCategory("bobby_needs")
 
 def loadPersonScripts(config):
     personScriptName = config["default"]["personScript"]

@@ -45,8 +45,8 @@ def readArgs():
     args = argparser.parse_args()
     return args
 
-def plotActivity():
-    x,y1,y2,y3,y4,y5 = read_stat_file("logfiles/activity.log")
+def plotActivity(path):
+    x,y1,y2,y3,y4,y5 = read_stat_file(path)
     
     x = (1/60) * np.array(x)
     
@@ -88,6 +88,8 @@ if __name__ == "__main__":
     args = readArgs()
 
     if args.category == "activity":
-        plotActivity()
+        plotActivity("logfiles/activity.log")
+    elif args.category == "bobby_needs":
+        plotActivity("logfiles/bobby_needs.log")
     elif args.category == "bobby":
         plotBobby()

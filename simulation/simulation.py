@@ -13,6 +13,7 @@ class Simulation:
     def __init__(self, persons, getNeedPrio, updateNeeds):
         self.now = time.Timestamp(time.HOUR * 0)
         self.persons = persons
+        self.bobby = persons[0]
         self.lastUpdate = -1
         self.getNeedPrio = getNeedPrio
         self.updateNeeds = updateNeeds
@@ -25,11 +26,16 @@ class Simulation:
 
         self.lastUpdate = self.now.minute
 
-        logging.write("bobby", self.now.now(), self.persons[0].schedule.task.activity.getName())
+        logging.write("bobby", self.now.now(), self.bobby.schedule.task.activity.getName())
 
+        bobby_needs = { "TRAVEL": 0 }
         persons_at_place = { "TRAVEL": 0 }
-        for needType in self.persons[0].needs:
+        for needType in self.bobby.needs:
             persons_at_place[needType] = 0
+            bobby_needs[needType] = self.bobby.needs[needType]
+
+        logging.write("bobby_needs", self.now.minute, *(bobby_needs.values()))
+
 
         place_map = {}
         for thePerson in self.persons:
