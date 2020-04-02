@@ -7,8 +7,6 @@ from simulation import time, math
 
 from profiler.profiler import profilerObj
 
-from simconfig import need_priority
-
 SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
 class Simulation:
