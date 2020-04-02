@@ -11,7 +11,7 @@ from simulation.simulation import Simulation
 from profiler.profiler import profilerObj
 from plotting import logging
 
-MINUTES_PER_REAL_SECOND = 100
+MINUTES_PER_REAL_SECOND = 1000
 
 def readArguments():
     #Setup argparse

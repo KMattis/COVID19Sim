@@ -20,19 +20,19 @@ def initialize(needTypes):
         sleep : {
             sleep : -1,
             work : +2,
-            eat : 0,
+            eat : +0.2,
             outdoor : +0.5
         },
         work : {
-            sleep : +2,
+            sleep : +0.5,
             work : -1,
-            eat : +3,
+            eat : +2,
             outdoor : +0.5
         },
         eat : {
-            sleep : +2,
+            sleep : +0.5,
             work : 0,
-            eat : -1,
+            eat : -100,
             outdoor : +0.5
         },
         outdoor : {
@@ -46,7 +46,7 @@ def initialize(needTypes):
     needCaps = {
         sleep: 10,
         work: 8,
-        eat: 4,
+        eat: 10,
         outdoor: 4
     }
 

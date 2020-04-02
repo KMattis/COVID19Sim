@@ -16,7 +16,7 @@ class Sleep(need_type.NeedType):
             self.homes[person] = random.choice(homes)
         
     def trySatisfy(self, person, needValue, now):
-        return True, self.homes[person], random.uniform(time.HOUR, 2 * time.HOUR)
+        return True, self.homes[person], random.uniform(2 * time.HOUR, 4 * time.HOUR)
 
     def getName(self):
         return "SLEEP"
@@ -38,7 +38,7 @@ class Work(need_type.NeedType):
         
     def trySatisfy(self, person, needValue, now):
         workplace = self.workplaces[person]
-        return workplace.isOpen(now), workplace, random.uniform(time.HOUR, 2 * time.HOUR)
+        return workplace.isOpen(now), workplace, random.uniform(2 * time.HOUR, 4 * time.HOUR)
 
     def getName(self):
         return "WORK"
