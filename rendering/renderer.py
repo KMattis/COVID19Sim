@@ -4,6 +4,8 @@ from rendering.vbo import VertexBufferObject
 
 from profiler.profiler import profilerObj
 
+from simulation import time
+
 from OpenGL.GL import *
 from OpenGL.arrays import ArrayDatatype as ADT
 
@@ -93,21 +95,17 @@ class Renderer:
         self.camera.setupProjectionMatrix()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        profilerObj.startProfiling("places")
         #Draw the places
         self.vbo.bind()
         glVertexPointer(2, GL_FLOAT, 5*4, None)
         glColorPointer(3, GL_FLOAT, 5*4, ctypes.c_void_p(8))
         self.vbo.draw()
         VertexBufferObject.unbind()
-        profilerObj.stopStartProfiling("persons")
         #Draw the persons
-        self.drawPersons(persons, now)
-        profilerObj.stopStartProfiling("text")
+        self.drawPersons(persons)
         #Draw text
         self.camera.setupAbsoluteMatrix()
         self.drawTime(now)
-        profilerObj.stopProfiling()
 
         glFlush()
         pygame.display.flip()
@@ -116,18 +114,17 @@ class Renderer:
     def quit(self):
         pygame.display.quit()
 
-    def drawPersons(self, persons, now):
+    def drawPersons(self, persons):
         #persons cannot be drawn via vbo because there positions change
         #we draw them directly as arrays
 
         placeSizeHalfed = PLACE_SIZE / 2
-        profilerObj.startProfiling("arrayCreation")
-        for i in range(len(persons)):
-            x, y = persons[i].getXY(now)
+        i = 0
+        for x,y in persons:
             self.personVertices[2 * i] = x + placeSizeHalfed
             self.personVertices[2 * i + 1] = y + placeSizeHalfed
+            i += 1
 
-        profilerObj.stopStartProfiling("drawing")
         glColor3f(0,0,0)
         glPointSize(PLACE_SIZE * 10)
 
@@ -135,15 +132,15 @@ class Renderer:
         glVertexPointer(2, GL_FLOAT, 0, self.personVertices)
         glDrawArrays(GL_POINTS, 0, len(persons))
         glDisableClientState(GL_VERTEX_ARRAY)
-        profilerObj.stopProfiling()
 
-    def drawTime(self, now):
+    def drawTime(self, nowmin):
         shader = text.get_default_shader()
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         self.fps_text.set_text('FPS: {0}'.format(round(self.clock.get_fps())))
+        now = time.Timestamp(nowmin)
         self.time_text.set_text('{0}:{1}:{2}'.format(round(now.day()), round(now.hourOfDay()), round(now.minuteOfHour())))
 
         self.fps_text.draw(shader)

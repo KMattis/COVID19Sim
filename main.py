@@ -1,6 +1,8 @@
-import time
+import time as pytime
 import configparser
 import argparse
+
+from multiprocessing import Process, Manager, Value
 
 import importlib.util
 import inspect
@@ -8,10 +10,13 @@ import inspect
 import generation.grid_generator, generation.person_generator, generation.need_parser
 from rendering.renderer import Renderer
 from simulation.simulation import Simulation
+from simulation import time
 from profiler.profiler import profilerObj
 from plotting import logging
 
 MINUTES_PER_REAL_SECOND = 1000
+
+killSimulationLoop = False
 
 def readArguments():
     #Setup argparse
@@ -23,7 +28,7 @@ def readArguments():
     return argparser.parse_args()
 
 def getCurrentTimeMillis():
-    return round(time.time() * 1000)
+    return round(pytime.time() * 1000)
 
 def registerLoggingCategories():
     logging.registerCategory("activity")
@@ -71,40 +76,54 @@ def main():
     loops = 0
 
     logging.write("output", "starting main loop")
+    ########
+    queue = Manager().Queue()
+    killSim = Value('i', 0)
+    simProcess = Process(target=simLoop, args=(theSimulation,queue, killSim,))
+    simProcess.start()
+    simData = queue.get()
+    simPersons = simData[1]
+    simNow = simData[0]
+    nowOb = time.Timestamp(simNow)
+    ########
     while running:
-        profilerObj.startProfiling("covid")
         now = getCurrentTimeMillis()
         deltaTime = now - lastUpdate
 
         if not args.noRender:
-            profilerObj.startProfiling("fetchEvents")
             running = theRenderer.fetchEvents(deltaTime)
-            profilerObj.stopStartProfiling("render")
-            theRenderer.render(persons, deltaTime, theSimulation.now)
-            profilerObj.stopProfiling()
-                
-        profilerObj.startProfiling("simulation")
-
-        for i in range(max(1, int(deltaTime / 1000 * MINUTES_PER_REAL_SECOND))):
-            theSimulation.simulate()
-            lastUpdate = getCurrentTimeMillis()
-        profilerObj.stopProfiling()
-
-        profilerObj.stopProfiling() #covid
+            if not queue.empty():
+                simData = queue.get(block=False)
+                simPersons = simData[1]
+                simNow = simData[0]
+            theRenderer.render(simPersons, deltaTime, simNow) 
+        nowOb = time.Timestamp(simNow)
+        
         loops += 1
         if loops % 100 == 0:
-            now = theSimulation.now
-            print("Simulation time: {0}:{1}:{2}".format(now.day(), now.hourOfDay(), now.minuteOfHour()))
-            profilerObj.printPercentages("covid")
-            profilerObj.reset()
+            print("Simulation time: {0}:{1}:{2}".format(nowOb.day(), nowOb.hourOfDay(), nowOb.minuteOfHour()))
 
-        if args.numDays > 0 and theSimulation.now.day() >= args.numDays:
+        if args.numDays > 0 and nowOb.day() >= args.numDays:
             running = False
 
     logging.write("output", "shutting down")
-
     if not args.noRender:
         theRenderer.quit()
+    killSim.value = 1
+    while(not queue.empty()):
+        queue.get(block=False)
+    simProcess.join() 
+    
+
+def simLoop(theSimulation, connection, killMe):
+    lastUpdate = getCurrentTimeMillis()
+    while killMe.value == 0:
+        now = getCurrentTimeMillis()
+        deltaTime = now - lastUpdate
+        theSimulation.simulate()
+        if deltaTime/1000 > 1/5 and connection.empty():
+            connection.put([theSimulation.now.now(), [p.getXY(theSimulation.now) for p in theSimulation.persons]])
+
 
 if __name__ == "__main__":
     main()
