@@ -60,4 +60,7 @@ def updateNeeds(thePerson):
     duration = thePerson.schedule.task.getDuration()
 
     for need in thePerson.needs:
-        thePerson.needs[need] += min(needCaps[need], (duration / time.HOUR) * needUpdateDict[thePerson.schedule.task.activity][need])
+        thePerson.needs[need] += (duration / time.HOUR) * needUpdateDict[thePerson.schedule.task.activity][need]
+        thePerson.needs[need] = max(0, thePerson.needs[need])
+        thePerson.needs[need] = min(needCaps[need], thePerson.needs[need])
+

@@ -28,7 +28,7 @@ class Simulation:
 
         logging.write("bobby", self.now.now(), self.bobby.schedule.task.activity.getName())
 
-        bobby_needs = { "TRAVEL": 0 }
+        bobby_needs = { "TRAVEL": 1 if self.bobby.isTravelling() else 0 }
         persons_at_place = { "TRAVEL": 0 }
         for needType in self.bobby.needs:
             persons_at_place[needType] = 0
