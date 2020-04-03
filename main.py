@@ -113,7 +113,7 @@ def simLoop(connection, killMe):
     persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes)
 
     for needType in needTypes:
-        needType.initialize(persons, theGrid)
+        needType.initialize(needTypes, persons, theGrid)
         logging.write("output", needType.getName())
 
     #We need to send the grid data to the renderer.

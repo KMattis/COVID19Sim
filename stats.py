@@ -47,7 +47,7 @@ def readArgs():
     return args
 
 def plotActivity(path):
-    data = read_stat_file(path, 6)
+    data = read_stat_file(path, 7)
     x = data[0]
     
     x = (1/60) * np.array(x)
@@ -55,8 +55,9 @@ def plotActivity(path):
     plt.plot(x, np.array(data[1]), label = "Travelling")
     plt.plot(x, np.array(data[4]), label = "Sleep")
     plt.plot(x, np.array(data[3]), label = "Outdoor")
-    plt.plot(x, np.array(data[5]), label = "Work")
+    plt.plot(x, np.array(data[6]), label = "Work")
     plt.plot(x, np.array(data[2]), label = "Eat")
+    plt.plot(x, np.array(data[5]), label = "Social")
     
     plt.legend(loc='upper center', shadow=True, fontsize='x-large')
     
@@ -92,15 +93,14 @@ def plotBobby():
     time = (1/60) * np.array(time)
 
     
-    color = { "EAT": "#8800FF", "SLEEP": "#FF8800", "WORK": "#FF0000", "OUTDOOR": "#008800" }
+    color = { "EAT": "#8800FF", "SLEEP": "#FF8800", "WORK": "#FF0000", "OUTDOOR": "#008800",
+            "SOCIAL": "#FFC0CB", }
     colors = [color[a] for a in activity]
     plt.bar(time, height=1, width=5/60, color=colors)
 
     plt.grid(True)
     plt.xticks(np.arange(0, np.max(time), 6))
     plt.show()
-
-    
 
 if __name__ == "__main__":
     args = readArgs()

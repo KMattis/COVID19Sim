@@ -43,3 +43,4 @@ def generate(size, needTypes):
             theGrid.addPlace(place.Place(i, j, "", c))
     theGrid.getDistanceMap().calcDistances()
     return theGrid
+

@@ -5,7 +5,7 @@ from simulation import time
 class NeedType(abc.ABC):
 
     @abc.abstractmethod
-    def initialize(self, persons, grid):
+    def initialize(self, needTypes, persons, grid):
         pass
 
     @abc.abstractmethod

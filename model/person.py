@@ -37,6 +37,9 @@ class Person:
         self.behaviour: person_behaviour.PersonBehaviour = behaviour
         self.socialBehaviour: float = socialBehaviour
 
+        self.friends = set()
+        self.friends0 = set()
+
     def setDestination(self, dest: place.Place, now: time.Timestamp) -> None:
         self.travelStart.set(now.now())
         distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
@@ -47,3 +50,13 @@ class Person:
 
     def isTravelling(self) -> bool:
         return self.currentDestination != self.currentPosition
+
+    def computeFriends(self):
+        self.friends.update(self.friends0)
+        for p in self.friends0:
+            self.friends.update(p.friends)
+
+def makeFriends(personA, personB):
+    personA.friends0.add(personB)
+    personB.friends0.add(personA)
+

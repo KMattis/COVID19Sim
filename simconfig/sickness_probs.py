@@ -7,3 +7,4 @@ def defaultContProb(sickness, dist, exposureTime):
     if dDist >= sickness.contRadius:
         return exposureTime*sickness.contagiousLev
     return 2*exposureTime*sickness.contagiousLev
+

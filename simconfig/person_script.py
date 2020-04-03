@@ -8,6 +8,7 @@ class DefaultBehaviour(person_behaviour.PersonBehaviour):
         self.work = None
         self.eat = None
         self.outdoor = None
+        self.social = None
 
         self.needUpdateDict = None
         self.needCaps = None
@@ -17,31 +18,43 @@ class DefaultBehaviour(person_behaviour.PersonBehaviour):
         self.work = [k for k in needTypes if k.getName() == "WORK"][0]
         self.eat = [k for k in needTypes if k.getName() == "EAT"][0]
         self.outdoor = [k for k in needTypes if k.getName() == "OUTDOOR"][0]
+        self.social = [k for k in needTypes if k.getName() == "SOCIAL"][0]
 
         self.needUpdateDict = {
             self.sleep : {
                 self.sleep : -1,
                 self.work : +2,
                 self.eat : +0.2,
-                self.outdoor : +0.5
+                self.outdoor : +0.5,
+                self.social : +0.5,
             },
             self.work : {
                 self.sleep : +0.5,
                 self.work : -1,
                 self.eat : +2,
-                self.outdoor : +0.5
+                self.outdoor : +0.5,
+                self.social : +0.5,
             },
             self.eat : {
                 self.sleep : +0.5,
                 self.work : 0,
                 self.eat : -100,
-                self.outdoor : +0.5
+                self.outdoor : +0.5,
+                self.social : +0.5,
             },
             self.outdoor : {
                 self.sleep : +2,
                 self.work : +1,
                 self.eat : +1,
-                self.outdoor : -1
+                self.outdoor : -1,
+                self.social : +0.5,
+            },
+            self.social : {
+                self.sleep : +0.2,
+                self.work : +0.2,
+                self.eat : +0.2,
+                self.outdoor : +0.5,
+                self.social : -100,
             }
         }
 
@@ -49,7 +62,8 @@ class DefaultBehaviour(person_behaviour.PersonBehaviour):
             self.sleep: 10,
             self.work: 8,
             self.eat: 10,
-            self.outdoor: 4
+            self.outdoor: 4,
+            self.social: 10
         }
 
     def getNeedPrio(self, thePerson):
