@@ -2,7 +2,7 @@ import random
 
 from plotting import logging
 
-from model import place, person, place_characteristics
+from model import place, person, place_characteristics, sickness
 from simulation import time, math
 
 from profiler.profiler import profilerObj
@@ -16,7 +16,7 @@ class Simulation:
         self.bobby = persons[0]
         self.lastUpdate = -1
 
-        self.bobby.sickness.infect(self.now)
+        self.bobby.sickness.infect(time.Timestamp(-3 * time.DAY))
 
         for thePerson in self.persons:
             self.plan(thePerson)
@@ -56,14 +56,9 @@ class Simulation:
             thePerson.behaviour.updateNeeds(thePerson)
             self.plan(thePerson)
 
-        for pl in filter(lambda pl: place_map[pl][1] > 0, place_map):
-            personsAtPlace = len(place_map[pl][0])
-            numberContagious = place_map[pl][1]
-            probability = numberContagious / personsAtPlace / time.HOUR
-
-            for thePerson in place_map[pl][0]:
-                if random.random() < probability:
-                    thePerson.sickness.infect(self.now)
+        for thePlace in filter(lambda thePlace: place_map[thePlace][1] > 0, place_map):
+            for thePerson in place_map[thePlace][0]:
+                sickness.simulateContact(self.now, place_map[thePlace][0], thePerson, thePlace, SIMULATION_TICK_LENGTH)
 
         numInfected = sum(1 if p.sickness.isInfected else 0 for p in self.persons)
         numContagious = sum(1 if p.sickness.isContagious() else 0 for p in self.persons)

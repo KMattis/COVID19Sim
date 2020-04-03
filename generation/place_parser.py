@@ -12,21 +12,21 @@ def parseNeedList(listasstring, needTypesDict):
 
 def readPlace(config, placeName, needTypesDict) -> place_characteristics.PlaceCharacteristics:
     placeType = place_characteristics.PlaceType[config[placeName]['type']]
-    avgArrival = parseTimeList(config[placeName]['avgArrival'])
-    avgDuration = int(config[placeName]['avgDuration']) * time.HOUR
     openDays = parseTimeList(config[placeName]['openDays'])
     openHours = parseTimeList(config[placeName]['openHours'])
     needTypes = parseNeedList(config[placeName]['needTypes'], needTypesDict)
     subType = place_characteristics.SubType[config[placeName]['subType']]
     frequency = int(config[placeName]['frequency'])
+    contactFrequency = float(config[placeName]['contactFrequency']) / time.HOUR
+    contactDistance = float(config[placeName]['contactDistance'])
     return place_characteristics.PlaceCharacteristics(placeType,
-            avgArrival,
-            avgDuration,
             openDays,
             openHours,
             needTypes,
             subType,
-            frequency)
+            frequency,
+            contactFrequency,
+            contactDistance)
 
 def readPlacesWithPrefix(configFile, placeNamePrefix, needTypesDict) -> [place_characteristics.PlaceCharacteristics]:
     config = configparser.ConfigParser()

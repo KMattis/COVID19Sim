@@ -13,7 +13,7 @@ def generate(grid, numPersons, needTypes):
 
     for i in range(numPersons):
         behaviour = random.choices(behaviours, behaviourFreqs)[0]
-        thePerson = person.Person(str(i), random.randrange(0, 100), grid.get(0,0), needTypes, sickness.Sickness(updateFunc, contProbFunc), behaviour)
+        thePerson = person.Person(str(i), random.randrange(0, 100), grid.get(0,0), needTypes, sickness.Sickness(updateFunc, contProbFunc), behaviour, random.random())
         persons.append(thePerson)
 
     return persons

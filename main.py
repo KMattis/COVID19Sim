@@ -77,7 +77,10 @@ def main():
                 simData = queue.get(block=False)
                 simPersons = simData[1]
                 simNow = simData[0]
-            theRenderer.render(simPersons, deltaTime, simNow) 
+            theRenderer.render(simPersons, deltaTime, simNow)
+        else:
+            simData = queue.get(block=True)
+            simNow = simData[0]
         nowOb = time.Timestamp(simNow)
         
         loops += 1

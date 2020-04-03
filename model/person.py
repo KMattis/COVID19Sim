@@ -8,7 +8,14 @@ from model import schedule, need_type, place, sickness, person_behaviour
 MINUTES_PER_CELL = 0.5
 
 class Person:
-    def __init__(self, name: str, age: int, startingPlace: place.Place, needTypes: [need_type.NeedType], sickness: sickness.Sickness, behaviour: person_behaviour.PersonBehaviour):
+    def __init__(self,
+            name: str,
+            age: int,
+            startingPlace: place.Place,
+            needTypes: [need_type.NeedType],
+            sickness: sickness.Sickness,
+            behaviour: person_behaviour.PersonBehaviour,
+            socialBehaviour: float):
         self.name: str = name
         self.age: int = age
 
@@ -28,6 +35,7 @@ class Person:
         self.sickness: sickness.Sickness = sickness
 
         self.behaviour: person_behaviour.PersonBehaviour = behaviour
+        self.socialBehaviour: float = socialBehaviour
 
     def setDestination(self, dest: place.Place, now: time.Timestamp) -> None:
         self.travelStart.set(now.now())

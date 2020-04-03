@@ -1,3 +1,5 @@
+import math, random
+
 from simconfig import sickness_updates, sickness_probs
 
 class Sickness:
@@ -31,12 +33,20 @@ class Sickness:
             self.isInfected = True
             self.infectionStarted = now.now()
 
-def simulateContact(personsAtPlace, thePerson, thePlace, tickLength):
-	prob = thePlace.char.contactFrequency * tickLength * thePerson.socialBehaviour
-	 
+def simulateContact(now, personsAtPlace, thePerson, thePlace, tickLength):
+    if thePerson.sickness.isInfected or thePerson.sickness.isImmune:
+        return
+    contactProb = thePlace.char.contactFrequency * tickLength * thePerson.socialBehaviour
+    if random.random() <= contactProb:
+        #Contact
+        otherPerson = random.choice(personsAtPlace)
+        if otherPerson.sickness.isContagious():
+            infectionProb = getInfectionProb(otherPerson, thePlace)
+            if random.random() <= infectionProb:
+                thePerson.sickness.infect(now)
 
-def getInfectionProb(infectedPerson, thePlace):
-	return infectedPerson.sickness.contLevel*(1-math.tanh(thePlace.char.contactDistance/infectedPerson.sickness.contRadius))
+def getInfectionProb(contagiousPerson, thePlace):
+    return contagiousPerson.sickness.contLevel*max(0, 1 - 0.5 * random.triangular(0, thePlace.char.contactDistance*2, thePlace.char.contactDistance)/contagiousPerson.sickness.contRadius)
 
 
 
