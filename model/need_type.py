@@ -15,7 +15,3 @@ class NeedType(abc.ABC):
     @abc.abstractmethod
     def getName(self):
         pass
-
-    @abc.abstractmethod
-    def getDelta(self):
-        pass

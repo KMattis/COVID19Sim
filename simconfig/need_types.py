@@ -21,9 +21,6 @@ class Sleep(need_type.NeedType):
     def getName(self):
         return "SLEEP"
 
-    def getDelta(self):
-        return 10 / time.DAY 
-
 class Work(need_type.NeedType):
     def __init__(self):
         self.workplaces = {}
@@ -42,9 +39,6 @@ class Work(need_type.NeedType):
 
     def getName(self):
         return "WORK"
-
-    def getDelta(self):
-        return 10 / time.DAY 
 
 class Eat(need_type.NeedType):
     def __init__(self):
@@ -65,9 +59,6 @@ class Eat(need_type.NeedType):
     def getName(self):
         return "EAT"
 
-    def getDelta(self):
-        return 2 / time.DAY 
-
 class Outdoor(need_type.NeedType):
     def __init__(self):
         self.grid = None
@@ -86,6 +77,3 @@ class Outdoor(need_type.NeedType):
     
     def getName(self):
         return "OUTDOOR"
-    
-    def getDelta(self):
-        return 0.5 / time.DAY 
