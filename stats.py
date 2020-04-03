@@ -5,13 +5,14 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker
 
 
-def read_stat_file(path):
-    output = [], [], [], [], [], []
+def read_stat_file(path, num):
+    output = [[] for _ in range(num)]
     with open(path, "r") as f:
         for line in f.readlines():
             record = [float(s) for s in line.split(",")[:-1]]
-            for i in range(6):
-                output[i].append(record[i])
+            for i in range(num):
+                r = record[i]
+                output[i].append(r)
     return output
 
 def readBobbyFile(path):
@@ -46,16 +47,33 @@ def readArgs():
     return args
 
 def plotActivity(path):
-    x,y1,y2,y3,y4,y5 = read_stat_file(path)
+    data = read_stat_file(path, 6)
+    x = data[0]
     
     x = (1/60) * np.array(x)
     
-    plt.plot(x, np.array(y1), label = "Travelling")
-    plt.plot(x, np.array(y4), label = "Sleep")
-    plt.plot(x, np.array(y3), label = "Outdoor")
-    plt.plot(x, np.array(y5), label = "Work")
-    plt.plot(x, np.array(y2), label = "Eat")
+    plt.plot(x, np.array(data[1]), label = "Travelling")
+    plt.plot(x, np.array(data[4]), label = "Sleep")
+    plt.plot(x, np.array(data[3]), label = "Outdoor")
+    plt.plot(x, np.array(data[5]), label = "Work")
+    plt.plot(x, np.array(data[2]), label = "Eat")
     
+    plt.legend(loc='upper center', shadow=True, fontsize='x-large')
+    
+    plt.grid(True)
+    plt.xticks(np.arange(0, np.max(x), 6))
+    plt.show() 
+
+def plotSickness(path):
+    data = read_stat_file(path, 4)
+    x = data[0]
+
+    x = (1/60) * np.array(x)
+    
+    plt.plot(x, np.array(data[1]), label = "Infected")
+    plt.plot(x, np.array(data[2]), label = "Contagious")
+    plt.plot(x, np.array(data[3]), label = "Immune")
+
     plt.legend(loc='upper center', shadow=True, fontsize='x-large')
     
     plt.grid(True)
@@ -91,5 +109,7 @@ if __name__ == "__main__":
         plotActivity("logfiles/activity.log")
     elif args.category == "bobby_needs":
         plotActivity("logfiles/bobby_needs.log")
+    elif args.category == "sickness":
+        plotSickness("logfiles/sickness.log")
     elif args.category == "bobby":
         plotBobby()

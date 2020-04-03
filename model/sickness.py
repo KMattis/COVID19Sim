@@ -1,7 +1,7 @@
 from simconfig import sickness_updates, sickness_probs
 
 class Sickness:
-    def __init__(self, updateName, contProbName, isInfected=False, contagiousLev=0, contagiousRadius=0, infectionStarted=0, healthDamage=0, nownow=0):
+    def __init__(self, updateName, contProbName, isInfected=False, contagiousLev=0, contagiousRadius=0, infectionStarted=-1, healthDamage=0, nownow=0, isImmune=False):
         self.contLevel = contagiousLev #In ~ prop/minute *100; specifics depend on contPropFunction
         self.contRadius = contagiousRadius #In meters
         self.infectionStarted = infectionStarted #0=no infection
@@ -11,9 +11,10 @@ class Sickness:
         self.contProbFunction = getattr(sickness_probs, contProbName) 
         self.lastUpdate = nownow
         self.isInfected = isInfected
+        self.isImmune = isImmune
 
     def update(self, now):
-        if self.infectionStarted > 0 and self.isInfected:
+        if self.isInfected:
             self.updateFunction(self, now) 
             self.lastUpdate = now.now()
         self.lastUpdate = now.now()
@@ -24,4 +25,9 @@ class Sickness:
 
     def isContagious(self):
         return self.isInfected and self.contRadius > 0
+
+    def infect(self, now):
+        if not self.isImmune and not self.isInfected:
+            self.isInfected = True
+            self.infectionStarted = now.now()
 

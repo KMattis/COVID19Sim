@@ -16,6 +16,8 @@ class Simulation:
         self.bobby = persons[0]
         self.lastUpdate = -1
 
+        self.bobby.sickness.infect(self.now)
+
         for thePerson in self.persons:
             self.plan(thePerson)
 
@@ -45,22 +47,29 @@ class Simulation:
                 appendPlaceMap(place_map, thePerson)
                 persons_at_place[thePerson.schedule.task.activity] += 1
 
+            thePerson.sickness.update(self.now)
 
             if self.now.now() < thePerson.schedule.task.stop:
                 continue
 
-            thePerson.sickness.update(self.now)
             
             thePerson.behaviour.updateNeeds(thePerson)
             self.plan(thePerson)
 
         for pl in filter(lambda pl: place_map[pl][1] > 0, place_map):
-            #Determine infection risk at pl
-            #...
-            for thePerson in place_map[pl][0]:
-                pWorker, pVisitor = pl.getInfectionRisks( )
-                #Infect with prob. as calculated above
+            personsAtPlace = len(place_map[pl][0])
+            numberContagious = place_map[pl][1]
+            probability = numberContagious / personsAtPlace / time.HOUR
 
+            for thePerson in place_map[pl][0]:
+                if random.random() < probability:
+                    thePerson.sickness.infect(self.now)
+
+        numInfected = sum(1 if p.sickness.isInfected else 0 for p in self.persons)
+        numContagious = sum(1 if p.sickness.isContagious() else 0 for p in self.persons)
+        numImmune = sum(1 if p.sickness.isImmune else 0 for p in self.persons)
+        print(numInfected, numContagious, numImmune)
+        logging.write("sickness", self.now.minute, numInfected, numContagious, numImmune)
         logging.write("activity", self.now.minute, *(persons_at_place.values()))
 
     #Plan the schedule of a person
@@ -77,7 +86,7 @@ def appendPlaceMap(place_map, thePerson) -> None:
     if not thePlace in place_map:
         place_map[thePlace] = [[thePerson], 1 if thePerson.sickness.isContagious() else 0] 
         return
-    if thePerson.sickness.isInfected:
+    if thePerson.sickness.isContagious():
         place_map[thePlace][1] += 1
     place_map[thePerson.schedule.task.place][0].append(thePerson)
 
