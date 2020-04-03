@@ -46,46 +46,33 @@ def loadPersonScripts(config):
 
 def main():
     args = readArguments()
-
     registerLoggingCategories()
-
-    config = configparser.ConfigParser()
-    config.read(args.configFile)
-
-    logging.write("output", "generating")
-    needTypes = generation.need_parser.readNeedTypes(args.needTypesFile)
-    theGrid = generation.grid_generator.generate(int(config["default"]["gridSize"]), needTypes)
-    persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes)
-
-    for needType in needTypes:
-        needType.initialize(persons, theGrid)
-        logging.write("output", needType.getName())
-
-    initializePersonScript, getNeedPrio, updateNeeds = loadPersonScripts(config)
-
-    if not args.noRender:
-        theRenderer = Renderer(len(persons))
-        theRenderer.initPlaceBuffer(theGrid)
-
-    initializePersonScript(needTypes)
-    theSimulation = Simulation(persons, getNeedPrio, updateNeeds)
 
     lastUpdate = getCurrentTimeMillis()
     running = True
-
     loops = 0
 
     logging.write("output", "starting main loop")
     ########
     queue = Manager().Queue()
     killSim = Value('i', 0)
-    simProcess = Process(target=simLoop, args=(theSimulation,queue, killSim,))
+    simProcess = Process(target=simLoop, args=(queue, killSim,))
     simProcess.start()
-    simData = queue.get()
+
+    initialData = queue.get(block=True)
+    if not args.noRender:
+        numPersons = initialData[0]
+        gridSize = initialData[1]
+        gridData = initialData[2]
+        theRenderer = Renderer(numPersons)
+        theRenderer.initPlaceBuffer(gridSize, gridData)
+
+    simData = queue.get(block=True)
     simPersons = simData[1]
     simNow = simData[0]
     nowOb = time.Timestamp(simNow)
     ########
+
     while running:
         now = getCurrentTimeMillis()
         deltaTime = now - lastUpdate
@@ -114,8 +101,34 @@ def main():
         queue.get(block=False)
     simProcess.join() 
     
+def simLoop(connection, killMe):
+    #SETUP
+    args = readArguments()
 
-def simLoop(theSimulation, connection, killMe):
+    registerLoggingCategories()
+
+
+    config = configparser.ConfigParser()
+    config.read(args.configFile)
+
+    logging.write("output", "generating")
+    needTypes = generation.need_parser.readNeedTypes(args.needTypesFile)
+    theGrid = generation.grid_generator.generate(int(config["default"]["gridSize"]), needTypes)
+    persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes)
+
+    for needType in needTypes:
+        needType.initialize(persons, theGrid)
+        logging.write("output", needType.getName())
+
+    initializePersonScript, getNeedPrio, updateNeeds = loadPersonScripts(config)
+
+    #We need to send the grid data to the renderer.
+    connection.put([len(persons), theGrid.size, [p.char.placeType.value for p in theGrid.internal_grid]])
+
+    initializePersonScript(needTypes)
+    theSimulation = Simulation(persons, getNeedPrio, updateNeeds)
+
+    #MAIN LOOP
     lastUpdate = getCurrentTimeMillis()
     while killMe.value == 0:
         now = getCurrentTimeMillis()
@@ -123,7 +136,6 @@ def simLoop(theSimulation, connection, killMe):
         theSimulation.simulate()
         if deltaTime/1000 > 1/5 and connection.empty():
             connection.put([theSimulation.now.now(), [p.getXY(theSimulation.now) for p in theSimulation.persons]])
-
 
 if __name__ == "__main__":
     main()

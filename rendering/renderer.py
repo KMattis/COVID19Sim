@@ -42,13 +42,12 @@ class Renderer:
         self.personVertices = numpy.empty(numPersons * 2, dtype=numpy.float32)
 
  
-    def initPlaceBuffer(self, grid):
+    def initPlaceBuffer(self, size, gridData):
         vertexBufferData = []
 
-        for x in range(0, grid.size):
-            for y in range(0, grid.size):
-                thePlace = grid.get(x,y)
-                color = self.colors[thePlace.char.placeType.value]
+        for x in range(0, size):
+            for y in range(0, size):
+                color = self.colors[gridData[x + size * y]]
                 dl = [x, y]
                 dr = [x + PLACE_SIZE, y]
                 tl = [x, y + PLACE_SIZE]
