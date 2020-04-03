@@ -7,7 +7,7 @@ from multiprocessing import Process, Manager, Value
 import importlib.util
 import inspect
 
-import generation.grid_generator, generation.person_generator, generation.need_parser
+import generation.grid_generator, generation.person_generator, generation.script_loader
 from rendering.renderer import Renderer
 from simulation.simulation import Simulation
 from simulation import time
@@ -35,14 +35,6 @@ def registerLoggingCategories():
     logging.registerCategory("bobby")
     logging.registerCategory("output")
     logging.registerCategory("bobby_needs")
-
-def loadPersonScripts(config):
-    personScriptName = config["default"]["personScript"]
-    spec = importlib.util.spec_from_file_location("person_script", personScriptName)
-    personScriptModule = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(personScriptModule)
-    members = dict((name, func) for name, func in inspect.getmembers(personScriptModule))
-    return members["initialize"], members["getNeedPrio"], members["updateNeeds"]
 
 def main():
     args = readArguments()
@@ -107,12 +99,11 @@ def simLoop(connection, killMe):
 
     registerLoggingCategories()
 
-
     config = configparser.ConfigParser()
     config.read(args.configFile)
 
     logging.write("output", "generating")
-    needTypes = generation.need_parser.readNeedTypes(args.needTypesFile)
+    needTypes = generation.script_loader.readObjectsFromScript(args.needTypesFile, "need_types")
     theGrid = generation.grid_generator.generate(int(config["default"]["gridSize"]), needTypes)
     persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes)
 
@@ -120,13 +111,10 @@ def simLoop(connection, killMe):
         needType.initialize(persons, theGrid)
         logging.write("output", needType.getName())
 
-    initializePersonScript, getNeedPrio, updateNeeds = loadPersonScripts(config)
-
     #We need to send the grid data to the renderer.
     connection.put([len(persons), theGrid.size, [p.char.placeType.value for p in theGrid.internal_grid]])
 
-    initializePersonScript(needTypes)
-    theSimulation = Simulation(persons, getNeedPrio, updateNeeds)
+    theSimulation = Simulation(persons)
 
     #MAIN LOOP
     lastUpdate = getCurrentTimeMillis()
@@ -135,7 +123,11 @@ def simLoop(connection, killMe):
         deltaTime = now - lastUpdate
         theSimulation.simulate()
         if deltaTime/1000 > 1/5 and connection.empty():
-            connection.put([theSimulation.now.now(), [p.getXY(theSimulation.now) for p in theSimulation.persons]])
+            personData = [[[p.currentPosition.x, p.currentPosition.y], p.direction, p.travelStart.now(), p.travelEnd.now()] if p.isTravelling() else
+                [[p.currentPosition.x, p.currentPosition.y], [0,0], 0, 0]
+                for p in theSimulation.persons]
+            connection.put([theSimulation.now.now(), personData])
+            lastUpdate = now
 
 if __name__ == "__main__":
     main()

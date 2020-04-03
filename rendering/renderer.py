@@ -90,7 +90,7 @@ class Renderer:
 
         return running
 
-    def render(self, persons, deltaTime, now):
+    def render(self, personData, deltaTime, now):
         self.camera.setupProjectionMatrix()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -101,7 +101,7 @@ class Renderer:
         self.vbo.draw()
         VertexBufferObject.unbind()
         #Draw the persons
-        self.drawPersons(persons)
+        self.drawPersons(personData, now)
         #Draw text
         self.camera.setupAbsoluteMatrix()
         self.drawTime(now)
@@ -113,13 +113,18 @@ class Renderer:
     def quit(self):
         pygame.display.quit()
 
-    def drawPersons(self, persons):
+    def drawPersons(self, personData, now):
         #persons cannot be drawn via vbo because there positions change
         #we draw them directly as arrays
 
         placeSizeHalfed = PLACE_SIZE / 2
         i = 0
-        for x,y in persons:
+        for pos, direction, start, end in personData:
+            progress = min(now - start, end - start)
+            x = pos[0] + direction[0] * progress
+            y = pos[1] + direction[1] * progress
+            if x < 0 or y < 0:
+                print(pos[0],pos[1],direction[0],direction[1],now-start,end-start)
             self.personVertices[2 * i] = x + placeSizeHalfed
             self.personVertices[2 * i + 1] = y + placeSizeHalfed
             i += 1
@@ -129,7 +134,7 @@ class Renderer:
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glVertexPointer(2, GL_FLOAT, 0, self.personVertices)
-        glDrawArrays(GL_POINTS, 0, len(persons))
+        glDrawArrays(GL_POINTS, 0, len(personData))
         glDisableClientState(GL_VERTEX_ARRAY)
 
     def drawTime(self, nowmin):

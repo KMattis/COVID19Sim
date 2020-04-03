@@ -10,13 +10,11 @@ from profiler.profiler import profilerObj
 SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
 class Simulation:
-    def __init__(self, persons, getNeedPrio, updateNeeds):
+    def __init__(self, persons):
         self.now = time.Timestamp(time.HOUR * 0)
         self.persons = persons
         self.bobby = persons[0]
         self.lastUpdate = -1
-        self.getNeedPrio = getNeedPrio
-        self.updateNeeds = updateNeeds
 
         for thePerson in self.persons:
             self.plan(thePerson)
@@ -53,7 +51,7 @@ class Simulation:
 
             thePerson.sickness.update(self.now)
             
-            self.updateNeeds(thePerson)
+            thePerson.behaviour.updateNeeds(thePerson)
             self.plan(thePerson)
 
         for pl in filter(lambda pl: place_map[pl][1] > 0, place_map):
@@ -67,7 +65,7 @@ class Simulation:
 
     #Plan the schedule of a person
     def plan(self, person):
-        for need in self.getNeedPrio(person):
+        for need in person.behaviour.getNeedPrio(person):
             exists, openPlace, dur = need.trySatisfy(person, person.needs[need], self.now)
             if exists:
                 person.schedule.plan(openPlace, self.now.now(), self.now.now()+dur, need)

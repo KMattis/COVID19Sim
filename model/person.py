@@ -3,12 +3,12 @@ import math
 import random
 
 from simulation import time
-from model import schedule, need_type, place, sickness
+from model import schedule, need_type, place, sickness, person_behaviour
 
 MINUTES_PER_CELL = 0.5
 
 class Person:
-    def __init__(self, name: str, age: int, startingPlace: place.Place, needTypes: [need_type.NeedType], sickness: sickness.Sickness):
+    def __init__(self, name: str, age: int, startingPlace: place.Place, needTypes: [need_type.NeedType], sickness: sickness.Sickness, behaviour: person_behaviour.PersonBehaviour):
         self.name: str = name
         self.age: int = age
 
@@ -27,6 +27,8 @@ class Person:
     
         self.sickness: sickness.Sickness = sickness
 
+        self.behaviour: person_behaviour.PersonBehaviour = behaviour
+
     def setDestination(self, dest: place.Place, now: time.Timestamp) -> None:
         self.travelStart.set(now.now())
         distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
@@ -34,13 +36,6 @@ class Person:
         self.currentDestination = dest
         divisor = max(1,(self.travelEnd.now() - self.travelStart.now()))
         self.direction = [(self.currentDestination.x - self.currentPosition.x) / divisor, (self.currentDestination.y - self.currentPosition.y) / divisor]
-    
-    def getXY(self, now: time.Timestamp) -> (int, int):
-        if self.isTravelling():
-            progress = min(now.now() - self.travelStart.now(), self.travelEnd.now() - self.travelStart.now())
-            return self.currentPosition.x + self.direction[0] * progress, self.currentPosition.y + self.direction[1] * progress
-        else:
-            return self.currentPosition.x, self.currentPosition.y
 
     def isTravelling(self) -> bool:
         return self.currentDestination != self.currentPosition
