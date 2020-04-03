@@ -43,7 +43,16 @@ class DistanceMap:
                 self.calcDistancesFromBlock(blockX, blockY)
 
     def getNearPlaces(self, x: int, y: int, placeType: place_characteristics.PlaceType):
-       return self.getBlock(x,y)[placeType]
+        pl = self.getBlock(x,y).get(placeType, None)
+        if not pl == None:
+            return pl
+        for bl in self.blocks:
+            pl = bl.get(placeType, None)
+            if not pl == None:
+                return pl
+        raise(Exception("Placetype " + str(placeType) + " does not exist")) 
+            
+         
 
 class Grid:
     def __init__(self, size: int):
