@@ -31,3 +31,13 @@ class Sickness:
             self.isInfected = True
             self.infectionStarted = now.now()
 
+def simulateContact(personsAtPlace, thePerson, thePlace, tickLength):
+	prob = thePlace.char.contactFrequency * tickLength * thePerson.socialBehaviour
+	 
+
+def getInfectionProb(infectedPerson, thePlace):
+	return infectedPerson.sickness.contLevel*(1-math.tanh(thePlace.char.contactDistance/infectedPerson.sickness.contRadius))
+
+
+
+
