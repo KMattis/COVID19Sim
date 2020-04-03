@@ -15,6 +15,7 @@ from profiler.profiler import profilerObj
 from plotting import logging
 
 MINUTES_PER_REAL_SECOND = 1000
+MAX_RENDER_PER_SEC = 5
 
 killSimulationLoop = False
 
@@ -123,7 +124,7 @@ def simLoop(connection, killMe):
         now = getCurrentTimeMillis()
         deltaTime = now - lastUpdate
         theSimulation.simulate()
-        if deltaTime/1000 > 1/5 and connection.empty():
+        if deltaTime > 1000/MAX_RENDER_PER_SEC and connection.empty():
             personData = [[[p.currentPosition.x, p.currentPosition.y], p.direction, p.travelStart.now(), p.travelEnd.now()] if p.isTravelling() else
                 [[p.currentPosition.x, p.currentPosition.y], [0,0], 0, 0]
                 for p in theSimulation.persons]
