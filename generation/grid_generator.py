@@ -13,11 +13,11 @@ def generate(size, needTypes):
 
     theGrid = grid.Grid(size)
     
-    workplaceChars = [place_parser.readPlace("simconfig/places.ini", "work." + str(k), needTypesDict) for k in range(7)]
+    workplaceChars = place_parser.readPlacesWithPrefix("simconfig/places.ini", "work", needTypesDict)
     workplaceCharFreqs = [char.frequency for char in workplaceChars]
 
-    outdoorChar = place_parser.readPlace('simconfig/places.ini', 'outdoor',needTypesDict)
-    homeChar = place_parser.readPlace('simconfig/places.ini', 'home', needTypesDict)
+    outdoorChars = place_parser.readPlacesWithPrefix('simconfig/places.ini', 'outdoor', needTypesDict)
+    homeChars = place_parser.readPlacesWithPrefix('simconfig/places.ini', 'home', needTypesDict)
     noneChar = place_characteristics.PlaceCharacteristics(place_characteristics.PlaceType.NONE,0,0,0,0, [None], place_characteristics.SubType.NONE, 0)
 
     centerx = size / 2
@@ -37,9 +37,9 @@ def generate(size, needTypes):
                 if p < pWork:
                     c = random.choices(workplaceChars, workplaceCharFreqs)[0]
                 elif p < pWork + pPark:
-                    c = outdoorChar
+                    c = random.choice(outdoorChars)
                 else:
-                    c = homeChar
+                    c = random.choice(homeChars)
             theGrid.addPlace(place.Place(i, j, "", c))
     theGrid.getDistanceMap().calcDistances()
     return theGrid
