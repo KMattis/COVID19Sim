@@ -22,7 +22,7 @@ DISPLAY_HEIGHT = 1100
 
 PLACE_SIZE = 0.6
 
-MOVEMENT_PER_SECOND = 50
+MOVEMENT_PER_SECOND = 0.2
 
 class Renderer:
     def __init__(self, numPersons):
