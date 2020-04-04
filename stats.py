@@ -65,7 +65,7 @@ def plotActivity(path):
     plt.xticks(np.arange(0, np.max(x), 6))
     plt.show() 
 
-def plotSickness(path):
+def plotDisease(path):
     data = read_stat_file(path, 4)
     x = data[0]
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         plotActivity("logfiles/activity.log")
     elif args.category == "bobby_needs":
         plotActivity("logfiles/bobby_needs.log")
-    elif args.category == "sickness":
-        plotSickness("logfiles/sickness.log")
+    elif args.category == "disease":
+        plotDisease("logfiles/disease.log")
     elif args.category == "bobby":
         plotBobby()
