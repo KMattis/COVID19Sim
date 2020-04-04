@@ -47,17 +47,18 @@ def readArgs():
     return args
 
 def plotActivity(path):
-    data = read_stat_file(path, 7)
+    data = read_stat_file(path, 8)
     x = data[0]
     
     x = (1/60) * np.array(x)
     
     plt.plot(x, np.array(data[1]), label = "Travelling")
-    plt.plot(x, np.array(data[4]), label = "Sleep")
-    plt.plot(x, np.array(data[3]), label = "Outdoor")
-    plt.plot(x, np.array(data[6]), label = "Work")
+    plt.plot(x, np.array(data[5]), label = "Sleep")
+    plt.plot(x, np.array(data[4]), label = "Outdoor")
+    plt.plot(x, np.array(data[7]), label = "Work")
     plt.plot(x, np.array(data[2]), label = "Eat")
-    plt.plot(x, np.array(data[5]), label = "Social")
+    plt.plot(x, np.array(data[6]), label = "Social")
+    plt.plot(x, np.array(data[3]), label = "Health")
     
     plt.legend(loc='upper center', shadow=True, fontsize='x-large')
     
@@ -94,7 +95,7 @@ def plotBobby():
 
     
     color = { "EAT": "#8800FF", "SLEEP": "#FF8800", "WORK": "#FF0000", "OUTDOOR": "#008800",
-            "SOCIAL": "#FFC0CB", }
+            "SOCIAL": "#FFC0CB", "HEALTH": "#0000FF"}
     colors = [color[a] for a in activity]
     plt.bar(time, height=1, width=5/60, color=colors)
 
@@ -109,7 +110,8 @@ if __name__ == "__main__":
         plotActivity("logfiles/activity.log")
     elif args.category == "bobby_needs":
         plotActivity("logfiles/bobby_needs.log")
-    elif args.category.startwith("disease"):
+    elif args.category.startswith("disease"):
         plotDisease("logfiles/" + args.category + ".log")
     elif args.category == "bobby":
         plotBobby()
+

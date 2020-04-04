@@ -33,14 +33,18 @@ class Renderer:
         glClearColor(255,255,255,255)
         pygame.display.set_caption("COVID-19 Simulation")
         self.camera = camera.Camera(20, 20, DISPLAY_WIDTH, DISPLAY_HEIGHT)
-        self.colors = { -1: (255,255,255), 0: (0, 0, 255), 1: (255, 0, 0), 2: (128, 0, 128), 3: (0, 0.5, 0) }
+        self.colors = { -1: (1,1,1),
+                0: (1, 0.5, 0),
+                1: (1, 0, 0),
+                2: (0.5, 0, 0.5),
+                3: (0, 0.5, 0),
+                4: (0, 0, 1) }
 
         self.vbo = None
         self.time_text = text.Text('', position=(-0.88, 0.95), font_size=80, font_color=(0,0,0,1))
         self.fps_text = text.Text('', position=(-0.88, 0.9), font_size=80, font_color=(0,0,0,1))
         self.clock = pygame.time.Clock()
         self.personVertices = numpy.empty(numPersons * 2, dtype=numpy.float32)
-
  
     def initPlaceBuffer(self, size, gridData):
         vertexBufferData = []

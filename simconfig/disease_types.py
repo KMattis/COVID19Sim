@@ -1,15 +1,15 @@
-from simulation import time
+from simulation import time, simulation
 
 import model.disease_type
 
 class COVID19(model.disease_type.DiseaseType):
     def __init__(self):
-        self.needTypes = None
+        self.health = None
 
     def initialize(self, needTypes):
-        self.needTypes = needTypes
+        self.health = [need for need in needTypes if need.getName() == "HEALTH"][0]
     
-    def update(self, now, person):
+    def update(self, now,  person):
         disease = person.diseases[self]
         
         if not disease.isInfected:
@@ -21,6 +21,7 @@ class COVID19(model.disease_type.DiseaseType):
             disease.contLevel = 0.5
             disease.contRadius = 1
             disease.healthDamage = 50
+            person.needs[self.health] += (simulation.SIMULATION_TICK_LENGTH / time.HOUR) * 0.1
         #elif 2 <= infTime < 5:
         #    disease.contLevel = 0.8
         #    disease.contRadius = 1
@@ -39,7 +40,6 @@ class COVID19(model.disease_type.DiseaseType):
             disease.healthDamage = 0
             disease.isInfected = False
             disease.isImmune = True
-
 
     def getName(self):
         return "COVID-19"
