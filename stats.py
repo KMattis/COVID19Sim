@@ -109,7 +109,7 @@ if __name__ == "__main__":
         plotActivity("logfiles/activity.log")
     elif args.category == "bobby_needs":
         plotActivity("logfiles/bobby_needs.log")
-    elif args.category == "sickness":
-        plotSickness("logfiles/sickness.log")
+    elif args.category == "disease":
+        plotSickness("logfiles/disease.log")
     elif args.category == "bobby":
         plotBobby()
