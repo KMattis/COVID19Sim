@@ -26,7 +26,7 @@ class Person:
 
         self.travelStart: time.Timestamp = time.Timestamp(-1)
         self.travelEnd: time.Timestamp = time.Timestamp(0)
-        self.schedule: schedule.Schedule = schedule.Schedule()
+        self.task: schedule.ScheduleItem = None
 
         self.needs = {}
         for needType in needTypes:
@@ -40,13 +40,19 @@ class Person:
         self.friends = set()
         self.friends0 = set()
 
-    def setDestination(self, dest: place.Place, now: time.Timestamp) -> None:
-        self.travelStart.set(now.now())
+    def setDestination(self, dest: place.Place, start: int) -> None:
+        self.travelStart.set(start)
         distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
-        self.travelEnd.set(round(now.now() + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1) * time.MINUTE))
+        self.travelEnd.set(round(start + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1) * time.MINUTE))
         self.currentDestination = dest
         divisor = max(1,(self.travelEnd.now() - self.travelStart.now()))
         self.direction = [(self.currentDestination.x - self.currentPosition.x) / divisor, (self.currentDestination.y - self.currentPosition.y) / divisor]
+
+    def plan(self, task: schedule.ScheduleItem) -> None:
+        if self.task is not None and task.start < self.task.stop:
+            raise Exception("Events must be added in ascending order {0},{1},{2}".format(task.place.char.placeType, task.start, task.stop)) 
+        self.task = task
+        self.setDestination(task.place, task.start)
 
     def isTravelling(self) -> bool:
         return self.currentDestination != self.currentPosition

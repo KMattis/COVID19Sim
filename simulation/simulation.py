@@ -26,7 +26,7 @@ class Simulation:
 
         self.lastUpdate = self.now.minute
 
-        logging.write("bobby", self.now.now(), self.bobby.schedule.task.activity.getName())
+        logging.write("bobby", self.now.now(), self.bobby.task.activity.getName())
 
         bobby_needs = { "TRAVEL": 1 if self.bobby.isTravelling() else 0 }
         persons_at_place = { "TRAVEL": 0 }
@@ -45,11 +45,11 @@ class Simulation:
                     thePerson.currentPosition = thePerson.currentDestination
             else:
                 appendPlaceMap(place_map, thePerson)
-                persons_at_place[thePerson.schedule.task.activity] += 1
+                persons_at_place[thePerson.task.activity] += 1
 
             thePerson.disease.update(self.now)
 
-            if self.now.now() < thePerson.schedule.task.stop:
+            if self.now.now() < thePerson.task.stop:
                 continue
 
             
@@ -70,18 +70,17 @@ class Simulation:
     #Plan the schedule of a person
     def plan(self, person):
         for need in person.behaviour.getNeedPrio(person):
-            exists, openPlace, dur = need.trySatisfy(person, person.needs[need], self.now)
-            if exists:
-                person.schedule.plan(openPlace, self.now.now(), self.now.now()+dur, need)
-                person.setDestination(person.schedule.task.place, self.now)
+            task = need.trySatisfy(person, person.needs[need], self.now)
+            if task is not None:
+                person.plan(task)
                 return
 
 def appendPlaceMap(place_map, thePerson) -> None: 
-    thePlace = thePerson.schedule.task.place
+    thePlace = thePerson.task.place
     if not thePlace in place_map:
         place_map[thePlace] = [[thePerson], 1 if thePerson.disease.isContagious() else 0] 
         return
     if thePerson.disease.isContagious():
         place_map[thePlace][1] += 1
-    place_map[thePerson.schedule.task.place][0].append(thePerson)
+    place_map[thePerson.task.place][0].append(thePerson)
 
