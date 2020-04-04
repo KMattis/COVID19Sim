@@ -25,6 +25,7 @@ def readArguments():
     argparser.add_argument("--no-render", dest="noRender", action='store_const', const=True)
     argparser.add_argument("--config-file", dest="configFile", type=str, default="simconfig/config.ini")
     argparser.add_argument("--need-types-file", dest="needTypesFile", type=str, default="simconfig/need_types.py")
+    argparser.add_argument("--disease-types-file", dest="diseaseTypesFile", type=str, default="simconfig/disease_types.py")
     argparser.add_argument("--num-days", dest="numDays", type=int, default=0)
     return argparser.parse_args()
 
@@ -34,7 +35,6 @@ def getCurrentTimeMillis():
 def registerLoggingCategories():
     logging.registerCategory("activity")
     logging.registerCategory("bobby")
-    logging.registerCategory("disease")
     logging.registerCategory("output")
     logging.registerCategory("bobby_needs")
     logging.registerCategory("infections")
@@ -110,17 +110,21 @@ def simLoop(connection, killMe):
 
     logging.write("output", "generating")
     needTypes = generation.script_loader.readObjectsFromScript(args.needTypesFile, "need_types")
+    diseaseTypes  = generation.script_loader.readObjectsFromScript(args.diseaseTypesFile, "disease_types")
     theGrid = generation.grid_generator.generate(int(config["default"]["gridSize"]), needTypes)
-    persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes)
+    persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes, diseaseTypes)
 
     for needType in needTypes:
         needType.initialize(needTypes, persons, theGrid)
         logging.write("output", needType.getName())
 
+    for diseaseType in diseaseTypes:
+        logging.registerCategory("disease." + diseaseType.getName())
+
     #We need to send the grid data to the renderer.
     connection.put([len(persons), theGrid.size, [p.char.placeType.value for p in theGrid.internal_grid]])
 
-    theSimulation = Simulation(persons)
+    theSimulation = Simulation(persons, diseaseTypes)
 
     #MAIN LOOP
     lastUpdate = getCurrentTimeMillis()

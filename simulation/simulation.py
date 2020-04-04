@@ -10,13 +10,16 @@ from profiler.profiler import profilerObj
 SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
 class Simulation:
-    def __init__(self, persons):
+    def __init__(self, persons, diseaseTypes):
         self.now = time.Timestamp(time.HOUR * 0)
         self.persons = persons
         self.bobby = persons[0]
         self.lastUpdate = -1
 
-        self.bobby.disease.infect(time.Timestamp(-3 * time.DAY))
+        self.diseaseTypes = diseaseTypes
+
+        for disease in self.bobby.diseases.values():
+            disease.infect(time.Timestamp(-3 * time.DAY))
 
         for thePerson in self.persons:
             self.plan(thePerson)
@@ -36,7 +39,6 @@ class Simulation:
 
         logging.write("bobby_needs", self.now.minute, *(bobby_needs.values()))
 
-
         place_map = {}
         for thePerson in self.persons:
             if thePerson.isTravelling():
@@ -44,27 +46,30 @@ class Simulation:
                 if self.now.now() > thePerson.travelEnd.now():
                     thePerson.currentPosition = thePerson.currentDestination
             else:
-                appendPlaceMap(place_map, thePerson)
+                self.appendPlaceMap(place_map, thePerson)
                 persons_at_place[thePerson.task.activity] += 1
 
-            thePerson.disease.update(self.now)
+            for diseaseType in self.diseaseTypes:
+                diseaseType.update(self.now, thePerson)
 
             if self.now.now() < thePerson.task.stop:
                 continue
 
-            
             thePerson.behaviour.updateNeeds(thePerson)
             self.plan(thePerson)
 
-        for thePlace in filter(lambda thePlace: place_map[thePlace][1] > 0, place_map):
-            for thePerson in place_map[thePlace][0]:
-                disease.simulateContact(self.now, place_map[thePlace][0], thePerson, thePlace, SIMULATION_TICK_LENGTH)
+        for diseaseType in self.diseaseTypes:
+            #Simulate the diseaseType
+            for thePlace in filter(lambda thePlace: place_map[thePlace][1][diseaseType] > 0, place_map):
+                for thePerson in place_map[thePlace][0]:
+                    disease.simulateContact(self.now, diseaseType, place_map[thePlace][0], thePerson, thePlace, SIMULATION_TICK_LENGTH)
 
-        numInfected = sum(1 if p.disease.isInfected else 0 for p in self.persons)
-        numContagious = sum(1 if p.disease.isContagious() else 0 for p in self.persons)
-        numImmune = sum(1 if p.disease.isImmune else 0 for p in self.persons)
-        print(numInfected, numContagious, numImmune)
-        logging.write("disease", self.now.minute, numInfected, numContagious, numImmune)
+            #Log the diseaseType
+            numInfected = sum(1 if p.diseases[diseaseType].isInfected else 0 for p in self.persons)
+            numContagious = sum(1 if p.diseases[diseaseType].isContagious() else 0 for p in self.persons)
+            numImmune = sum(1 if p.diseases[diseaseType].isImmune else 0 for p in self.persons)
+            print(diseaseType.getName(), numInfected, numContagious, numImmune)
+            logging.write("disease." + diseaseType.getName(), self.now.minute, numInfected, numContagious, numImmune)
         logging.write("activity", self.now.minute, *(persons_at_place.values()))
 
     #Plan the schedule of a person
@@ -75,12 +80,16 @@ class Simulation:
                 person.plan(task)
                 return
 
-def appendPlaceMap(place_map, thePerson) -> None: 
-    thePlace = thePerson.task.place
-    if not thePlace in place_map:
-        place_map[thePlace] = [[thePerson], 1 if thePerson.disease.isContagious() else 0] 
-        return
-    if thePerson.disease.isContagious():
-        place_map[thePlace][1] += 1
-    place_map[thePerson.task.place][0].append(thePerson)
+    def appendPlaceMap(self, place_map, thePerson) -> None: 
+        thePlace = thePerson.task.place
+        if not thePlace in place_map:
+            contagiousDict = {}
+            for diseaseType in self.diseaseTypes:
+                contagiousDict[diseaseType] = 1 if thePerson.diseases[diseaseType].isContagious() else 0
+            place_map[thePlace] = [[thePerson], contagiousDict] 
+        else:
+            for diseaseType in self.diseaseTypes:
+                if thePerson.diseases[diseaseType].isContagious():
+                    place_map[thePlace][1][diseaseType] += 1
+            place_map[thePerson.task.place][0].append(thePerson)
 
