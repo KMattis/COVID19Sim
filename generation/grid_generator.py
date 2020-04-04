@@ -5,21 +5,23 @@ from model import grid, place, place_characteristics
 from simulation import time
 from generation import place_parser
 
-def generate(size, needTypes):
-
+def generate(model_data, needTypes):
     needTypesDict = {}
     for needType in needTypes:
         needTypesDict[needType.getName()] = needType
 
+    size = int(model_data["gridSize"])
+    places_file = model_data["places"]
+
     theGrid = grid.Grid(size)
     
-    workplaceChars = place_parser.readPlacesWithPrefix("simconfig/places.ini", "work", needTypesDict)
+    workplaceChars = place_parser.readPlacesWithPrefix(places_file, "work", needTypesDict)
     workplaceCharFreqs = [char.frequency for char in workplaceChars]
 
-    outdoorChars = place_parser.readPlacesWithPrefix('simconfig/places.ini', 'outdoor', needTypesDict)
-    homeChars = place_parser.readPlacesWithPrefix('simconfig/places.ini', 'home', needTypesDict)
+    outdoorChars = place_parser.readPlacesWithPrefix(places_file, 'outdoor', needTypesDict)
+    homeChars = place_parser.readPlacesWithPrefix(places_file, 'home', needTypesDict)
     noneChar = place_characteristics.PlaceCharacteristics(place_characteristics.PlaceType.NONE,0,0,0,0, [None], place_characteristics.SubType.NONE, 0)
-    healthcareChars = place_parser.readPlacesWithPrefix('simconfig/places.ini', 'healthcare', needTypesDict)
+    healthcareChars = place_parser.readPlacesWithPrefix(places_file, 'healthcare', needTypesDict)
 
     centerx = size / 2
     centery = size / 2
