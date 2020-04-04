@@ -2,7 +2,7 @@ import math, random
 
 from simconfig import disease_updates, disease_probs
 
-class Sickness:
+class Disease:
     def __init__(self, updateName, contProbName, isInfected=False, contagiousLev=0, contagiousRadius=0, infectionStarted=-1, healthDamage=0, nownow=0, isImmune=False):
         self.contLevel = contagiousLev #In ~ prop/minute *100; specifics depend on contPropFunction
         self.contRadius = contagiousRadius #In meters

@@ -13,7 +13,7 @@ class Person:
             age: int,
             startingPlace: place.Place,
             needTypes: [need_type.NeedType],
-            disease: disease.Sickness,
+            disease: disease.Disease,
             behaviour: person_behaviour.PersonBehaviour,
             socialBehaviour: float):
         self.name: str = name
@@ -32,7 +32,7 @@ class Person:
         for needType in needTypes:
             self.needs[needType] = random.uniform(0, 1)
     
-        self.disease: disease.Sickness = disease
+        self.disease: disease.Disease = disease
 
         self.behaviour: person_behaviour.PersonBehaviour = behaviour
         self.socialBehaviour: float = socialBehaviour
