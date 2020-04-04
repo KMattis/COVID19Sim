@@ -134,9 +134,7 @@ def simLoop(connection, killMe):
         deltaTime = now - lastUpdate
         theSimulation.simulate()
         if deltaTime > 1000/MAX_RENDER_PER_SEC and connection.empty():
-            personData = [[[p.currentPosition.x, p.currentPosition.y], p.direction, p.travelStart.now(), p.travelEnd.now()] if p.isTravelling() else
-                [[p.currentPosition.x, p.currentPosition.y], [0,0], 0, 0]
-                for p in theSimulation.persons]
+            personData = list(map(lambda p: ((p.currentPosition.x, p.currentPosition.y), p.direction, p.travelStart.now(), p.travelEnd.now()) if p.isTravelling() else ((p.currentPosition.x, p.currentPosition.y), (0,0), 0, 0), theSimulation.persons))
             connection.put([theSimulation.now.now(), personData])
             lastUpdate = now
 
