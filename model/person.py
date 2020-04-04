@@ -3,7 +3,7 @@ import math
 import random
 
 from simulation import time
-from model import schedule, need_type, place, disease, person_behaviour
+from model import schedule, need_type, place, disease_type, disease, person_behaviour
 
 MINUTES_PER_CELL = 0.5
 
@@ -13,7 +13,7 @@ class Person:
             age: int,
             startingPlace: place.Place,
             needTypes: [need_type.NeedType],
-            disease: disease.Disease,
+            diseaseTypes: [disease_type.DiseaseType],
             behaviour: person_behaviour.PersonBehaviour,
             socialBehaviour: float):
         self.name: str = name
@@ -32,7 +32,9 @@ class Person:
         for needType in needTypes:
             self.needs[needType] = random.uniform(0, 1)
     
-        self.disease: disease.Disease = disease
+        self.diseases: Dict[disease_type.DiseaseType, disease.Disease] = {}
+        for diseaseType in diseaseTypes:
+            self.diseases[diseaseType] = disease.Disease(diseaseType)   
 
         self.behaviour: person_behaviour.PersonBehaviour = behaviour
         self.socialBehaviour: float = socialBehaviour

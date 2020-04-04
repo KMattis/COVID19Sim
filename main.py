@@ -25,6 +25,7 @@ def readArguments():
     argparser.add_argument("--no-render", dest="noRender", action='store_const', const=True)
     argparser.add_argument("--config-file", dest="configFile", type=str, default="simconfig/config.ini")
     argparser.add_argument("--need-types-file", dest="needTypesFile", type=str, default="simconfig/need_types.py")
+    argparser.add_argument("--disease-types-file", dest="diseaseTypesFile", type=str, default="simconfig/disease_types.py")
     argparser.add_argument("--num-days", dest="numDays", type=int, default=0)
     return argparser.parse_args()
 
@@ -110,8 +111,9 @@ def simLoop(connection, killMe):
 
     logging.write("output", "generating")
     needTypes = generation.script_loader.readObjectsFromScript(args.needTypesFile, "need_types")
+    diseaseTypes  = generation.script_loader.readObjectsFromScript(args.diseaseTypesFile, "disease_types")
     theGrid = generation.grid_generator.generate(int(config["default"]["gridSize"]), needTypes)
-    persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes)
+    persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes, diseaseTypes)
 
     for needType in needTypes:
         needType.initialize(needTypes, persons, theGrid)
