@@ -49,8 +49,6 @@ class Person:
         self.direction = [(self.currentDestination.x - self.currentPosition.x) / divisor, (self.currentDestination.y - self.currentPosition.y) / divisor]
 
     def plan(self, task: schedule.ScheduleItem) -> None:
-        if self.task is not None and task.start < self.task.stop:
-            raise Exception("Events must be added in ascending order {0},{1},{2}".format(task.place.char.placeType, task.start, task.stop)) 
         self.task = task
         self.setDestination(task.place, task.start)
 

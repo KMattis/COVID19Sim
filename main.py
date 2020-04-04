@@ -37,6 +37,7 @@ def registerLoggingCategories():
     logging.registerCategory("disease")
     logging.registerCategory("output")
     logging.registerCategory("bobby_needs")
+    logging.registerCategory("infections")
 
 def main():
     args = readArguments()

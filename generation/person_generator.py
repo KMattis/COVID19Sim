@@ -17,6 +17,7 @@ def generate(grid, numPersons, needTypes):
                 random.randrange(0, 100), grid.get(0,0), needTypes,
                 disease.Disease(updateFunc, contProbFunc), behaviour, random.random())
         persons.append(thePerson)
+    persons[0].name = "Bobby"
     
     for p in persons:
         for i in range(random.randint(2,5)):

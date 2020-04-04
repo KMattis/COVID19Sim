@@ -1,5 +1,7 @@
 import math, random
 
+from plotting import logging
+
 from simconfig import disease_updates, disease_probs
 
 class Disease:
@@ -44,6 +46,9 @@ def simulateContact(now, personsAtPlace, thePerson, thePlace, tickLength):
             infectionProb = getInfectionProb(otherPerson, thePlace)
             if random.random() <= infectionProb:
                 thePerson.disease.infect(now)
+                logging.write("infections", now.now(), str(thePlace.char.subType),
+                        thePerson.name, thePerson.task.activity.getName(),
+                        otherPerson.name, otherPerson.task.activity.getName())
 
 def getInfectionProb(contagiousPerson, thePlace):
     return contagiousPerson.disease.contLevel*max(0, 1 - 0.5 * random.triangular(0, thePlace.char.contactDistance*2, thePlace.char.contactDistance)/contagiousPerson.disease.contRadius)
