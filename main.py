@@ -23,9 +23,8 @@ def readArguments():
     #Setup argparse
     argparser: argparse.ArgumentParser = argparse.ArgumentParser()
     argparser.add_argument("--no-render", dest="noRender", action='store_const', const=True)
-    argparser.add_argument("--config-file", dest="configFile", type=str, default="simconfig/config.ini")
-    argparser.add_argument("--need-types-file", dest="needTypesFile", type=str, default="simconfig/need_types.py")
-    argparser.add_argument("--disease-types-file", dest="diseaseTypesFile", type=str, default="simconfig/disease_types.py")
+    argparser.add_argument("--config-file", dest="modelsConfigFile", type=str, default="simconfig/models.ini")
+    argparser.add_argument("--model", dest="model", type=str, default="realistic")
     argparser.add_argument("--num-days", dest="numDays", type=int, default=0)
     return argparser.parse_args()
 
@@ -105,14 +104,15 @@ def simLoop(connection, killMe):
 
     registerLoggingCategories()
 
-    config = configparser.ConfigParser()
-    config.read(args.configFile)
+    model_data_parser = configparser.ConfigParser()
+    model_data_parser.read(args.modelsConfigFile)
+    model_data = model_data_parser[args.model]
 
     logging.write("output", "generating")
-    needTypes = generation.script_loader.readObjectsFromScript(args.needTypesFile, "need_types")
-    diseaseTypes  = generation.script_loader.readObjectsFromScript(args.diseaseTypesFile, "disease_types")
-    theGrid = generation.grid_generator.generate(int(config["default"]["gridSize"]), needTypes)
-    persons = generation.person_generator.generate(theGrid, int(config["default"]["numPersons"]), needTypes, diseaseTypes)
+    needTypes = generation.script_loader.readObjectsFromScript(model_data["need_types"], "need_types")
+    diseaseTypes  = generation.script_loader.readObjectsFromScript(model_data["disease_types"], "disease_types")
+    theGrid = generation.grid_generator.generate(model_data, needTypes)
+    persons = generation.person_generator.generate(theGrid, model_data, needTypes, diseaseTypes)
 
     for needType in needTypes:
         needType.initialize(needTypes, persons, theGrid)
