@@ -34,7 +34,7 @@ def getCurrentTimeMillis():
 def registerLoggingCategories():
     logging.registerCategory("activity")
     logging.registerCategory("bobby")
-    logging.registerCategory("sickness")
+    logging.registerCategory("disease")
     logging.registerCategory("output")
     logging.registerCategory("bobby_needs")
 

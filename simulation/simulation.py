@@ -2,7 +2,7 @@ import random
 
 from plotting import logging
 
-from model import place, person, place_characteristics, sickness
+from model import place, person, place_characteristics, disease
 from simulation import time, math
 
 from profiler.profiler import profilerObj
@@ -16,7 +16,7 @@ class Simulation:
         self.bobby = persons[0]
         self.lastUpdate = -1
 
-        self.bobby.sickness.infect(time.Timestamp(-3 * time.DAY))
+        self.bobby.disease.infect(time.Timestamp(-3 * time.DAY))
 
         for thePerson in self.persons:
             self.plan(thePerson)
@@ -47,7 +47,7 @@ class Simulation:
                 appendPlaceMap(place_map, thePerson)
                 persons_at_place[thePerson.task.activity] += 1
 
-            thePerson.sickness.update(self.now)
+            thePerson.disease.update(self.now)
 
             if self.now.now() < thePerson.task.stop:
                 continue
@@ -58,13 +58,13 @@ class Simulation:
 
         for thePlace in filter(lambda thePlace: place_map[thePlace][1] > 0, place_map):
             for thePerson in place_map[thePlace][0]:
-                sickness.simulateContact(self.now, place_map[thePlace][0], thePerson, thePlace, SIMULATION_TICK_LENGTH)
+                disease.simulateContact(self.now, place_map[thePlace][0], thePerson, thePlace, SIMULATION_TICK_LENGTH)
 
-        numInfected = sum(1 if p.sickness.isInfected else 0 for p in self.persons)
-        numContagious = sum(1 if p.sickness.isContagious() else 0 for p in self.persons)
-        numImmune = sum(1 if p.sickness.isImmune else 0 for p in self.persons)
+        numInfected = sum(1 if p.disease.isInfected else 0 for p in self.persons)
+        numContagious = sum(1 if p.disease.isContagious() else 0 for p in self.persons)
+        numImmune = sum(1 if p.disease.isImmune else 0 for p in self.persons)
         print(numInfected, numContagious, numImmune)
-        logging.write("sickness", self.now.minute, numInfected, numContagious, numImmune)
+        logging.write("disease", self.now.minute, numInfected, numContagious, numImmune)
         logging.write("activity", self.now.minute, *(persons_at_place.values()))
 
     #Plan the schedule of a person
@@ -78,9 +78,9 @@ class Simulation:
 def appendPlaceMap(place_map, thePerson) -> None: 
     thePlace = thePerson.task.place
     if not thePlace in place_map:
-        place_map[thePlace] = [[thePerson], 1 if thePerson.sickness.isContagious() else 0] 
+        place_map[thePlace] = [[thePerson], 1 if thePerson.disease.isContagious() else 0] 
         return
-    if thePerson.sickness.isContagious():
+    if thePerson.disease.isContagious():
         place_map[thePlace][1] += 1
     place_map[thePerson.task.place][0].append(thePerson)
 
