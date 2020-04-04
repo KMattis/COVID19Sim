@@ -28,7 +28,8 @@ class Work(need_type.NeedType):
     def initialize(self, needTypes, persons, grid):
         workplaces = [thePlace for thePlace in grid.internal_grid
             if thePlace is not None
-            and thePlace.char.placeType is place_characteristics.PlaceType.WORK]
+            and (thePlace.char.placeType is place_characteristics.PlaceType.WORK
+                or thePlace.char.placeType is place_characteristics.PlaceType.HEALTHCARE)]
         
         for person in persons:
             self.workplaces[person] = random.choice(workplaces)
@@ -107,4 +108,24 @@ class Social(need_type.NeedType):
     
     def getName(self):
         return "SOCIAL"
+
+class Health(need_type.NeedType):
+    def __init__(self):
+        self.grid = None
+
+    def initialize(self, needTypes, persons, grid):
+        self.grid = grid
+        self.sleep = [need for need in needTypes if need.getName() == "SLEEP"][0]
+
+    def trySatisfy(self, person, needValue, now):
+        distmap = self.grid.getDistanceMap()
+        nearHospitals = distmap.getNearPlaces(person.currentPosition.x, person.currentPosition.y, place_characteristics.SubType.HOSPITAL)
+        for (pos, _, __) in nearHospitals:
+            x,y = pos
+            if self.grid.get(x,y).isOpen(now):
+                return schedule.ScheduleItem(self.grid.get(x,y), now.now(), now.now() + random.uniform(time.HOUR, 2 * time.HOUR), self)
+        return None
+    
+    def getName(self):
+        return "HEALTH"
 

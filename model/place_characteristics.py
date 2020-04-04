@@ -16,6 +16,7 @@ class SubType(enum.Enum):
     PARK = 1
     OFFICE = 2
     HOME = 3
+    HOSPITAL = 4
 
 class PlaceCharacteristics:
     def __init__(self,
@@ -36,3 +37,4 @@ class PlaceCharacteristics:
         self.frequency: int = frequency
         self.contactFrequency: float = contactFrequency
         self.contactDistance: float = contactDistance
+

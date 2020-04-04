@@ -119,6 +119,7 @@ def simLoop(connection, killMe):
         logging.write("output", needType.getName())
 
     for diseaseType in diseaseTypes:
+        diseaseType.initialize(needTypes)
         logging.registerCategory("disease." + diseaseType.getName())
 
     #We need to send the grid data to the renderer.
