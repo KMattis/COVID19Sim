@@ -33,7 +33,7 @@ def simulateContact(now, diseaseType, personsAtPlace, thePerson, thePlace, tickL
             infectionProb = getInfectionProb(diseaseType, otherPerson, thePlace)
             if random.random() <= infectionProb:
                 thePerson.diseases[diseaseType].infect(now)
-                logging.write("infections", now.now(), str(thePlace.char.subType),
+                logging.write("infections", now.now(), diseaseType.getName(), str(thePlace.char.subType),
                         thePerson.name, thePerson.task.activity.getName(),
                         otherPerson.name, otherPerson.task.activity.getName())
 

@@ -35,7 +35,6 @@ def getCurrentTimeMillis():
 def registerLoggingCategories():
     logging.registerCategory("activity")
     logging.registerCategory("bobby")
-    logging.registerCategory("disease")
     logging.registerCategory("output")
     logging.registerCategory("bobby_needs")
     logging.registerCategory("infections")
@@ -119,10 +118,13 @@ def simLoop(connection, killMe):
         needType.initialize(needTypes, persons, theGrid)
         logging.write("output", needType.getName())
 
+    for diseaseType in diseaseTypes:
+        logging.registerCategory("disease." + diseaseType.getName())
+
     #We need to send the grid data to the renderer.
     connection.put([len(persons), theGrid.size, [p.char.placeType.value for p in theGrid.internal_grid]])
 
-    theSimulation = Simulation(persons)
+    theSimulation = Simulation(persons, diseaseTypes)
 
     #MAIN LOOP
     lastUpdate = getCurrentTimeMillis()
