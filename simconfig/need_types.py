@@ -16,7 +16,7 @@ class Sleep(need_type.NeedType):
             self.homes[person] = random.choice(homes)
         
     def trySatisfy(self, person, needValue, now):
-        return True, self.homes[person], random.uniform(2 * time.HOUR, 4 * time.HOUR)
+        return schedule.ScheduleItem(self.homes[person], now.now(), now.now() + random.uniform(2 * time.HOUR, 4 * time.HOUR), self)
 
     def getName(self):
         return "SLEEP"
@@ -35,7 +35,10 @@ class Work(need_type.NeedType):
         
     def trySatisfy(self, person, needValue, now):
         workplace = self.workplaces[person]
-        return workplace.isOpen(now), workplace, random.uniform(2 * time.HOUR, 4 * time.HOUR)
+        if workplace.isOpen(now):
+            return schedule.ScheduleItem(workplace, now.now(), now.now() + random.uniform(2 * time.HOUR, 4 * time.HOUR), self)
+        else:
+            return None
 
     def getName(self):
         return "WORK"
@@ -53,8 +56,8 @@ class Eat(need_type.NeedType):
         for (pos, _, __) in nearres:
             x,y = pos
             if self.grid.get(x,y).isOpen(now):
-                return True, self.grid.get(x,y), random.uniform(time.MINUTE * 10, time.MINUTE * 30)
-        return False, None, None
+                return schedule.ScheduleItem(self.grid.get(x,y), now.now(), now.now() + random.uniform(time.MINUTE * 10, time.MINUTE * 30), self)
+        return None
 
     def getName(self):
         return "EAT"
@@ -72,8 +75,8 @@ class Outdoor(need_type.NeedType):
         for (pos, _, __) in nearparks:
             x,y = pos
             if self.grid.get(x,y).isOpen(now):
-                return True, self.grid.get(x,y), random.uniform(time.HOUR, 2 * time.HOUR)
-        return False, None, None
+                return schedule.ScheduleItem(self.grid.get(x,y), now.now(), now.now() + random.uniform(time.HOUR, 2 * time.HOUR), self)
+        return None
     
     def getName(self):
         return "OUTDOOR"
@@ -90,8 +93,8 @@ class Social(need_type.NeedType):
 
     def trySatisfy(self, person, needValue, now):
         if person in self.gatherings and self.gatherings[person].stop < now.now() - 30*time.MINUTE:
-            return True, self.gatherings[person].place, self.gatherings[person].stop - now.now()
-
+            return self.gatherings[person]
+            
         startTime = now.now()
         duration = random.uniform(time.HOUR, 3 * time.HOUR)
         endTime = startTime + duration
@@ -100,7 +103,7 @@ class Social(need_type.NeedType):
         for p in person.friends:
             self.gatherings[p] = date
 
-        return True, self.sleep.homes[person], duration
+        return date
     
     def getName(self):
         return "SOCIAL"
