@@ -4,3 +4,4 @@ pip3 install PyOpenGL
 pip3 install PyOpenGL_accelerate
 pip3 install matplotlib
 mkdir logfiles
+pip3 install networkx
