@@ -36,6 +36,7 @@ class TrafficNetwork:
     def getNearestStop(self, x, y):
         return self.distMap[x+ y * grid.size] 
                 
+#Holds all travelling persons, sets their positions, and calculates infection risks
 class Travel:
     def __init__(self):
         pass
