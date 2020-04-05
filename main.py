@@ -129,16 +129,20 @@ def simLoop(connection, killMe):
 
     #MAIN LOOP
     lastUpdate = getCurrentTimeMillis()
+    last100 = getCurrentTimeMillis()
+    i = 1
     while killMe.value == 0:
         now = getCurrentTimeMillis()
         deltaTime = now - lastUpdate
         theSimulation.simulate()
         if deltaTime > 1000/MAX_RENDER_PER_SEC and connection.empty():
-            personData = [[[p.currentPosition.x, p.currentPosition.y], p.direction, p.travelStart.now(), p.travelEnd.now()] if p.isTravelling() else
-                [[p.currentPosition.x, p.currentPosition.y], [0,0], 0, 0]
-                for p in theSimulation.persons]
+            personData = list(map(lambda p: ((p.currentPosition.x, p.currentPosition.y), p.direction, p.travelStart.now(), p.travelEnd.now()) if p.isTravelling() else ((p.currentPosition.x, p.currentPosition.y), (0,0), 0, 0), theSimulation.persons))
             connection.put([theSimulation.now.now(), personData])
             lastUpdate = now
+        if i % 100 == 0:
+            print("100 simulation steps took " + str(getCurrentTimeMillis() - last100) + "ms")
+            last100 = getCurrentTimeMillis()
+        i += 1
 
 if __name__ == "__main__":
     main()
