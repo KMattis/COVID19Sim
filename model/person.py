@@ -2,6 +2,8 @@ import enum
 import math
 import random
 
+from typing import Dict
+
 from simulation import time
 from model import schedule, need_type, place, disease_type, disease, person_behaviour
 
@@ -28,7 +30,7 @@ class Person:
         self.travelEnd: time.Timestamp = time.Timestamp(0)
         self.task: schedule.ScheduleItem = None
 
-        self.needs = {}
+        self.needs: Dict[need_type.NeedType, float] = {}
         for needType in needTypes:
             self.needs[needType] = random.uniform(0, 1)
     

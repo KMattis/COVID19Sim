@@ -23,7 +23,6 @@ class PlaceCharacteristics:
             placeType: PlaceType,
             openDays: [int],
             openHours:[int],
-            needTypes: [need_type.NeedType],
             subType: SubType,
             frequency: int,
             contactFrequency: float,
@@ -32,9 +31,9 @@ class PlaceCharacteristics:
         self.openHours: [int] = openHours
         self.openDays: [int] = openDays
         self.placeType: PlaceType = placeType
-        self.needTypes: [need_type.NeedType] = needTypes
         self.subType: SubType = subType
         self.frequency: int = frequency
         self.contactFrequency: float = contactFrequency
         self.contactDistance: float = contactDistance
 
+NONE_CHAR = PlaceCharacteristics(PlaceType.NONE, 0, 0, SubType.NONE, 0, 0, 0)
