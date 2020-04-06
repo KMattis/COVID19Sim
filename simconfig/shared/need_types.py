@@ -89,10 +89,12 @@ class Social(need_type.NeedType):
         self.grid = None
         self.sleep = None
         self.gatherings = {}
+        self.massEvents = None
 
     def initialize(self, needTypes, persons, grid):
         self.grid = grid
         self.sleep = [need for need in needTypes if need.getName() == "SLEEP"][0]
+        self.massEvents = [p for p in grid.internal_grid if p.char.placeType == place_characteristics.PlaceType.MASSEVENT]
 
     def trySatisfy(self, person, needValue, now):
         if person in self.gatherings and self.gatherings[person].stop < now.now() - 30*time.MINUTE:
@@ -101,7 +103,9 @@ class Social(need_type.NeedType):
         startTime = now.now()
         duration = random.uniform(time.HOUR, 3 * time.HOUR)
         endTime = startTime + duration
-        date = schedule.ScheduleItem(self.sleep.homes[person], startTime, endTime, self)
+
+        possiblePlaces = [self.sleep.homes[person]] + [p for p in self.massEvents if p.isOpen(now)]
+        date = schedule.ScheduleItem(random.choice(possiblePlaces), startTime, endTime, self)
 
         for p in person.friends:
             self.gatherings[p] = date

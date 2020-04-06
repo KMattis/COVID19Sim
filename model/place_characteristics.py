@@ -17,6 +17,7 @@ class SubType(enum.Enum):
     OFFICE = 2
     HOME = 3
     HOSPITAL = 4
+    MASSEVENT = 5
 
 class PlaceCharacteristics:
     def __init__(self,
