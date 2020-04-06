@@ -12,4 +12,4 @@ class Place:
         self.char: place_characteristics.PlaceCharacteristics = characteristics
 
     def isOpen(self, timestamp: time.Timestamp) -> bool:
-        return self.char.openHours[0] <= timestamp.hourOfDay()*time.HOUR < self.char.openHours[0] + self.char.openHours[1]
+        return timestamp.dayOfWeek() in self.char.openDays and self.char.openHours[0] <= timestamp.hourOfDay()*time.HOUR < self.char.openHours[0] + self.char.openHours[1]
