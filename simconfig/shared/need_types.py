@@ -14,7 +14,9 @@ class Sleep(need_type.NeedType):
         
         for person in persons:
             self.homes[person] = random.choice(homes)
-        
+            person.currentPosition = self.homes[person]
+            person.currentDestination = self.homes[person]
+            
     def trySatisfy(self, person, needValue, now):
         return schedule.ScheduleItem(self.homes[person], now.now(), now.now() + random.uniform(2 * time.HOUR, 4 * time.HOUR), self)
 
