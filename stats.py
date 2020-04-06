@@ -66,6 +66,26 @@ def plotActivity(path):
     plt.xticks(np.arange(0, np.max(x), 6))
     plt.show() 
 
+def plotPlaces(path):
+    data = read_stat_file(path, 9)
+    x = data[0]
+    
+    x = (1/60) * np.array(x)
+    
+    plt.plot(x, np.array(data[1]), label = "Travelling")
+    plt.plot(x, np.array(data[6]), label = "Home")
+    plt.plot(x, np.array(data[4]), label = "Park")
+    plt.plot(x, np.array(data[5]), label = "Office")
+    plt.plot(x, np.array(data[3]), label = "Restaurant")
+    plt.plot(x, np.array(data[8]), label = "MassEvent")
+    plt.plot(x, np.array(data[7]), label = "Hospital")
+    
+    plt.legend(loc='upper center', shadow=True, fontsize='x-large')
+    
+    plt.grid(True)
+    plt.xticks(np.arange(0, np.max(x), 6))
+    plt.show() 
+
 def plotDisease(path):
     data = read_stat_file(path, 4)
     x = data[0]
@@ -110,6 +130,8 @@ if __name__ == "__main__":
         plotActivity("logfiles/activity.log")
     elif args.category == "bobby_needs":
         plotActivity("logfiles/bobby_needs.log")
+    elif args.category == "places":
+        plotPlaces("logfiles/places.log")
     elif args.category.startswith("disease"):
         plotDisease("logfiles/" + args.category + ".log")
     elif args.category == "bobby":

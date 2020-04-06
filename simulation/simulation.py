@@ -32,22 +32,28 @@ class Simulation:
         logging.write("bobby", self.now.now(), self.bobby.task.activity.getName())
 
         bobby_needs = { "TRAVEL": 1 if self.bobby.isTravelling() else 0 }
+        persons_per_need = { "TRAVEL": 0 }
         persons_at_place = { "TRAVEL": 0 }
         for needType in self.bobby.needs:
-            persons_at_place[needType] = 0
+            persons_per_need[needType] = 0
             bobby_needs[needType] = self.bobby.needs[needType]
+
+        for subType in place_characteristics.SubType:
+            persons_at_place[subType] = 0
 
         logging.write("bobby_needs", self.now.minute, *(bobby_needs.values()))
 
         place_map = {}
         for thePerson in self.persons:
             if thePerson.isTravelling():
+                persons_per_need["TRAVEL"] += 1
                 persons_at_place["TRAVEL"] += 1
                 if self.now.now() > thePerson.travelEnd.now():
                     thePerson.currentPosition = thePerson.currentDestination
             else:
                 self.appendPlaceMap(place_map, thePerson)
-                persons_at_place[thePerson.task.activity] += 1
+                persons_per_need[thePerson.task.activity] += 1
+                persons_at_place[thePerson.task.place.char.subType] += 1
 
             for diseaseType in self.diseaseTypes:
                 diseaseType.update(self.now, thePerson)
@@ -70,7 +76,8 @@ class Simulation:
             numImmune = sum(1 if p.diseases[diseaseType].isImmune else 0 for p in self.persons)
             print(diseaseType.getName(), numInfected, numContagious, numImmune)
             logging.write("disease." + diseaseType.getName(), self.now.minute, numInfected, numContagious, numImmune)
-        logging.write("activity", self.now.minute, *(persons_at_place.values()))
+        logging.write("activity", self.now.minute, *(persons_per_need.values()))
+        logging.write("places", self.now.minute, *(persons_at_place.values()))
 
     #Plan the schedule of a person
     def plan(self, person):

@@ -19,8 +19,8 @@ def generate(model_data, needTypes):
     chars = place_parser.readAllPlaceChars(places_file)
     charFreqs = [char.frequency for char in chars]
 
-    centerx = size / 2
-    centery = size / 2
+    centerx = size // 2
+    centery = size // 2
 
     numPlaces = {}
     for placeType in place_characteristics.PlaceType:
@@ -28,7 +28,9 @@ def generate(model_data, needTypes):
 
     for i in range(size):
         for j in range(size):
-            if (i - centerx)**2 + (j - centery)**2 > size**2 / 4:
+            if i == centerx and j == centery:
+                c = next(filter(lambda c:c.placeType == place_characteristics.PlaceType.MASSEVENT, chars))
+            elif (i - centerx)**2 + (j - centery)**2 > size**2 / 4:
                 c = place_characteristics.NONE_CHAR
             else:
                 c = random.choices(chars, charFreqs)[0]

@@ -8,7 +8,7 @@ def parseTimeList(listasstring) -> [int]:
 
 def readPlace(config) -> place_characteristics.PlaceCharacteristics:
     placeType = place_characteristics.PlaceType[config['type']]
-    openDays = parseTimeList(config['openDays'])
+    openDays = [int(x) for x in config['openDays'].split(',')]
     openHours = parseTimeList(config['openHours'])
     subType = place_characteristics.SubType[config['subType']]
     frequency = int(config['frequency'])
