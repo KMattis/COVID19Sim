@@ -7,9 +7,9 @@ You need the following prerequisits to install and run the simulation:
 * python3 >= 3.7
 * pip3
 
-In order to use the render mode, you need an OpenGL compatible graphic card (with GLSL version >= 130)
+In order to use the render mode, you need an OpenGL compatible graphic card (with GLSL version >= 130).
 
-To install all other dependencies (python packages), pleas run the install_dependencies.sh script (works on Linux and Windows)
+To install all other dependencies (python packages), please run the install_dependencies.sh script (works on Linux and Windows).
 
 ## Usage
 
@@ -22,7 +22,8 @@ To install all other dependencies (python packages), pleas run the install_depen
 #### --model
 
 One can choose a model vie the model parameter.
-There are currently two models available: The "realistic" model, which tries to simulate COVID according to currently available data, and the "test" model, which models a more agressive disease, in order to speed things up in the simulation.
+There are currently two models available:
+The "realistic" model, which tries to simulate COVID according to currently available data, and the "test" model, which models a more agressive disease, in order to speed things up in the simulation.
 
 #### --no-render
 
