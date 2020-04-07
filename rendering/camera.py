@@ -9,8 +9,8 @@ class Camera:
         self.zoomFactor = 0.05
     
     def move(self, dx, dy):
-        self.x += dx
-        self.y += dy
+        self.x += dx * self.zoomFactor
+        self.y += dy * self.zoomFactor
 
     def zoom(self, factor):
         self.zoomFactor *= factor
