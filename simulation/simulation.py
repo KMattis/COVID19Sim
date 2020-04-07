@@ -2,19 +2,21 @@ import random
 
 from plotting import logging
 
-from model import place, person, place_characteristics, disease
+from model import place, person, place_characteristics, disease, mass_transportation
 from simulation import time, math
 
 from profiler.profiler import profilerObj
+from generation import mt_generator
 
 SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
 class Simulation:
-    def __init__(self, persons, diseaseTypes):
+    def __init__(self, persons, diseaseTypes, trafficNetwork):
         self.now = time.Timestamp(time.HOUR * 0)
         self.persons = persons
         self.bobby = persons[0]
         self.lastUpdate = -1
+        self.travel = mass_transportation.Travel(persons, trafficNetwork, 2, 4)
 
         self.diseaseTypes = diseaseTypes
 
@@ -26,14 +28,15 @@ class Simulation:
 
     def simulate(self):
         self.now.minute += SIMULATION_TICK_LENGTH
+        nownow = self.now.now()
 
         self.lastUpdate = self.now.minute
 
         logging.write("bobby", self.now.now(), self.bobby.task.activity.getName())
 
-        bobby_needs = { "TRAVEL": 1 if self.bobby.isTravelling() else 0 }
-        persons_per_need = { "TRAVEL": 0 }
-        persons_at_place = { "TRAVEL": 0 }
+        bobby_needs = { "TRAVEL": 1 if self.travel.isTravelling(self.bobby, self.now.now()) else 0 }
+        persons_at_place = { "TRAVEL": 0, "TRAVEL_PUBLIC": 0 }
+        persons_per_need = { "TRAVEL": 0, "TRAVEL_PUBLIC": 0 }
         for needType in self.bobby.needs:
             persons_per_need[needType] = 0
             bobby_needs[needType] = self.bobby.needs[needType]
@@ -44,25 +47,36 @@ class Simulation:
         logging.write("bobby_needs", self.now.minute, *(bobby_needs.values()))
 
         place_map = {}
+        travel_map = {}
+        
         for thePerson in self.persons:
-            if thePerson.isTravelling():
-                persons_per_need["TRAVEL"] += 1
-                persons_at_place["TRAVEL"] += 1
-                if self.now.now() > thePerson.travelEnd.now():
-                    thePerson.currentPosition = thePerson.currentDestination
-            else:
+            if self.now.now() >= thePerson.task.stop:
+                self.plan(thePerson)
+                thePerson.behaviour.updateNeeds(thePerson)
+
+            travelData = self.travel.updatePerson(thePerson, nownow)
+            isTravelling = travelData is not None 
+            if isTravelling:
+                if not travelData.isPublic:
+                    persons_per_need["TRAVEL"] += 1
+                    persons_at_place["TRAVEL"] += 1
+                else:
+                    persons_per_need["TRAVEL_PUBLIC"] += 1
+                    persons_at_place["TRAVEL_PUBLIC"] += 1
+                thePerson.currentDestination = travelData.destination
+                #travel_map
+            else: 
+                thePerson.currentPosition = thePerson.currentDestination
                 self.appendPlaceMap(place_map, thePerson)
                 persons_per_need[thePerson.task.activity] += 1
                 persons_at_place[thePerson.task.place.char.subType] += 1
+            thePerson.travelData = travelData
+            
 
             for diseaseType in self.diseaseTypes:
                 diseaseType.update(self.now, thePerson)
 
-            if self.now.now() < thePerson.task.stop:
-                continue
 
-            thePerson.behaviour.updateNeeds(thePerson)
-            self.plan(thePerson)
 
         for diseaseType in self.diseaseTypes:
             #Simulate the diseaseType
@@ -84,7 +98,8 @@ class Simulation:
         for need in person.behaviour.getNeedPrio(person):
             task = need.trySatisfy(person, person.needs[need], self.now)
             if task is not None:
-                person.plan(task)
+                person.task = task
+                self.travel.setDestination(person, task.place, task.start+1, self.now.now())
                 return
 
     def appendPlaceMap(self, place_map, thePerson) -> None: 

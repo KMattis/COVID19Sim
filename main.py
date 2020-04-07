@@ -3,6 +3,7 @@ import configparser
 import argparse
 
 from multiprocessing import Process, Manager, Value
+from generation import mt_generator
 
 import importlib.util
 import inspect
@@ -126,7 +127,7 @@ def simLoop(connection, killMe):
     #We need to send the grid data to the renderer.
     connection.put([len(persons), theGrid.size, [p.char.placeType.value for p in theGrid.internal_grid]])
 
-    theSimulation = Simulation(persons, diseaseTypes)
+    theSimulation = Simulation(persons, diseaseTypes, mt_generator.generate(theGrid, 10, 5))
 
     #MAIN LOOP
     lastUpdate = getCurrentTimeMillis()
@@ -136,8 +137,9 @@ def simLoop(connection, killMe):
         now = getCurrentTimeMillis()
         deltaTime = now - lastUpdate
         theSimulation.simulate()
-        if deltaTime > 1000/MAX_RENDER_PER_SEC and connection.empty():
-            personData = list(map(lambda p: ((p.currentPosition.x, p.currentPosition.y), p.direction, p.travelStart.now(), p.travelEnd.now()) if p.isTravelling() else ((p.currentPosition.x, p.currentPosition.y), (0,0), 0, 0), theSimulation.persons))
+        #if deltaTime > 1000/MAX_RENDER_PER_SEC and connection.empty():
+        if connection.empty():
+            personData = list(map(lambda p: (p.travelData.startTime, p.travelData.endTime, p.travelData.destination.x, p.travelData.destination.y, p.currentPosition.x, p.currentPosition.y) if theSimulation.travel.isTravelling(p, theSimulation.now.now()) else (-1, -1, 0, 0, p.currentPosition.x, p.currentPosition.y), theSimulation.persons))
             connection.put([theSimulation.now.now(), personData])
             lastUpdate = now
         if i % 100 == 0:
