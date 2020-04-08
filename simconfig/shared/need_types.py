@@ -1,5 +1,4 @@
-import random
-
+import randomfile
 from model import need_type, place_characteristics, schedule
 from simulation import time, math
 
@@ -13,12 +12,12 @@ class Sleep(need_type.NeedType):
             and thePlace.char.placeType is place_characteristics.PlaceType.HOME]
         
         for person in persons:
-            self.homes[person] = random.choice(homes)
+            self.homes[person] = randomfile.randomchoice(homes)
             person.currentPosition = self.homes[person]
             person.currentDestination = self.homes[person]
             
     def trySatisfy(self, person, needValue, now):
-        return schedule.ScheduleItem(self.homes[person], now.now(), now.now() + random.uniform(2 * time.HOUR, 4 * time.HOUR), self)
+        return schedule.ScheduleItem(self.homes[person], now.now(), now.now() + randomfile.randomuniform(2 * time.HOUR, 4 * time.HOUR), self)
 
     def getName(self):
         return "SLEEP"
@@ -34,12 +33,12 @@ class Work(need_type.NeedType):
                 or thePlace.char.placeType is place_characteristics.PlaceType.HEALTHCARE)]
         
         for person in persons:
-            self.workplaces[person] = random.choice(workplaces)
+            self.workplaces[person] = randomfile.randomchoice(workplaces)
         
     def trySatisfy(self, person, needValue, now):
         workplace = self.workplaces[person]
         if workplace.isOpen(now):
-            return schedule.ScheduleItem(workplace, now.now(), now.now() + random.uniform(2 * time.HOUR, 4 * time.HOUR), self)
+            return schedule.ScheduleItem(workplace, now.now(), now.now() + randomfile.randomuniform(2 * time.HOUR, 4 * time.HOUR), self)
         else:
             return None
 
@@ -59,7 +58,7 @@ class Eat(need_type.NeedType):
         for (pos, _, __) in nearres:
             x,y = pos
             if self.grid.get(x,y).isOpen(now):
-                return schedule.ScheduleItem(self.grid.get(x,y), now.now(), now.now() + random.uniform(time.MINUTE * 10, time.MINUTE * 30), self)
+                return schedule.ScheduleItem(self.grid.get(x,y), now.now(), now.now() + randomfile.randomuniform(time.MINUTE * 10, time.MINUTE * 30), self)
         return None
 
     def getName(self):
@@ -78,7 +77,7 @@ class Outdoor(need_type.NeedType):
         for (pos, _, __) in nearparks:
             x,y = pos
             if self.grid.get(x,y).isOpen(now):
-                return schedule.ScheduleItem(self.grid.get(x,y), now.now(), now.now() + random.uniform(time.HOUR, 2 * time.HOUR), self)
+                return schedule.ScheduleItem(self.grid.get(x,y), now.now(), now.now() + randomfile.randomuniform(time.HOUR, 2 * time.HOUR), self)
         return None
     
     def getName(self):
@@ -101,11 +100,11 @@ class Social(need_type.NeedType):
             return self.gatherings[person]
             
         startTime = now.now()
-        duration = random.uniform(time.HOUR, 3 * time.HOUR)
+        duration = randomfile.randomuniform(time.HOUR, 3 * time.HOUR)
         endTime = startTime + duration
 
         possiblePlaces = [self.sleep.homes[person]] + [p for p in self.massEvents if p.isOpen(now)]
-        date = schedule.ScheduleItem(random.choice(possiblePlaces), startTime, endTime, self)
+        date = schedule.ScheduleItem(randomfile.randomchoice(possiblePlaces), startTime, endTime, self)
 
         for p in person.friends:
             self.gatherings[p] = date
@@ -129,7 +128,7 @@ class Health(need_type.NeedType):
         for (pos, _, __) in nearHospitals:
             x,y = pos
             if self.grid.get(x,y).isOpen(now):
-                return schedule.ScheduleItem(self.grid.get(x,y), now.now(), now.now() + random.uniform(time.HOUR, 2 * time.HOUR), self)
+                return schedule.ScheduleItem(self.grid.get(x,y), now.now(), now.now() + randomfile.randomuniform(time.HOUR, 2 * time.HOUR), self)
         return None
     
     def getName(self):

@@ -1,6 +1,6 @@
 import math
-import random
 
+import randomfile
 from model import grid, place, place_characteristics
 from simulation import time
 from generation import place_parser
@@ -33,7 +33,7 @@ def generate(model_data, needTypes):
             elif (i - centerx)**2 + (j - centery)**2 > size**2 / 4:
                 c = place_characteristics.NONE_CHAR
             else:
-                c = random.choices(chars, charFreqs)[0]
+                c = randomfile.randomchoices(chars, charFreqs)[0]
             numPlaces[c.placeType] += 1
             theGrid.addPlace(place.Place(i, j, "", c))
 

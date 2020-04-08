@@ -1,5 +1,6 @@
-import math, random
+import math 
 
+import randomfile
 from plotting import logging
 
 class Disease:
@@ -26,12 +27,12 @@ def simulateContact(now, diseaseType, personsAtPlace, thePerson, thePlace, tickL
     if thePerson.diseases[diseaseType].isInfected or thePerson.diseases[diseaseType].isImmune:
         return
     contactProb = thePlace.char.contactFrequency * tickLength * thePerson.socialBehaviour
-    if random.random() <= contactProb:
+    if randomfile.randomrandom() <= contactProb:
         #Contact
-        otherPerson = random.choice(personsAtPlace)
+        otherPerson = randomfile.randomchoice(personsAtPlace)
         if otherPerson.diseases[diseaseType].isContagious():
             infectionProb = getInfectionProb(diseaseType, otherPerson, thePlace)
-            if random.random() <= infectionProb:
+            if randomfile.randomrandom() <= infectionProb:
                 thePerson.diseases[diseaseType].infect(now)
                 logging.write("infections", now.now(), diseaseType.getName(), str(thePlace.char.subType),
                         thePerson.name, thePerson.task.activity.getName(),
@@ -39,5 +40,5 @@ def simulateContact(now, diseaseType, personsAtPlace, thePerson, thePlace, tickL
 
 def getInfectionProb(diseaseType, contagiousPerson, thePlace):
     return contagiousPerson.diseases[diseaseType].contLevel * \
-            max(0,1 - 0.5 * random.triangular(0, thePlace.char.contactDistance*2, thePlace.char.contactDistance)/contagiousPerson.diseases[diseaseType].contRadius)
+            max(0,1 - 0.5 * randomfile.randomtriangular(0, thePlace.char.contactDistance*2, thePlace.char.contactDistance)/contagiousPerson.diseases[diseaseType].contRadius)
 

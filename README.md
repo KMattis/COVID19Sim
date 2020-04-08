@@ -16,7 +16,7 @@ To install all other dependencies (python packages), please run the install_depe
 ### Running the simulation
 
 <pre>
-    python3 -m main [--model model_name] [--no-render]
+    python3 -m main [--model model_name] [--no-render] [--seed seedvalue]
 </pre>
 
 #### --model
@@ -28,6 +28,10 @@ The "realistic" model, which tries to simulate COVID according to currently avai
 #### --no-render
 
 One can activate no-render mode. Here, the simualtion will run in the background, w/o any visuals.
+
+### --seed
+
+One can choose a seed-value (Integer).
 
 ### Displaying stats
 

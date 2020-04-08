@@ -1,9 +1,10 @@
 import enum
 import math
-import random
+
 
 from typing import Dict
 
+import randomfile
 from simulation import time
 from model import schedule, need_type, place, disease_type, disease, person_behaviour
 
@@ -32,7 +33,7 @@ class Person:
 
         self.needs: Dict[need_type.NeedType, float] = {}
         for needType in needTypes:
-            self.needs[needType] = random.uniform(0, 1)
+            self.needs[needType] = randomfile.randomuniform(0, 1)
     
         self.diseases: Dict[disease_type.DiseaseType, disease.Disease] = {}
         for diseaseType in diseaseTypes:
@@ -47,7 +48,7 @@ class Person:
     def setDestination(self, dest: place.Place, start: int) -> None:
         self.travelStart.set(start)
         distance = math.sqrt((self.currentPosition.x - dest.x)**2 + (self.currentPosition.y - dest.y)**2)
-        self.travelEnd.set(round(start + distance * MINUTES_PER_CELL * random.uniform(0.9, 1.1) * time.MINUTE))
+        self.travelEnd.set(round(start + distance * MINUTES_PER_CELL * randomfile.randomuniform(0.9, 1.1) * time.MINUTE))
         self.currentDestination = dest
         divisor = max(1,(self.travelEnd.now() - self.travelStart.now()))
         self.direction = [(self.currentDestination.x - self.currentPosition.x) / divisor, (self.currentDestination.y - self.currentPosition.y) / divisor]
