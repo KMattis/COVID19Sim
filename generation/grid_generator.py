@@ -6,11 +6,7 @@ from simulation import time
 from generation import place_parser
 from plotting import logging
 
-def generate(model_data, needTypes):
-    needTypesDict = {}
-    for needType in needTypes:
-        needTypesDict[needType.getName()] = needType
-
+def generate(model_data):
     size = int(model_data["gridSize"])
     places_file = model_data["places"]
 
