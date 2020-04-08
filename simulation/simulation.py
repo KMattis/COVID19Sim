@@ -1,4 +1,4 @@
-import randomfile
+from simulation import random
 
 from plotting import logging
 

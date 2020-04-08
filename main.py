@@ -13,7 +13,7 @@ from simulation.simulation import Simulation
 from simulation import time
 from profiler.profiler import profilerObj
 from plotting import logging
-import randomfile
+from simulation import random
 
 MINUTES_PER_REAL_SECOND = 1000
 MAX_RENDER_PER_SEC = 5
@@ -27,7 +27,7 @@ def readArguments():
     argparser.add_argument("--config-file", dest="modelsConfigFile", type=str, default="simconfig/models.ini")
     argparser.add_argument("--model", dest="model", type=str, default="realistic")
     argparser.add_argument("--num-days", dest="numDays", type=int, default=0)
-    argparser.add_argument("--seed",dest="seedvalue",type=int,default=None)
+    argparser.add_argument("--seed",dest="seedValue",type=int,default=None)
     return argparser.parse_args()
 
 def getCurrentTimeMillis():
@@ -58,7 +58,7 @@ def main():
 
     initialData = queue.get(block=True)
     
-    randomfile.setseed(args.seedvalue)
+    random.setSeed(args.seedValue)
     
     if not args.noRender:
         numPersons = initialData[0]
