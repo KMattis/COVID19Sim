@@ -7,18 +7,14 @@ from multiprocessing import Process, Manager, Value
 import importlib.util
 import inspect
 
-import generation.grid_generator, generation.person_generator, generation.script_loader
-from rendering.renderer import Renderer
+from generation import grid_generator, person_generator, script_loader
 from simulation.simulation import Simulation
 from simulation import time
-from profiler.profiler import profilerObj
 from plotting import logging
 from simulation import random
 
 MINUTES_PER_REAL_SECOND = 1000
 MAX_RENDER_PER_SEC = 5
-
-killSimulationLoop = False
 
 def readArguments():
     #Setup argparse
@@ -30,6 +26,7 @@ def readArguments():
     argparser.add_argument("--seed",dest="seedValue",type=int,default=None)
     return argparser.parse_args()
 
+#TODO: Move somewhere else?
 def getCurrentTimeMillis():
     return round(pytime.time() * 1000)
 
@@ -41,32 +38,30 @@ def registerLoggingCategories():
     logging.registerCategory("bobby_needs")
     logging.registerCategory("infections")
 
-def main():
-    args = readArguments()
-    registerLoggingCategories()
+def mainRender(args):
+    #Import this module only in render mode, as it needs pygame and PyOpenGL
+    from rendering.renderer import Renderer
 
     lastUpdate = getCurrentTimeMillis()
     running = True
     loops = 0
 
-    logging.write("output", "starting main loop")
     ########
     queue = Manager().Queue()
     killSim = Value('i', 0)
     simProcess = Process(target=simLoop, args=(queue, killSim,))
     simProcess.start()
 
-    initialData = queue.get(block=True)
-    
     random.setSeed(args.seedValue)
+    #Initialize the renderer
+    initialData = queue.get(block=True)
+    numPersons = initialData[0]
+    gridSize = initialData[1]
+    gridData = initialData[2]
+    theRenderer = Renderer(numPersons)
+    theRenderer.initPlaceBuffer(gridSize, gridData)
     
-    if not args.noRender:
-        numPersons = initialData[0]
-        gridSize = initialData[1]
-        gridData = initialData[2]
-        theRenderer = Renderer(numPersons)
-        theRenderer.initPlaceBuffer(gridSize, gridData)
-
+    #Get the first simulation datum
     simData = queue.get(block=True)
     simPersons = simData[1]
     simNow = simData[0]
@@ -77,16 +72,12 @@ def main():
         now = getCurrentTimeMillis()
         deltaTime = now - lastUpdate
 
-        if not args.noRender:
-            running = theRenderer.fetchEvents(deltaTime)
-            if not queue.empty():
-                simData = queue.get(block=False)
-                simPersons = simData[1]
-                simNow = simData[0]
-            theRenderer.render(simPersons, deltaTime, simNow)
-        else:
-            simData = queue.get(block=True)
+        running = theRenderer.fetchEvents(deltaTime)
+        if not queue.empty():
+            simData = queue.get(block=False)
+            simPersons = simData[1]
             simNow = simData[0]
+        theRenderer.render(simPersons, deltaTime, simNow)
         nowOb = time.Timestamp(simNow)
         
         loops += 1
@@ -96,9 +87,7 @@ def main():
         if args.numDays > 0 and nowOb.day() >= args.numDays:
             running = False
 
-    logging.write("output", "shutting down")
-    if not args.noRender:
-        theRenderer.quit()
+    theRenderer.quit()
     killSim.value = 1
     while(not queue.empty()):
         queue.get(block=False)
@@ -106,37 +95,19 @@ def main():
     
 def simLoop(connection, killMe):
     #SETUP
-    args = readArguments()
-
     registerLoggingCategories()
-
-    model_data_parser = configparser.ConfigParser()
-    model_data_parser.read(args.modelsConfigFile)
-    model_data = model_data_parser[args.model]
-
-    logging.write("output", "generating")
-    needTypes = generation.script_loader.readObjectsFromScript(model_data["need_types"], "need_types")
-    diseaseTypes  = generation.script_loader.readObjectsFromScript(model_data["disease_types"], "disease_types")
-    theGrid = generation.grid_generator.generate(model_data, needTypes)
-    persons = generation.person_generator.generate(theGrid, model_data, needTypes, diseaseTypes)
-
-    for needType in needTypes:
-        needType.initialize(needTypes, persons, theGrid)
-        logging.write("output", needType.getName())
-
-    for diseaseType in diseaseTypes:
-        diseaseType.initialize(needTypes)
-        logging.registerCategory("disease." + diseaseType.getName())
+    args = readArguments()
+    random.setSeed(args.seedValue)
+    modelData = loadModelData(args)
+    theSimulation = setupSimulation(modelData)
 
     #We need to send the grid data to the renderer.
-    connection.put([len(persons), theGrid.size, [p.char.placeType.value for p in theGrid.internal_grid]])
-
-    theSimulation = Simulation(persons, diseaseTypes)
+    connection.put([len(theSimulation.persons), theSimulation.grid.size, [p.char.placeType.value for p in theSimulation.grid.internal_grid]])
 
     #MAIN LOOP
     lastUpdate = getCurrentTimeMillis()
     last100 = getCurrentTimeMillis()
-    i = 1
+    i = 0
     while killMe.value == 0:
         now = getCurrentTimeMillis()
         deltaTime = now - lastUpdate
@@ -145,10 +116,59 @@ def simLoop(connection, killMe):
             personData = list(map(lambda p: ((p.currentPosition.x, p.currentPosition.y), p.direction, p.travelStart.now(), p.travelEnd.now()) if p.isTravelling() else ((p.currentPosition.x, p.currentPosition.y), (0,0), 0, 0), theSimulation.persons))
             connection.put([theSimulation.now.now(), personData])
             lastUpdate = now
+        i += 1
         if i % 100 == 0:
             print("100 simulation steps took " + str(getCurrentTimeMillis() - last100) + "ms")
             last100 = getCurrentTimeMillis()
+
+def loadModelData(args):
+    modelDataParser = configparser.ConfigParser()
+    modelDataParser.read(args.modelsConfigFile)
+    return modelDataParser[args.model]
+
+def setupSimulation(model_data):
+    needTypes = script_loader.readObjectsFromScript(model_data["need_types"], "need_types")
+    needTypesDict = {}
+    for needType in needTypes:
+        needTypesDict[needType.getName()] = needType
+    diseaseTypes  = script_loader.readObjectsFromScript(model_data["disease_types"], "disease_types")
+    theGrid = grid_generator.generate(model_data)
+    persons = person_generator.generate(model_data, needTypesDict, diseaseTypes)
+
+
+    for needType in needTypes:
+        needType.initialize(needTypesDict, persons, theGrid)
+        logging.write("output", needType.getName())
+
+    for diseaseType in diseaseTypes:
+        diseaseType.initialize(needTypesDict)
+        logging.registerCategory("disease." + diseaseType.getName())
+
+    return Simulation(persons, theGrid, diseaseTypes)
+
+def mainNoRender(args):
+    #Startup code
+    registerLoggingCategories()
+    random.setSeed(args.seedValue)
+    modelData = loadModelData(args)
+    theSimulation = setupSimulation(modelData)
+
+    #main loop
+    running = True
+    last100 = getCurrentTimeMillis()
+    i = 0
+    while running:
+        theSimulation.simulate()
         i += 1
+        if i % 100 == 0:
+            print("100 simulation steps took " + str(getCurrentTimeMillis() - last100) + "ms")
+            last100 = getCurrentTimeMillis()
+        if args.numDays > 0 and theSimulation.now.day() >= args.numDays:
+            running = False
 
 if __name__ == "__main__":
-    main()
+    args = readArguments()
+    if args.noRender:
+        mainNoRender(args)
+    else:
+        mainRender(args)
