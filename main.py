@@ -11,6 +11,7 @@ from generation import grid_generator, person_generator, script_loader
 from simulation.simulation import Simulation
 from simulation import time
 from plotting import logging
+from simulation import random
 
 MINUTES_PER_REAL_SECOND = 1000
 MAX_RENDER_PER_SEC = 5
@@ -22,6 +23,7 @@ def readArguments():
     argparser.add_argument("--config-file", dest="modelsConfigFile", type=str, default="simconfig/models.ini")
     argparser.add_argument("--model", dest="model", type=str, default="realistic")
     argparser.add_argument("--num-days", dest="numDays", type=int, default=0)
+    argparser.add_argument("--seed",dest="seedValue",type=int,default=None)
     return argparser.parse_args()
 
 #TODO: Move somewhere else?
@@ -50,6 +52,7 @@ def mainRender(args):
     simProcess = Process(target=simLoop, args=(queue, killSim,))
     simProcess.start()
 
+    random.setSeed(args.seedValue)
     #Initialize the renderer
     initialData = queue.get(block=True)
     numPersons = initialData[0]
@@ -57,7 +60,7 @@ def mainRender(args):
     gridData = initialData[2]
     theRenderer = Renderer(numPersons)
     theRenderer.initPlaceBuffer(gridSize, gridData)
-
+    
     #Get the first simulation datum
     simData = queue.get(block=True)
     simPersons = simData[1]
@@ -94,6 +97,7 @@ def simLoop(connection, killMe):
     #SETUP
     registerLoggingCategories()
     args = readArguments()
+    random.setSeed(args.seedValue)
     modelData = loadModelData(args)
     theSimulation = setupSimulation(modelData)
 
@@ -141,6 +145,7 @@ def setupSimulation(model_data):
 def mainNoRender(args):
     #Startup code
     registerLoggingCategories()
+    random.setSeed(args.seedValue)
     modelData = loadModelData(args)
     theSimulation = setupSimulation(modelData)
 
