@@ -7,7 +7,7 @@ class COVID19(model.disease_type.DiseaseType):
         self.health = None
 
     def initialize(self, needTypes):
-        self.health = [need for need in needTypes if need.getName() == "HEALTH"][0]
+        self.health = needTypes["HEALTH"]
     
     def update(self, now,  person):
         disease = person.diseases[self]

@@ -1,4 +1,4 @@
-import random
+from simulation import random
 
 from plotting import logging
 
@@ -11,10 +11,11 @@ from generation import mt_generator
 SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
 class Simulation:
-    def __init__(self, persons, diseaseTypes, trafficNetwork):
+    def __init__(self, persons, grid, diseaseTypes, trafficNetwork):
         self.now = time.Timestamp(time.HOUR * 0)
         self.persons = persons
         self.bobby = persons[0]
+        self.grid = grid
         self.lastUpdate = -1
         self.travel = mass_transportation.Travel(persons, trafficNetwork, 2, 4)
 

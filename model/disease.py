@@ -1,5 +1,6 @@
-import math, random
+import math 
 
+from simulation import random
 from plotting import logging
 
 class ContactProperties:

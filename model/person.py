@@ -1,9 +1,10 @@
 import enum
 import math
-import random
+
 
 from typing import Dict
 
+from simulation import random
 from simulation import time
 from model import schedule, need_type, place, disease_type, disease, person_behaviour
 
