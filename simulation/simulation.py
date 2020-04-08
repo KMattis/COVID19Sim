@@ -10,10 +10,11 @@ from profiler.profiler import profilerObj
 SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
 class Simulation:
-    def __init__(self, persons, diseaseTypes):
+    def __init__(self, persons, grid, diseaseTypes):
         self.now = time.Timestamp(time.HOUR * 0)
         self.persons = persons
         self.bobby = persons[0]
+        self.grid = grid
         self.lastUpdate = -1
 
         self.diseaseTypes = diseaseTypes
