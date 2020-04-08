@@ -128,16 +128,20 @@ def loadModelData(args):
 
 def setupSimulation(model_data):
     needTypes = script_loader.readObjectsFromScript(model_data["need_types"], "need_types")
+    needTypesDict = {}
+    for needType in needTypes:
+        needTypesDict[needType.getName()] = needType
     diseaseTypes  = script_loader.readObjectsFromScript(model_data["disease_types"], "disease_types")
     theGrid = grid_generator.generate(model_data)
-    persons = person_generator.generate(model_data, needTypes, diseaseTypes)
+    persons = person_generator.generate(model_data, needTypesDict, diseaseTypes)
+
 
     for needType in needTypes:
-        needType.initialize(needTypes, persons, theGrid)
+        needType.initialize(needTypesDict, persons, theGrid)
         logging.write("output", needType.getName())
 
     for diseaseType in diseaseTypes:
-        diseaseType.initialize(needTypes)
+        diseaseType.initialize(needTypesDict)
         logging.registerCategory("disease." + diseaseType.getName())
 
     return Simulation(persons, theGrid, diseaseTypes)
