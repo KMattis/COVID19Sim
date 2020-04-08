@@ -86,14 +86,12 @@ class Outdoor(need_type.NeedType):
 
 class Social(need_type.NeedType):
     def __init__(self):
-        self.grid = None
         self.sleep = None
         self.gatherings = {}
         self.massEvents = None
 
     def initialize(self, needTypes, persons, grid):
-        self.grid = grid
-        self.sleep = [need for need in needTypes if need.getName() == "SLEEP"][0]
+        self.sleep = needTypes["SLEEP"]
         self.massEvents = [p for p in grid.internal_grid if p.char.placeType == place_characteristics.PlaceType.MASSEVENT]
 
     def trySatisfy(self, person, needValue, now):
@@ -121,7 +119,6 @@ class Health(need_type.NeedType):
 
     def initialize(self, needTypes, persons, grid):
         self.grid = grid
-        self.sleep = [need for need in needTypes if need.getName() == "SLEEP"][0]
 
     def trySatisfy(self, person, needValue, now):
         distmap = self.grid.getDistanceMap()

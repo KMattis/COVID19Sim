@@ -111,16 +111,19 @@ def simLoop(connection, killMe):
 
     logging.write("output", "generating")
     needTypes = generation.script_loader.readObjectsFromScript(model_data["need_types"], "need_types")
+    needTypesDict = {}
+    for needType in needTypes:
+        needTypesDict[needType.getName()] = needType
     diseaseTypes  = generation.script_loader.readObjectsFromScript(model_data["disease_types"], "disease_types")
     theGrid = generation.grid_generator.generate(model_data, needTypes)
-    persons = generation.person_generator.generate(theGrid, model_data, needTypes, diseaseTypes)
+    persons = generation.person_generator.generate(theGrid, model_data, needTypesDict, diseaseTypes)
 
     for needType in needTypes:
-        needType.initialize(needTypes, persons, theGrid)
+        needType.initialize(needTypesDict, persons, theGrid)
         logging.write("output", needType.getName())
 
     for diseaseType in diseaseTypes:
-        diseaseType.initialize(needTypes)
+        diseaseType.initialize(needTypesDict)
         logging.registerCategory("disease." + diseaseType.getName())
 
     #We need to send the grid data to the renderer.
