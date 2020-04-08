@@ -15,12 +15,12 @@ class DefaultBehaviour(person_behaviour.PersonBehaviour):
         self.needCaps = None
 
     def initialize(self, needTypes):
-        self.sleep = [k for k in needTypes if k.getName() == "SLEEP"][0]
-        self.work = [k for k in needTypes if k.getName() == "WORK"][0]
-        self.eat = [k for k in needTypes if k.getName() == "EAT"][0]
-        self.outdoor = [k for k in needTypes if k.getName() == "OUTDOOR"][0]
-        self.social = [k for k in needTypes if k.getName() == "SOCIAL"][0]
-        self.health = [k for k in needTypes if k.getName() == "HEALTH"][0]
+        self.sleep = needTypes["SLEEP"]
+        self.work = needTypes["WORK"]
+        self.eat = needTypes["EAT"]
+        self.outdoor = needTypes["OUTDOOR"]
+        self.social = needTypes["SOCIAL"]
+        self.health = needTypes["HEALTH"]
 
         self.needUpdateDict = {
             self.sleep : {
