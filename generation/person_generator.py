@@ -1,4 +1,4 @@
-import random
+from simulation import random
 from model import person, grid, place_characteristics, disease
 from generation import script_loader, disease_parser
 

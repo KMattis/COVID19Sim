@@ -1,5 +1,4 @@
-import random
-
+from simulation import random
 from model import need_type, place_characteristics, schedule
 from simulation import time, math
 

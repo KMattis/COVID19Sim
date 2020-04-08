@@ -1,6 +1,6 @@
 import math
-import random
 
+from simulation import random
 from model import grid, place, place_characteristics
 from simulation import time
 from generation import place_parser
