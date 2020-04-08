@@ -3,6 +3,11 @@ import math
 from simulation import random
 from plotting import logging
 
+class ContactProperties:
+    def __init__(self, contactDistance, contactFrequency):
+        self.contactDistance = contactDistance
+        self.contactFrequency = contactFrequency
+
 class Disease:
     def __init__(self, diseaseType, isInfected=False, contagiousLev=0, contagiousRadius=0, infectionStarted=-1, healthDamage=0, isImmune=False):
         self.diseaseType = diseaseType
@@ -23,22 +28,22 @@ class Disease:
             self.isInfected = True
             self.infectionStarted = now.now()
 
-def simulateContact(now, diseaseType, personsAtPlace, thePerson, thePlace, tickLength):
+def simulateContact(now, diseaseType, personsAtPlace, thePerson, contactProp, placeName, tickLength):
     if thePerson.diseases[diseaseType].isInfected or thePerson.diseases[diseaseType].isImmune:
         return
-    contactProb = thePlace.char.contactFrequency * tickLength * thePerson.socialBehaviour
+    contactProb = contactProp.contactFrequency * tickLength * thePerson.socialBehaviour
     if random.random() <= contactProb:
         #Contact
         otherPerson = random.choice(personsAtPlace)
         if otherPerson.diseases[diseaseType].isContagious():
-            infectionProb = getInfectionProb(diseaseType, otherPerson, thePlace)
+            infectionProb = getInfectionProb(diseaseType, otherPerson, contactProp)
             if random.random() <= infectionProb:
                 thePerson.diseases[diseaseType].infect(now)
-                logging.write("infections", now.now(), diseaseType.getName(), str(thePlace.char.subType),
+                logging.write("infections", now.now(), diseaseType.getName(), placeName,
                         thePerson.name, thePerson.task.activity.getName(),
                         otherPerson.name, otherPerson.task.activity.getName())
 
-def getInfectionProb(diseaseType, contagiousPerson, thePlace):
+def getInfectionProb(diseaseType, contagiousPerson, contactProp):
     return contagiousPerson.diseases[diseaseType].contLevel * \
-            max(0,1 - 0.5 * random.triangular(0, thePlace.char.contactDistance*2, thePlace.char.contactDistance)/contagiousPerson.diseases[diseaseType].contRadius)
+            max(0,1 - 0.5 * random.triangular(0, contactProp.contactDistance*2, contactProp.contactDistance)/contagiousPerson.diseases[diseaseType].contRadius)
 

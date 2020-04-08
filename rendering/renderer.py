@@ -123,12 +123,12 @@ class Renderer:
 
         placeSizeHalfed = PLACE_SIZE / 2
         i = 0
-        for pos, direction, start, end in personData:
-            progress = min(now - start, end - start)
-            x = pos[0] + direction[0] * progress
-            y = pos[1] + direction[1] * progress
-            if x < 0 or y < 0:
-                print(pos[0],pos[1],direction[0],direction[1],now-start,end-start)
+        for (start, end, destx, desty, x, y) in personData:
+            if start >= 0:  
+                progress = min((now - start)/(end - start),1) if end != start else 0
+                x += (destx - x) * progress
+                y += (desty - y) * progress
+
             self.personVertices[2 * i] = x + placeSizeHalfed
             self.personVertices[2 * i + 1] = y + placeSizeHalfed
             i += 1

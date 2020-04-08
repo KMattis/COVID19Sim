@@ -47,18 +47,19 @@ def readArgs():
     return args
 
 def plotActivity(path):
-    data = read_stat_file(path, 8)
+    data = read_stat_file(path, 9)
     x = data[0]
     
     x = (1/60) * np.array(x)
     
     plt.plot(x, np.array(data[1]), label = "Travelling")
-    plt.plot(x, np.array(data[5]), label = "Sleep")
-    plt.plot(x, np.array(data[4]), label = "Outdoor")
-    plt.plot(x, np.array(data[7]), label = "Work")
-    plt.plot(x, np.array(data[2]), label = "Eat")
-    plt.plot(x, np.array(data[6]), label = "Social")
-    plt.plot(x, np.array(data[3]), label = "Health")
+    plt.plot(x, np.array(data[6]), label = "Sleep")
+    plt.plot(x, np.array(data[5]), label = "Outdoor")
+    plt.plot(x, np.array(data[8]), label = "Work")
+    plt.plot(x, np.array(data[3]), label = "Eat")
+    plt.plot(x, np.array(data[7]), label = "Social")
+    plt.plot(x, np.array(data[4]), label = "Health")
+    plt.plot(x, np.array(data[2]), label = "Public Transport")
     
     plt.legend(loc='upper center', shadow=True, fontsize='x-large')
     
@@ -67,18 +68,19 @@ def plotActivity(path):
     plt.show() 
 
 def plotPlaces(path):
-    data = read_stat_file(path, 9)
+    data = read_stat_file(path, 10)
     x = data[0]
     
     x = (1/60) * np.array(x)
     
     plt.plot(x, np.array(data[1]), label = "Travelling")
-    plt.plot(x, np.array(data[6]), label = "Home")
-    plt.plot(x, np.array(data[4]), label = "Park")
-    plt.plot(x, np.array(data[5]), label = "Office")
-    plt.plot(x, np.array(data[3]), label = "Restaurant")
-    plt.plot(x, np.array(data[8]), label = "MassEvent")
-    plt.plot(x, np.array(data[7]), label = "Hospital")
+    plt.plot(x, np.array(data[7]), label = "Home")
+    plt.plot(x, np.array(data[5]), label = "Park")
+    plt.plot(x, np.array(data[6]), label = "Office")
+    plt.plot(x, np.array(data[4]), label = "Restaurant")
+    plt.plot(x, np.array(data[9]), label = "MassEvent")
+    plt.plot(x, np.array(data[8]), label = "Hospital")
+    plt.plot(x, np.array(data[2]), label = "Public Transport")
     
     plt.legend(loc='upper center', shadow=True, fontsize='x-large')
     
