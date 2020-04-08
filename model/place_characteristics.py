@@ -1,6 +1,7 @@
 import enum
 
 from model import need_type
+from model import disease
 
 class PlaceType(enum.Enum):
     NONE = -1
@@ -34,7 +35,6 @@ class PlaceCharacteristics:
         self.placeType: PlaceType = placeType
         self.subType: SubType = subType
         self.frequency: int = frequency
-        self.contactFrequency: float = contactFrequency
-        self.contactDistance: float = contactDistance
+        self.contactProperties : disease.ContactProperties = disease.ContactProperties(contactDistance, contactFrequency)
 
 NONE_CHAR = PlaceCharacteristics(PlaceType.NONE, 0, 0, SubType.NONE, 0, 0, 0)

@@ -1,6 +1,7 @@
 import networkx as nx
 import math
 from simulation import time
+from model import disease
 
 class TrafficNetwork:
     def __init__(self, stops, connections, grid, frequency, distStations):
@@ -48,9 +49,10 @@ class TrafficNetwork:
         return len(route)*self.distStations
 
 class TravelData:
-    def __init__(self, startTime, endTime, destination, distance, isPublic):
+    def __init__(self, startTime, endTime, origin, destination, distance, isPublic):
         self.startTime = startTime
         self.endTime = endTime
+        self.origin = origin
         self.destination = destination 
         self.distance = distance
         self.isPublic = isPublic
@@ -89,18 +91,20 @@ class Travel:
             endTime = start+route[0][1]//self.walkingSpeed
             destinations = []
             if route[0][1] > 0:
-                destinations = [TravelData(startTime, endTime, self.trafficNetwork.stops[route[0][0]], route[0][1], False)]
+                destinations = [TravelData(startTime, endTime, person.currentPosition, self.trafficNetwork.stops[route[0][0]], route[0][1], False)]
+            lastStop = self.trafficNetwork.stops[route[0][0]]
             for stopIndex in route[1]:
                 startTime = endTime
                 endTime = startTime + tbs
-                destinations.append(TravelData(startTime, endTime, self.trafficNetwork.stops[stopIndex], tbs, True))
+                destinations.append(TravelData(startTime, endTime, lastStop, self.trafficNetwork.stops[stopIndex], tbs, True))
+                lastStop = self.trafficNetwork.stops[stopIndex] 
             if route[2][1] > 0:
-                destinations.append(TravelData(endTime, endTime+route[2][1]//self.walkingSpeed, self.trafficNetwork.stops[route[2][0]], route[2][1], False))
+                destinations.append(TravelData(endTime, endTime+route[2][1]//self.walkingSpeed, lastStop, self.trafficNetwork.stops[route[2][0]], route[2][1], False))
             self.travellers[person] += destinations
         else:
             dist = math.sqrt((person.currentPosition.x - destination.x)**2 + (person.currentPosition.y - destination.y) **2)
             if dist > 0:
-                self.travellers[person] += [TravelData(start, start+(dist//self.walkingSpeed), destination, dist, False)]
+                self.travellers[person] += [TravelData(start, start+(dist//self.walkingSpeed), person.currentPosition, destination, dist, False)]
         
     def isTravelling(self, person, nownow):
         return len(self.travellers[person]) > 0 and  self.travellers[person][0].startTime <= nownow <= self.travellers[person][0].endTime
