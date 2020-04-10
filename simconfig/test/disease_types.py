@@ -17,7 +17,7 @@ class COVID19(model.disease_type.DiseaseType):
 
         infTime = time.Timestamp(now.now()-disease.infectionStarted).day()
 
-        if 0 <= infTime < 12:
+        if 1 <= infTime < 4:
             disease.contLevel = 0.8
             disease.contRadius = 1
             disease.healthDamage = 50
@@ -34,7 +34,7 @@ class COVID19(model.disease_type.DiseaseType):
         #    disease.contLevel = 0.4
         #    disease.contRadius = 0.5
         #    disease.healthDamage = 20
-        elif 12 <= infTime:
+        elif 4 <= infTime:
             disease.contLevel = 0
             disease.contRadius = 0
             disease.healthDamage = 0

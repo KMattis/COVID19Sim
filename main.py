@@ -38,6 +38,7 @@ def registerLoggingCategories():
     logging.registerCategory("output")
     logging.registerCategory("bobby_needs")
     logging.registerCategory("infections")
+    logging.registerCategory("contacts")
 
 def mainRender(args):
     #Import this module only in render mode, as it needs pygame and PyOpenGL
@@ -167,6 +168,8 @@ def mainNoRender(args):
             last100 = getCurrentTimeMillis()
         if args.numDays > 0 and theSimulation.now.day() >= args.numDays:
             running = False
+        print("Simulation time: {0}:{1}:{2}".format(theSimulation.now.day(), theSimulation.now.hourOfDay(), theSimulation.now.minuteOfHour()))
+
 
 if __name__ == "__main__":
     args = readArguments()

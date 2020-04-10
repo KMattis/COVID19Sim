@@ -94,9 +94,17 @@ def plotDisease(path):
 
     x = (1/60) * np.array(x)
     
-    plt.plot(x, np.array(data[1]), label = "Infected")
-    plt.plot(x, np.array(data[2]), label = "Contagious")
-    plt.plot(x, np.array(data[3]), label = "Immune")
+    infected = np.array(data[1])
+    contagious = np.array(data[2])
+    immune = np.array(data[3])
+    susceptible = 10000 - infected - immune
+    exposed = infected - contagious
+
+    plt.plot(x, infected, label = "Infected")
+    plt.plot(x, contagious, label = "Contagious")
+    plt.plot(x, immune, label = "Immune")
+    plt.plot(x, susceptible, label = "Susceptible")
+    plt.plot(x, exposed, label = "Exposed")
 
     plt.legend(loc='upper center', shadow=True, fontsize='x-large')
     

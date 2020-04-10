@@ -36,6 +36,9 @@ def simulateContact(now, diseaseType, personsAtPlace, thePerson, contactProp, pl
         #Contact
         otherPerson = random.choice(personsAtPlace)
         if otherPerson.diseases[diseaseType].isContagious():
+            logging.write("contacts", now.now(), diseaseType.getName(), placeName,
+                        thePerson.name, thePerson.task.activity.getName(),
+                        otherPerson.name, otherPerson.task.activity.getName())
             infectionProb = getInfectionProb(diseaseType, otherPerson, contactProp)
             if random.random() <= infectionProb:
                 thePerson.diseases[diseaseType].infect(now)
