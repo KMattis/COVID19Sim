@@ -17,7 +17,7 @@ class Simulation:
         self.bobby = persons[0]
         self.grid = grid
         self.lastUpdate = -1
-        self.travel = mass_transportation.Travel(persons, trafficNetwork, 2, 4)
+        self.travel = mass_transportation.Travel(persons, trafficNetwork)
 
         self.diseaseTypes = diseaseTypes
 
