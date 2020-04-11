@@ -76,7 +76,8 @@ class Simulation:
             for diseaseType in self.diseaseTypes:
                 diseaseType.update(self.now, thePerson)
 
-
+        print(persons_at_place["TRAVEL_PUBLIC"])
+        print(persons_at_place["TRAVEL"])
         for diseaseType in self.diseaseTypes:
             #Simulate the diseaseType
             for thePlace in filter(lambda thePlace: place_map[thePlace][1][diseaseType] > 0, place_map):

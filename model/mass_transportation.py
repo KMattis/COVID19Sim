@@ -24,18 +24,19 @@ class TrafficNetwork:
         self.G.clear()
         self.G.add_nodes_from(list(range(len(self.stops))))
         self.G.add_weighted_edges_from(self.connections)
+        print(self.connections)
 
     #TODO: Wastes space
     def calculateStopDistances(self):
         for stop0 in enumerate(self.stops):
             self.stopDists[stop0[0]] = {}
             for stop1 in enumerate(self.stops):
-                dist = math.sqrt((stop0[1].x-stop1[1].x)**2 + (stop0[1].y-stop0[1].y)**2)
+                dist = math.sqrt((stop0[1].x-stop1[1].x)**2 + (stop0[1].y-stop1[1].y)**2)
                 timeDist = dist//self.mtSpeed
                 self.stopDists[stop0[0]][stop1[0]] = (dist, timeDist)
       
     def calculateShortestPaths(self):
-        shortestConnections = nx.shortest_path(self.G,weight='weight')
+        shortestConnections = nx.shortest_path(self.G, weight='weight')
         for con0 in shortestConnections:
             self.shortestConnections[con0] = {}
             for con1 in shortestConnections[con0]: 
@@ -55,7 +56,8 @@ class TrafficNetwork:
         for stop in enumerate(self.stops):
             dist = math.sqrt((stop[1].x - x) ** 2 + (stop[1].y -y) **2)
             if dist < curDist[1] or curDist[1] == -1:
-                curDist = (stop[0], dist)
+                timeDist = dist //self.mtSpeed
+                curDist = (stop[0], dist, timeDist)
         return curDist
         
     def createDistMap(self):
@@ -107,28 +109,31 @@ class Travel:
         startStation = self.trafficNetwork.getNearestStop(person.currentPosition.x, person.currentPosition.y)
         endStation = self.trafficNetwork.getNearestStop(destination.x, destination.y)
         publicRoute = self.trafficNetwork.getDistStops(startStation[0], endStation[0])
-        distPublic = publicRoute.dist + startStation[1] + endStation[1]
-        return (startStation, publicRoute, endStation) if distPublic//self.mtSpeed < distDirect//self.trafficSpeed else None
+        distPublic = publicRoute.dist + startStation[2] + endStation[2]
+        if (len(publicRoute.stopIndices) < 2):
+            return None
+        return (startStation, publicRoute, endStation) if distPublic <= distDirect//self.trafficSpeed else None
     
+    #TODO: Cache travels (save travel datas once calculated)
     def setDestination (self, person, destination, start, nownow):
         route = self.findRoute(person, destination)
         if route is not None: #Public travel
             fr = self.trafficNetwork.frequency
             startTime = start
-            endTime = start+route[0][1]//self.trafficSpeed
+            endTime = start+route[0][2]
             destinations = []
             if route[0][1] > 0:
                 destinations = [TravelData(startTime, endTime, person.currentPosition, self.trafficNetwork.stops[route[0][0]], route[0][1], False)]
             lastStop = self.trafficNetwork.stops[route[0][0]]
             lastStopIndex = route[0][0]
             for stopIndex in route[1].stopIndices:
-                startTime = endTime + self.trafficNetwork.frequency - endTime//self.trafficNetwork.frequency
+                startTime = endTime + self.trafficNetwork.frequency - endTime % self.trafficNetwork.frequency
                 endTime = startTime + self.trafficNetwork.stopDists[lastStopIndex][stopIndex][1]
                 destinations.append(TravelData(startTime, endTime, lastStop, self.trafficNetwork.stops[stopIndex], self.trafficNetwork.stopDists[lastStopIndex][stopIndex][0], True))
                 lastStop = self.trafficNetwork.stops[stopIndex] 
                 lastStopIndex = stopIndex
             if route[2][1] > 0:
-                destinations.append(TravelData(endTime, endTime+route[2][1]//self.trafficSpeed, lastStop, self.trafficNetwork.stops[route[2][0]], route[2][1], False))
+                destinations.append(TravelData(endTime, endTime+route[2][2], lastStop, self.trafficNetwork.stops[route[2][0]], route[2][1], False))
             self.travellers[person] += destinations
         else:
             dist = math.sqrt((person.currentPosition.x - destination.x)**2 + (person.currentPosition.y - destination.y) **2)
@@ -136,6 +141,9 @@ class Travel:
                 self.travellers[person] += [TravelData(start, start+(dist//self.trafficSpeed), person.currentPosition, destination, dist, False)]
         
     def isTravelling(self, person, nownow):
+        if len(self.travellers[person]) > 0 and self.travellers[person][0].isPublic:
+            curTravel = self.travellers[person][0]
+            return curTravel.startTime <= nownow+self.trafficNetwork.frequency and nownow <= curTravel.endTime
         return len(self.travellers[person]) > 0 and  self.travellers[person][0].startTime <= nownow <= self.travellers[person][0].endTime
 
     def updatePerson(self, person, nownow):
@@ -145,7 +153,7 @@ class Travel:
                 i += 1
                 continue
             self.travellers[person] = self.travellers[person][i:]
-            if td.startTime > nownow: 
+            if td.startTime > nownow and not (td.isPublic and td.startTime < nownow + self.trafficNetwork.frequency):
                 break
             #We now have the current travelData  
             #Remove old travel data
