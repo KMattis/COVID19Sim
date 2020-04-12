@@ -82,6 +82,9 @@ class DefaultBehaviour(person_behaviour.PersonBehaviour):
             self.health: 100,
         }
 
+    def getPublicTransportAffinity(self):
+        return 1
+
     def getNeedPrio(self, thePerson):
         sortedNeeds = sorted([k for k in thePerson.needs.keys() if thePerson.needs[k] > 2],
                 key=lambda k: thePerson.needs[k], reverse=True)

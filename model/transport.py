@@ -109,7 +109,7 @@ class Travel:
         distPublic = publicRoute.dist + startStation[2] + endStation[2]
         if (len(publicRoute.stopIndices) < 2):
             return None
-        return (startStation, publicRoute, endStation) if distPublic <= distDirect//self.trafficNetwork.privateTransportSpeed else None
+        return (startStation, publicRoute, endStation) if distPublic <= person.behaviour.getPublicTransportAffinity()*distDirect//self.trafficNetwork.privateTransportSpeed else None
     
     #TODO: Cache travels (save travel datas once calculated)
     def setDestination (self, person, destination, start, nownow):

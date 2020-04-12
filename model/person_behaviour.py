@@ -18,3 +18,7 @@ class PersonBehaviour(abc.ABC):
     @abc.abstractmethod
     def getFrequency(self):
         pass
+
+    @abc.abstractmethod
+    def getPublicTransportAffinity(self):
+        pass
