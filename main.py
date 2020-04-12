@@ -2,7 +2,7 @@ import time as pytime
 import configparser
 import argparse
 
-from multiprocessing import Process, Manager, Value
+from multiprocessing import Process, Manager, Value, Array
 from generation import transport_generator, traffic_parser
 
 import importlib.util
@@ -13,9 +13,8 @@ from simulation.simulation import Simulation
 from simulation import time
 from plotting import logging
 from simulation import random
+from model import transport
 
-MINUTES_PER_REAL_SECOND = 1000
-MAX_RENDER_PER_SEC = 5
 
 def readArguments():
     #Setup argparse
@@ -50,7 +49,9 @@ def mainRender(args):
     ########
     queue = Manager().Queue()
     killSim = Value('i', 0)
-    simProcess = Process(target=simLoop, args=(queue, killSim,))
+    nownow = Value('i', 0, lock=False)
+    travelDatas = Array(transport.TravelData, 10000, lock=False)
+    simProcess = Process(target=simLoop, args=(queue, killSim, nownow, travelDatas, ))
     simProcess.start()
 
     random.setSeed(args.seedValue)
@@ -63,10 +64,17 @@ def mainRender(args):
     theRenderer.initPlaceBuffer(gridSize, gridData)
     
     #Get the first simulation datum
-    simData = queue.get(block=True)
-    simPersons = simData[1]
-    simNow = simData[0]
-    nowOb = time.Timestamp(simNow)
+    #simData = queue.get(block=True)
+    simPersons = list(map(lambda td: (td.startTime,
+                            td.endTime,
+                            td.destination_x,
+                            td.destination_y,
+                            td.origin_x, td.origin_y) 
+                            if td.startTime <= nownow.value <= td.endTime
+                            else (-1, -1, 0, 0, td.origin_x, td.origin_y),
+                            travelDatas))
+
+    nowOb = time.Timestamp(nownow.value)
     ########
 
     while running:
@@ -74,12 +82,17 @@ def mainRender(args):
         deltaTime = now - lastUpdate
 
         running = theRenderer.fetchEvents(deltaTime)
-        if not queue.empty():
-            simData = queue.get(block=False)
-            simPersons = simData[1]
-            simNow = simData[0]
-        theRenderer.render(simPersons, deltaTime, simNow)
-        nowOb = time.Timestamp(simNow)
+        simPersons = list(map(lambda td: (td.startTime,
+                            td.endTime,
+                            td.destination_x,
+                            td.destination_y,
+                            td.origin_x, td.origin_y) 
+                            if td.startTime <= nownow.value <= td.endTime
+                            else (-1, -1, 0, 0, td.origin_x, td.origin_y),
+                            travelDatas))
+        
+        theRenderer.render(simPersons, deltaTime, nownow.value)
+        nowOb = time.Timestamp(nownow.value)
         
         loops += 1
         if loops % 100 == 0:
@@ -94,30 +107,23 @@ def mainRender(args):
         queue.get(block=False)
     simProcess.join() 
     
-def simLoop(connection, killMe):
+def simLoop(connection, killMe, nownow, travelDatas):
     #SETUP
     registerLoggingCategories()
     args = readArguments()
     random.setSeed(args.seedValue)
     modelData = loadModelData(args)
-    theSimulation = setupSimulation(modelData)
+    theSimulation = setupSimulation(modelData, travelDatas)
 
     #We need to send the grid data to the renderer.
     connection.put([len(theSimulation.persons), theSimulation.grid.size, [p.char.placeType.value for p in theSimulation.grid.internal_grid]])
 
     #MAIN LOOP
-    lastUpdate = getCurrentTimeMillis()
     last100 = getCurrentTimeMillis()
     i = 0
     while killMe.value == 0:
-        now = getCurrentTimeMillis()
-        deltaTime = now - lastUpdate
         theSimulation.simulate()
-        #if deltaTime > 1000/MAX_RENDER_PER_SEC and connection.empty():
-        if connection.empty():
-            personData = list(map(lambda p: (p.travelData.startTime, p.travelData.endTime, p.travelData.destination.x, p.travelData.destination.y, p.currentPosition.x, p.currentPosition.y) if theSimulation.travel.isMoving(p, theSimulation.now.now()) else (-1, -1, 0, 0, p.currentPosition.x, p.currentPosition.y), theSimulation.persons))
-            connection.put([theSimulation.now.now(), personData])
-            lastUpdate = now
+        nownow.value = theSimulation.now.now()
         i += 1
         if i % 100 == 0:
             print("100 simulation steps took " + str(getCurrentTimeMillis() - last100) + "ms")
@@ -128,7 +134,7 @@ def loadModelData(args):
     modelDataParser.read(args.modelsConfigFile)
     return modelDataParser[args.model]
 
-def setupSimulation(model_data):
+def setupSimulation(model_data, travelDatas):
     needTypes = script_loader.readObjectsFromScript(model_data["need_types"], "need_types")
     needTypesDict = {}
     for needType in needTypes:
@@ -147,14 +153,14 @@ def setupSimulation(model_data):
         diseaseType.initialize(needTypesDict)
         logging.registerCategory("disease." + diseaseType.getName())
 
-    return Simulation(persons, theGrid, diseaseTypes, transport_generator.generate(theGrid, distStationsX, distStationsY, privateSpeed, publicSpeed, freq))
+    return Simulation(persons, theGrid, diseaseTypes, transport_generator.generate(theGrid, distStationsX, distStationsY, privateSpeed, publicSpeed, freq), travelDatas)
 
 def mainNoRender(args):
     #Startup code
     registerLoggingCategories()
     random.setSeed(args.seedValue)
     modelData = loadModelData(args)
-    theSimulation = setupSimulation(modelData)
+    theSimulation = setupSimulation(modelData, )
 
     #main loop
     running = True

@@ -1,5 +1,6 @@
-import networkx as nx
+import ctypes
 import math
+import networkx as nx
 from simulation import time
 from model import disease
 
@@ -77,14 +78,22 @@ class MTRoute:
         self.timeDist = timeDist
 
 
-class TravelData:
+class TravelData(ctypes.Structure):
+    _fields_ = [('startTime', ctypes.c_int32), ('endTime', ctypes.c_int32), ('origin_x', ctypes.c_int32), ('origin_y', ctypes.c_int32), ('destination_x', ctypes.c_int32), ('destination_y', ctypes.c_int32), ('distance', ctypes.c_float), ('isPublic', ctypes.c_bool), ('isInvalid', ctypes.c_bool)] 
     def __init__(self, startTime, endTime, origin, destination, distance, isPublic):
-        self.startTime = startTime
-        self.endTime = endTime
+        self.startTime = int(startTime)
+        self.endTime = int(endTime)
         self.origin = origin
         self.destination = destination 
         self.distance = distance
         self.isPublic = isPublic
+        
+        self.isInvalid = False
+        self.origin_x = origin.x
+        self.origin_y = origin.y
+        self.destination_x = destination.x
+        self.destination_y = destination.y
+        
 
     def __str__(self):
         return str(self.startTime) + " " + str(self.endTime) + " " + str(self.destination.x) + " " + str(self.destination.y) + " " + str(self.distance) + " " + str(self.isPublic)
@@ -112,6 +121,7 @@ class Travel:
         return (startStation, publicRoute, endStation) if distPublic <= person.behaviour.getPublicTransportAffinity()*distDirect//self.trafficNetwork.privateTransportSpeed else None
     
     #TODO: Cache travels (save travel datas once calculated)
+    #TODO: Long routes should one TravelData!
     def setDestination (self, person, destination, start, nownow):
         route = self.findRoute(person, destination)
         if route is not None: #Public travel
