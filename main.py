@@ -3,7 +3,7 @@ import configparser
 import argparse
 
 from multiprocessing import Process, Manager, Value
-from generation import mt_generator, traffic_parser
+from generation import transport_generator, traffic_parser
 
 import importlib.util
 import inspect
@@ -136,7 +136,7 @@ def setupSimulation(model_data):
     diseaseTypes  = script_loader.readObjectsFromScript(model_data["disease_types"], "disease_types")
     theGrid = grid_generator.generate(model_data)
     persons = person_generator.generate(model_data, needTypesDict, diseaseTypes)
-    trafficSpeed, mtSpeed, distStationsX, distStationsY, freq = traffic_parser.readTrafficData("simconfig/traffic/traffic.ini")
+    privateSpeed, publicSpeed, distStationsX, distStationsY, freq = traffic_parser.readTrafficData(model_data["transport"])
 
 
     for needType in needTypes:
@@ -147,7 +147,7 @@ def setupSimulation(model_data):
         diseaseType.initialize(needTypesDict)
         logging.registerCategory("disease." + diseaseType.getName())
 
-    return Simulation(persons, theGrid, diseaseTypes, mt_generator.generate(theGrid, distStationsX, distStationsY, trafficSpeed, mtSpeed, freq))
+    return Simulation(persons, theGrid, diseaseTypes, transport_generator.generate(theGrid, distStationsX, distStationsY, privateSpeed, publicSpeed, freq))
 
 def mainNoRender(args):
     #Startup code

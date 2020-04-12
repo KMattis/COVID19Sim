@@ -4,12 +4,12 @@ from simulation import time
 from model import disease
 
 class TrafficNetwork:
-    def __init__(self, stops, connections, grid, frequency, trafficSpeed, mtSpeed):
+    def __init__(self, stops, connections, grid, frequency, privateTransportSpeed, publicTransportSpeed):
         self.stops = stops #List of grid coordinates
         self.connections = connections #List of tuples (index, index1, weight)
         self.frequency = frequency
-        self.trafficSpeed = trafficSpeed
-        self.mtSpeed = mtSpeed
+        self.privateTransportSpeed = privateTransportSpeed
+        self.publicTransportSpeed = publicTransportSpeed
         self.grid_size = grid.size
         self.G = nx.Graph() #Works on indices
         self.createGraph()
@@ -24,7 +24,6 @@ class TrafficNetwork:
         self.G.clear()
         self.G.add_nodes_from(list(range(len(self.stops))))
         self.G.add_weighted_edges_from(self.connections)
-        print(self.connections)
 
     #TODO: Wastes space
     def calculateStopDistances(self):
@@ -32,7 +31,7 @@ class TrafficNetwork:
             self.stopDists[stop0[0]] = {}
             for stop1 in enumerate(self.stops):
                 dist = math.sqrt((stop0[1].x-stop1[1].x)**2 + (stop0[1].y-stop1[1].y)**2)
-                timeDist = dist//self.mtSpeed
+                timeDist = dist//self.publicTransportSpeed
                 self.stopDists[stop0[0]][stop1[0]] = (dist, timeDist)
       
     def calculateShortestPaths(self):
@@ -47,7 +46,7 @@ class TrafficNetwork:
                 for i in range(1, len(shortestConnections[con0][con1])):
                     thisStop = self.stops[shortestConnections[con0][con1][i]]
                     dist += math.sqrt((thisStop.x - lastStop.x)**2 + (thisStop.y - lastStop.y)**2)
-                    timeDist += dist//self.mtSpeed
+                    timeDist += dist//self.publicTransportSpeed
                     lastStop = thisStop
                 self.shortestConnections[con0][con1] = MTRoute(shortestConnections[con0][con1], dist, timeDist)
     
@@ -56,7 +55,7 @@ class TrafficNetwork:
         for stop in enumerate(self.stops):
             dist = math.sqrt((stop[1].x - x) ** 2 + (stop[1].y -y) **2)
             if dist < curDist[1] or curDist[1] == -1:
-                timeDist = dist //self.mtSpeed
+                timeDist = dist //self.publicTransportSpeed
                 curDist = (stop[0], dist, timeDist)
         return curDist
         
@@ -97,8 +96,6 @@ class Travel:
         self.travellers = {person: [] for person in persons}
         #person: List[TravelData]
         self.trafficNetwork = trafficNetwork
-        self.trafficSpeed = trafficNetwork.trafficSpeed
-        self.mtSpeed = trafficNetwork.mtSpeed
         self.infectionMap = [({connection: [] for connection in trafficNetwork.connections})]
         
  
@@ -112,7 +109,7 @@ class Travel:
         distPublic = publicRoute.dist + startStation[2] + endStation[2]
         if (len(publicRoute.stopIndices) < 2):
             return None
-        return (startStation, publicRoute, endStation) if distPublic <= distDirect//self.trafficSpeed else None
+        return (startStation, publicRoute, endStation) if distPublic <= distDirect//self.trafficNetwork.privateTransportSpeed else None
     
     #TODO: Cache travels (save travel datas once calculated)
     def setDestination (self, person, destination, start, nownow):
@@ -138,7 +135,10 @@ class Travel:
         else:
             dist = math.sqrt((person.currentPosition.x - destination.x)**2 + (person.currentPosition.y - destination.y) **2)
             if dist > 0:
-                self.travellers[person] += [TravelData(start, start+(dist//self.trafficSpeed), person.currentPosition, destination, dist, False)]
+                self.travellers[person] += [TravelData(start, start+(dist//self.trafficNetwork.privateTransportSpeed), person.currentPosition, destination, dist, False)]
+
+    def isMoving(self, person, nownow):
+        return len(self.travellers[person]) > 0 and  self.travellers[person][0].startTime <= nownow <= self.travellers[person][0].endTime
         
     def isTravelling(self, person, nownow):
         if len(self.travellers[person]) > 0 and self.travellers[person][0].isPublic:

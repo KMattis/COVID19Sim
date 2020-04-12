@@ -52,7 +52,7 @@ def plotActivity(path):
     
     x = (1/60) * np.array(x)
     
-    plt.plot(x, np.array(data[1]), label = "Travelling")
+    plt.plot(x, np.array(data[1]), label = "Private Transport")
     plt.plot(x, np.array(data[6]), label = "Sleep")
     plt.plot(x, np.array(data[5]), label = "Outdoor")
     plt.plot(x, np.array(data[8]), label = "Work")
@@ -73,7 +73,7 @@ def plotPlaces(path):
     
     x = (1/60) * np.array(x)
     
-    plt.plot(x, np.array(data[1]), label = "Travelling")
+    plt.plot(x, np.array(data[1]), label = "Private Transport")
     plt.plot(x, np.array(data[7]), label = "Home")
     plt.plot(x, np.array(data[5]), label = "Park")
     plt.plot(x, np.array(data[6]), label = "Office")

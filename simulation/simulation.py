@@ -2,11 +2,10 @@ from simulation import random
 
 from plotting import logging
 
-from model import place, person, place_characteristics, disease, mass_transportation
+from model import place, person, place_characteristics, disease, transport
 from simulation import time, math
 
 from profiler.profiler import profilerObj
-from generation import mt_generator
 
 SIMULATION_TICK_LENGTH = 5 * time.MINUTE
 
@@ -17,7 +16,7 @@ class Simulation:
         self.bobby = persons[0]
         self.grid = grid
         self.lastUpdate = -1
-        self.travel = mass_transportation.Travel(persons, trafficNetwork)
+        self.travel = transport.Travel(persons, trafficNetwork)
 
         self.diseaseTypes = diseaseTypes
 
@@ -35,9 +34,16 @@ class Simulation:
 
         logging.write("bobby", self.now.now(), self.bobby.task.activity.getName())
 
-        bobby_needs = { "TRAVEL": 1 if self.travel.isTravelling(self.bobby, self.now.now()) else 0 }
-        persons_at_place = { "TRAVEL": 0, "TRAVEL_PUBLIC": 0 }
-        persons_per_need = { "TRAVEL": 0, "TRAVEL_PUBLIC": 0 }
+        bobby_needs = {"TRAVEL_PUBLIC": 0, "TRAVEL_PRIVATE": 0}
+        if self.travel.isTravelling(self.bobby, self.now.now()):
+            if self.travel.travellers[self.bobby][0].isPublic:
+                bobby_needs["TRAVEL_PUBLIC"] = 1
+            else:
+                bobby_needs["TRAVEL_PRIVATE"] = 1
+
+        persons_at_place = { "TRAVEL_PRIVATE": 0, "TRAVEL_PUBLIC": 0 }
+        persons_per_need = { "TRAVEL_PRIVATE": 0, "TRAVEL_PUBLIC": 0 }
+
         for needType in self.bobby.needs:
             persons_per_need[needType] = 0
             bobby_needs[needType] = self.bobby.needs[needType]
@@ -59,8 +65,8 @@ class Simulation:
             isTravelling = travelData is not None 
             if isTravelling:
                 if not travelData.isPublic:
-                    persons_per_need["TRAVEL"] += 1
-                    persons_at_place["TRAVEL"] += 1
+                    persons_per_need["TRAVEL_PRIVATE"] += 1
+                    persons_at_place["TRAVEL_PRIVATE"] += 1
                 else:
                     persons_per_need["TRAVEL_PUBLIC"] += 1
                     persons_at_place["TRAVEL_PUBLIC"] += 1
@@ -76,8 +82,6 @@ class Simulation:
             for diseaseType in self.diseaseTypes:
                 diseaseType.update(self.now, thePerson)
 
-        print(persons_at_place["TRAVEL_PUBLIC"])
-        print(persons_at_place["TRAVEL"])
         for diseaseType in self.diseaseTypes:
             #Simulate the diseaseType
             for thePlace in filter(lambda thePlace: place_map[thePlace][1][diseaseType] > 0, place_map):
