@@ -115,7 +115,7 @@ def simLoop(connection, killMe):
         theSimulation.simulate()
         #if deltaTime > 1000/MAX_RENDER_PER_SEC and connection.empty():
         if connection.empty():
-            personData = list(map(lambda p: (p.travelData.startTime, p.travelData.endTime, p.travelData.destination.x, p.travelData.destination.y, p.currentPosition.x, p.currentPosition.y) if theSimulation.travel.isTravelling(p, theSimulation.now.now()) else (-1, -1, 0, 0, p.currentPosition.x, p.currentPosition.y), theSimulation.persons))
+            personData = list(map(lambda p: (p.travelData.startTime, p.travelData.endTime, p.travelData.destination.x, p.travelData.destination.y, p.currentPosition.x, p.currentPosition.y) if theSimulation.travel.isMoving(p, theSimulation.now.now()) else (-1, -1, 0, 0, p.currentPosition.x, p.currentPosition.y), theSimulation.persons))
             connection.put([theSimulation.now.now(), personData])
             lastUpdate = now
         i += 1
