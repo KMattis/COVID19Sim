@@ -66,14 +66,14 @@ def mainRender(args):
     
     #Get the first simulation datum
     #simData = queue.get(block=True)
-    simPersons = list(map(lambda td: (td.startTime,
+    simPersons = map(lambda td: (td.startTime,
                             td.endTime,
                             td.destination_x,
                             td.destination_y,
                             td.origin_x, td.origin_y) 
                             if td.startTime <= nownow.value <= td.endTime
                             else (-1, -1, 0, 0, td.origin_x, td.origin_y),
-                            travelDatas))
+                            travelDatas)
 
     nowOb = time.Timestamp(nownow.value)
     ########
@@ -83,14 +83,14 @@ def mainRender(args):
         deltaTime = now - lastUpdate
 
         running = theRenderer.fetchEvents(deltaTime)
-        simPersons = list(map(lambda td: (td.startTime,
+        simPersons = map(lambda td: (td.startTime,
                             td.endTime,
                             td.destination_x,
                             td.destination_y,
                             td.origin_x, td.origin_y) 
                             if td.startTime <= nownow.value <= td.endTime
                             else (-1, -1, 0, 0, td.origin_x, td.origin_y),
-                            travelDatas))
+                            travelDatas)
         
         theRenderer.render(simPersons, deltaTime, nownow.value)
         nowOb = time.Timestamp(nownow.value)

@@ -138,7 +138,7 @@ class Renderer:
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glVertexPointer(2, GL_FLOAT, 0, self.personVertices)
-        glDrawArrays(GL_POINTS, 0, len(personData))
+        glDrawArrays(GL_POINTS, 0, i)
         glDisableClientState(GL_VERTEX_ARRAY)
 
     def drawTime(self, nowmin):
