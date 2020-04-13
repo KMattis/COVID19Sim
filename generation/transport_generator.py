@@ -11,7 +11,7 @@ def generate(grid, step, numLines, privateSpeed, publicSpeed, frequency):
     centerY = grid.size // 2
     stops.append(grid.get(centerX, centerY))
     for i in range(numLines):
-        angle = i * 2 * math.pi
+        angle = i * 2 * math.pi / numLines
         for i in range(1, grid.size // (2 * step)):
             x = round(centerX + math.cos(angle) * (i * step))
             y = round(centerY + math.sin(angle) * (i * step))
