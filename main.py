@@ -50,7 +50,8 @@ def mainRender(args):
     queue = Manager().Queue()
     killSim = Value('i', 0)
     nownow = Value('i', 0, lock=False)
-    travelDatas = Array(transport.TravelData, 10000, lock=False)
+    modelData = loadModelData(args)
+    travelDatas = Array(transport.TravelData, int(modelData["numPersons"]), lock=False)
     simProcess = Process(target=simLoop, args=(queue, killSim, nownow, travelDatas, ))
     simProcess.start()
 
@@ -160,7 +161,8 @@ def mainNoRender(args):
     registerLoggingCategories()
     random.setSeed(args.seedValue)
     modelData = loadModelData(args)
-    theSimulation = setupSimulation(modelData, )
+    travelDatas = Array(transport.TravelData, int(modelData["numPersons"]), lock=False)
+    theSimulation = setupSimulation(modelData, travelDatas)
 
     #main loop
     running = True
