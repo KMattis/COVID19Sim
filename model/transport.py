@@ -108,7 +108,6 @@ class Travel:
         self.infectionMap = [({connection: [] for connection in trafficNetwork.connections})]
         
  
-    #TODO: Give persons a factor which influences this decision
     #TODO: Include some average waiting time
     def findRoute(self, person, destination):
         distDirect = math.sqrt((person.currentPosition.x - destination.x) ** 2) + math.sqrt((person.currentPosition.y - destination.y)**2)
