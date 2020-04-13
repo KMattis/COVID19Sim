@@ -1,6 +1,7 @@
 import time as pytime
 import configparser
 import argparse
+import copy
 
 from multiprocessing import Process, Manager, Value, Array
 from generation import transport_generator, traffic_parser
@@ -66,14 +67,6 @@ def mainRender(args):
     
     #Get the first simulation datum
     #simData = queue.get(block=True)
-    simPersons = map(lambda td: (td.startTime,
-                            td.endTime,
-                            td.destination_x,
-                            td.destination_y,
-                            td.origin_x, td.origin_y) 
-                            if td.startTime <= nownow.value <= td.endTime
-                            else (-1, -1, 0, 0, td.origin_x, td.origin_y),
-                            travelDatas)
 
     nowOb = time.Timestamp(nownow.value)
     ########
@@ -83,16 +76,8 @@ def mainRender(args):
         deltaTime = now - lastUpdate
 
         running = theRenderer.fetchEvents(deltaTime)
-        simPersons = map(lambda td: (td.startTime,
-                            td.endTime,
-                            td.destination_x,
-                            td.destination_y,
-                            td.origin_x, td.origin_y) 
-                            if td.startTime <= nownow.value <= td.endTime
-                            else (-1, -1, 0, 0, td.origin_x, td.origin_y),
-                            travelDatas)
         
-        theRenderer.render(simPersons, deltaTime, nownow.value)
+        theRenderer.render(travelDatas, deltaTime, nownow.value)
         nowOb = time.Timestamp(nownow.value)
         
         loops += 1

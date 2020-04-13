@@ -94,7 +94,7 @@ class Renderer:
 
         return running
 
-    def render(self, personData, deltaTime, now):
+    def render(self, travelDatas, deltaTime, now):
         self.camera.setupProjectionMatrix()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -105,7 +105,7 @@ class Renderer:
         self.vbo.draw()
         VertexBufferObject.unbind()
         #Draw the persons
-        self.drawPersons(personData, now)
+        self.drawPersons(travelDatas, now)
         #Draw text
         self.camera.setupAbsoluteMatrix()
         self.drawTime(now)
@@ -117,14 +117,20 @@ class Renderer:
     def quit(self):
         pygame.display.quit()
 
-    def drawPersons(self, personData, now):
+    def drawPersons(self, travelDatas, now):
         #persons cannot be drawn via vbo because there positions change
         #we draw them directly as arrays
 
         placeSizeHalfed = PLACE_SIZE / 2
         i = 0
-        for (start, end, destx, desty, x, y) in personData:
-            if start >= 0:  
+        for td in travelDatas:
+            x = td.origin_x
+            y = td.origin_y
+            destx = td.destination_x
+            desty = td.destination_y
+            start = td.startTime
+            end = td.endTime
+            if start <= now <= end:  
                 progress = min((now - start)/(end - start),1) if end != start else 0
                 x += (destx - x) * progress
                 y += (desty - y) * progress
