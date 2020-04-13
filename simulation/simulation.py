@@ -7,7 +7,7 @@ from simulation import time, math
 
 from profiler.profiler import profilerObj
 
-SIMULATION_TICK_LENGTH = 1* time.MINUTE
+SIMULATION_TICK_LENGTH = 5* time.MINUTE
 
 class Simulation:
     def __init__(self, persons, grid, diseaseTypes, trafficNetwork, travelDatas):
@@ -18,7 +18,8 @@ class Simulation:
         self.lastUpdate = -1
         self.travel = transport.Travel(persons, trafficNetwork)
         self.travelDatas = travelDatas
-        
+        for i in range(len(self.travelDatas)):
+            self.travelDatas[i] = transport.TravelData(-1,-1, self.persons[i].currentPosition, self.grid.get(0,0), 0, False)
 
         self.diseaseTypes = diseaseTypes
 
@@ -57,11 +58,6 @@ class Simulation:
 
         place_map = {}
         travel_map = {}
-        travelData_none = transport.TravelData(-1,-1, self.grid.get(0,0), self.grid.get(0,0), 0, False)
-        for i in range(len(self.travelDatas)):
-            self.travelDatas[i] = transport.TravelData(-1,-1, self.persons[i].currentPosition, self.grid.get(0,0), 0, False)
-        transport.TravelData
-        travelData_none.isInvalid = True
         
         for (i, thePerson) in enumerate(self.persons):
             if self.now.now() >= thePerson.task.stop:
@@ -84,7 +80,6 @@ class Simulation:
                 self.appendPlaceMap(place_map, thePerson)
                 persons_per_need[thePerson.task.activity] += 1
                 persons_at_place[thePerson.task.place.char.subType] += 1
-           # thePerson.travelData = travelData 
             
             for diseaseType in self.diseaseTypes:
                 diseaseType.update(self.now, thePerson)
