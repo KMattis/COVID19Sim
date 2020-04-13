@@ -5,8 +5,8 @@ def readTrafficData(configFile):
 	config.read(configFile)
 	privateSpeed = int(config["default"]["privateSpeed"])
 	publicSpeed = int(config["default"]["publicSpeed"])
-	distStationsX = int(config["default"]["distStationsX"])
-	distStationsY = int(config["default"]["distStationsY"])
+	distStations = int(config["default"]["distStations"])
+	numLines = int(config["default"]["numLines"])
 	frequency = int(config["default"]["frequency"])	
-	return privateSpeed, publicSpeed, distStationsX, distStationsY, frequency
+	return privateSpeed, publicSpeed, distStations, numLines, frequency
 

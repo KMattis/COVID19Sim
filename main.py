@@ -142,7 +142,7 @@ def setupSimulation(model_data, travelDatas):
     diseaseTypes  = script_loader.readObjectsFromScript(model_data["disease_types"], "disease_types")
     theGrid = grid_generator.generate(model_data)
     persons = person_generator.generate(model_data, needTypesDict, diseaseTypes)
-    privateSpeed, publicSpeed, distStationsX, distStationsY, freq = traffic_parser.readTrafficData(model_data["transport"])
+    privateSpeed, publicSpeed, distStations, numLines, freq = traffic_parser.readTrafficData(model_data["transport"])
 
 
     for needType in needTypes:
@@ -153,7 +153,7 @@ def setupSimulation(model_data, travelDatas):
         diseaseType.initialize(needTypesDict)
         logging.registerCategory("disease." + diseaseType.getName())
 
-    return Simulation(persons, theGrid, diseaseTypes, transport_generator.generate(theGrid, distStationsX, distStationsY, privateSpeed, publicSpeed, freq), travelDatas)
+    return Simulation(persons, theGrid, diseaseTypes, transport_generator.generate(theGrid, distStations, numLines, privateSpeed, publicSpeed, freq), travelDatas)
 
 def mainNoRender(args):
     #Startup code
