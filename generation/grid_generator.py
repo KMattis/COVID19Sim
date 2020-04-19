@@ -31,7 +31,7 @@ def generate(model_data):
             else:
                 c = random.choices(chars, charFreqs)[0]
             numPlaces[c.placeType] += 1
-            theGrid.addPlace(place.Place(i, j, "", c))
+            theGrid.addPlace(place.Place(i, j, "", c, i+j*size))
 
     for placeType in numPlaces:
         logging.write("output", placeType.name, numPlaces[placeType])
