@@ -15,6 +15,12 @@ class PlaceMapObject:
         self.persons = []
         self.diseases = {dt: 0 for dt in diseaseTypes}
 
+class TravelMapObject:
+    def __init__(self, diseaseTypes):
+        self.updated = -1
+        self.persons = []
+        self.diseases = {dt: 0 for dt in diseaseTypes}
+
 
 class Simulation:
     def __init__(self, persons, grid, diseaseTypes, trafficNetwork, travelDatas):
@@ -23,7 +29,7 @@ class Simulation:
         self.grid = grid
         self.i = 0
         self.placeMap = [PlaceMapObject(diseaseTypes) for _ in range(len(self.grid.internal_grid))]
-        self.travelMap = [[[], None, -1] for _ in range(len(self.grid.internal_grid))] 
+        self.gridSize = len(self.grid.internal_grid)
         self.bobby = persons[0]
         self.lastUpdate = -1
         self.travel = transport.Travel(persons, trafficNetwork)
@@ -32,6 +38,11 @@ class Simulation:
             self.travelDatas[i] = transport.TravelData(-1,-1, self.persons[i].currentPosition, self.grid.get(0,0), 0, False)
 
         self.diseaseTypes = diseaseTypes
+
+        self.travelMap = {}
+        for con in trafficNetwork.connections:
+            self.travelMap[(trafficNetwork.stops[con[0]].index, trafficNetwork.stops[con[1]].index) ] = PlaceMapObject(diseaseTypes)
+            self.travelMap[(trafficNetwork.stops[con[1]].index, trafficNetwork.stops[con[0]].index) ] = PlaceMapObject(diseaseTypes)
 
         for disease in self.bobby.diseases.values():
             disease.infect(time.Timestamp(-3 * time.DAY))
@@ -82,7 +93,8 @@ class Simulation:
                     persons_per_need["TRAVEL_PUBLIC"] += 1
                     persons_at_place["TRAVEL_PUBLIC"] += 1
                 thePerson.currentDestination = travelData.destination
-                self.appendTravelMap(travel_map, thePerson, travelData)
+                if travelData.isPublic:
+                    self.appendTravelMap(thePerson, travelData, nownow)
                 self.travelDatas[i] = travelData
             else: 
                 thePerson.currentPosition = thePerson.currentDestination
@@ -95,14 +107,8 @@ class Simulation:
 
         for diseaseType in self.diseaseTypes:
             #Simulate the diseaseType
-            for thePlace in filter(lambda thePlace: self.placeMap[thePlace.index].diseases[diseaseType] > 0 and self.placeMap[thePlace.index].updated == nownow, self.grid.internal_grid):
-                for thePerson in self.placeMap[thePlace.index].persons:
-                    disease.simulateContact(self.now, diseaseType, self.placeMap[thePlace.index].persons, thePerson, thePlace.char.contactProperties, thePlace.char.subType.name, SIMULATION_TICK_LENGTH)
-            for con in filter(lambda con: travel_map[con][1][diseaseType] > 0, travel_map):
-                cp = disease.ContactProperties(0.5, 90)
-                for thePerson in travel_map[con][0]:
-                    disease.simulateContact(self.now, diseaseType, travel_map[con][0], thePerson, cp, "PUBLIC_TRANSPORT", SIMULATION_TICK_LENGTH) 
-
+            self.simulatePlaceContacts(diseaseType, nownow)
+            self.simulateTravelContacts(diseaseType, nownow)
             #Log the diseaseType
             numInfected = sum(1 if p.diseases[diseaseType].isInfected else 0 for p in self.persons)
             numContagious = sum(1 if p.diseases[diseaseType].isContagious() else 0 for p in self.persons)
@@ -121,6 +127,18 @@ class Simulation:
                 self.travel.setDestination(person, task.place, task.start+1, self.now.now())
                 return
 
+    def simulateTravelContacts(self, diseaseType, nownow):
+        for ind in filter(lambda ind: self.travelMap[ind].diseases[diseaseType] > 0 and self.travelMap[ind].updated == nownow, self.travelMap):
+            mo = self.travelMap[ind]
+            cp = disease.ContactProperties(0.5, 90)
+            for thePerson in mo.persons:
+                disease.simulateContact(self.now, diseaseType, mo.persons, thePerson, cp, "PUBLIC_TRANSPORT", SIMULATION_TICK_LENGTH) 
+
+    def simulatePlaceContacts(self, diseaseType, nownow):
+        for thePlace in filter(lambda thePlace: self.placeMap[thePlace.index].diseases[diseaseType] > 0 and self.placeMap[thePlace.index].updated == nownow, self.grid.internal_grid):
+            for thePerson in self.placeMap[thePlace.index].persons:
+                disease.simulateContact(self.now, diseaseType, self.placeMap[thePlace.index].persons, thePerson, thePlace.char.contactProperties, thePlace.char.subType.name, SIMULATION_TICK_LENGTH)
+
     def appendPlaceMap(self, thePerson, nownow) -> None: 
         thePlace = thePerson.task.place
         if self.placeMap[thePlace.index].updated < nownow:
@@ -134,19 +152,19 @@ class Simulation:
                     self.placeMap[thePlace.index].diseases[diseaseType] += 1
         self.placeMap[thePlace.index].persons.append(thePerson)
 
-    def appendTravelMap(self, travel_map, thePerson, travelData):
-        con = (travelData.origin, travelData.destination)
-        if not con in travel_map:
-            contagiousDict = {}
+    def appendTravelMap(self, thePerson, travelData, nownow):
+        ind = (travelData.origin.index, travelData.destination.index)
+        if self.travelMap[ind].updated < nownow:
             for diseaseType in self.diseaseTypes:
-                contagiousDict[diseaseType] = 1 if thePerson.diseases[diseaseType].isContagious() else 0
-            travel_map[con] = [[thePerson], contagiousDict] 
+                self.travelMap[ind].diseases[diseaseType] = 1 if thePerson.diseases[diseaseType].isContagious() else 0
+            self.travelMap[ind].persons.clear()
+            self.travelMap[ind].updated = nownow
         else:
             for diseaseType in self.diseaseTypes:
                 if thePerson.diseases[diseaseType].isContagious():
-                    travel_map[con][1][diseaseType] += 1
-            travel_map[con][0].append(thePerson)
-            
+                    self.travelMap[ind].diseases[diseaseType] += 1
+        self.travelMap[ind].persons.append(thePerson)
+ 
         
 
 

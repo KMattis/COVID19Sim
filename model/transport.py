@@ -130,9 +130,9 @@ class Travel:
             destinations = []
             if route[0][1] > 0:
                 destinations = [TravelData(startTime, endTime, person.currentPosition, self.trafficNetwork.stops[route[0][0]], route[0][1], False)]
-            lastStop = self.trafficNetwork.stops[route[0][0]]
-            lastStopIndex = route[0][0]
-            for stopIndex in route[1].stopIndices:
+            lastStop = self.trafficNetwork.stops[route[1].stopIndices[0]]
+            lastStopIndex = route[1].stopIndices[0]
+            for stopIndex in route[1].stopIndices[1:]:
                 startTime = endTime + self.trafficNetwork.frequency - endTime % self.trafficNetwork.frequency
                 endTime = startTime + self.trafficNetwork.stopDists[lastStopIndex][stopIndex][1]
                 destinations.append(TravelData(startTime, endTime, lastStop, self.trafficNetwork.stops[stopIndex], self.trafficNetwork.stopDists[lastStopIndex][stopIndex][0], True))
